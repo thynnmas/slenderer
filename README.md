@@ -60,6 +60,13 @@ to the internal one to ease your work.
   resizable array with accompaning sorting functions. These are all released with the same license as Slenderer
   (public domain/MIT).
 
+# Building
+
+There are a few minor defines needed to get the dependancies to work. In your main .c file, define VUL\_DEFINE.
+Depending on your platform, define VUL\_LINUX, VUL\_WINDOWS or VUL\_OSX in the compiler toolchain (the included makefile
+defines VUL_LINUX). If compiling with a C89 toolchain (so, MSVC), define VUL\_VECTOR\_C89\_ITERATORS. In your debug
+build you might want to define VUL\_DEBUG to take advantage of additional checks in vector iterators.
+
 # Notes
 
 This was released in haste to be able to use it for Ludum Dare 30. Improving the renderer as a side-efect of using
