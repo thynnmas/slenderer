@@ -320,7 +320,7 @@ int main( int argc, char **argv )
 
 	// Initialize slenderer
 	sl_renderer_create( );
-	win = sl_renderer_open_window( 512, 512, "Blobby Volley", SL_FALSE, SL_FALSE );
+	win = sl_renderer_open_window( 512, 512, "Volleyball", SL_FALSE, SL_FALSE );
 	
 	// Add the textures
 	bg_tex = sl_renderer_allocate_texture( );
