@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdio.h>
 
-typedef struct {
+typedef struct sl_program {
 	unsigned int program_id;
 
 	const char *vert_prog_src;
@@ -47,6 +47,14 @@ const char *sl_program_default_vp_src;
  * Default fragment program.
  */
 const char *sl_program_default_fp_src;
+/**
+ * Default post-process vertex program. 
+ */
+const char *sl_program_default_post_vp_src;
+/**
+ * Default post-process fragment program.
+ */
+const char *sl_program_default_post_fp_src;
 
 /**
  * Creates a new program with the given sources.
