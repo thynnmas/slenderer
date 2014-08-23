@@ -27,6 +27,7 @@
 #include "math/box.h"
 #include "math/mat.h"
 #include "renderer/quad.h"
+#include "renderer/renderable.h"
 #include "renderer/texture.h"
 #include "renderer/window.h"
 
@@ -39,12 +40,15 @@ typedef struct {
 	unsigned int next_quad_id; // ID of the next added quad.
 	sl_window *window;
 	unsigned int scene_id;
+	sl_program *post_program; // Post processing program; by default the normal shader!
+	void (*post_program_callback)( sl_program *post_program ); // Called last second before tendering the post process quad; use to set parameters for the program.
+	sl_renderable post_renderable;
 } sl_scene;
 
 /**
  * Create a scene.
  */
-void sl_scene_create( sl_scene *scene, sl_window *parent_window, unsigned int scene_id );
+void sl_scene_create( sl_scene *scene, sl_window *parent_window, unsigned int scene_id, sl_program *post_program );
 /**
  * Destroy a scene.
  */
@@ -54,6 +58,11 @@ void sl_scene_destroy( sl_scene *scene );
  * Resorts all the layers' quads into the correct order for rendering if needed.
  */
 void sl_scene_sort( sl_scene *scene );
+
+/**
+ * Sets the post processing program for the scene.
+ */
+void sl_scene_set_post( sl_scene *scene, sl_program *prog, void (*post_program_callback)( sl_program *post_program ) );
 
 /**
  * Adds a sprite with the given texture & uvs at the given location.

@@ -43,12 +43,47 @@ void sl_window_create( sl_window* win, unsigned int width, unsigned int height, 
 	}
 }
 
+void sl_window_create_fbo( sl_window *win, unsigned int width, unsigned int height )
+{
+	GLenum status;
+
+	/* Create the framebufferobject we render to before post */
+	glActiveTexture( GL_TEXTURE0 );
+	glGenTextures( 1, &win->fbo_texture );
+	glBindTexture( GL_TEXTURE_2D, win->fbo_texture );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
+	glBindTexture( GL_TEXTURE_2D, 0 );
+
+	/* Depth buffer */
+	glGenRenderbuffers( 1, &win->rbo_depth );
+	glBindRenderbuffer( GL_RENDERBUFFER, win->rbo_depth );
+	glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height );
+	glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
+	/* Link them */
+	glGenFramebuffers( 1, &win->fbo );
+	glBindFramebuffer( GL_FRAMEBUFFER, win->fbo );
+	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, win->fbo_texture, 0 );
+	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, win->rbo_depth );
+	
+	assert( ( status = glCheckFramebufferStatus( GL_FRAMEBUFFER ) ) == GL_FRAMEBUFFER_COMPLETE );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
 void sl_window_destroy( sl_window* win )
 {
+	glDeleteRenderbuffers( 1, &win->rbo_depth );
+	glDeleteTextures( 1, &win->fbo_texture);
+	glDeleteFramebuffers( 1, &win->fbo );
+
 	glfwDestroyWindow( win->handle );
 }
 
-void sl_window_bind_framebuffer( sl_window* win )
+void sl_window_bind_framebuffer_fbo( sl_window* win )
 {
 	int w, h;
 
@@ -58,6 +93,28 @@ void sl_window_bind_framebuffer( sl_window* win )
 	// Set up viewport
 	glfwGetFramebufferSize( win->handle, &w, &h );
 	glViewport( 0, 0, w, h );
+
+	// Select the FBO
+	glBindFramebuffer( GL_FRAMEBUFFER, win->fbo );
+
+	// Clear the famebuffer
+	glClearColor( 0.f, 0.f, 0.f, 1.f ); // @TODO: Make this black again I guess..
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+}
+
+void sl_window_bind_framebuffer_post( sl_window* win )
+{
+	int w, h;
+
+	// Make the context current
+	glfwMakeContextCurrent( win->handle );
+
+	// Set up viewport
+	glfwGetFramebufferSize( win->handle, &w, &h );
+	glViewport( 0, 0, w, h );
+	
+	// Select the Window
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
 	// Clear the famebuffer
 	glClearColor( 0.f, 0.f, 0.f, 1.f ); // @TODO: Make this black again I guess..

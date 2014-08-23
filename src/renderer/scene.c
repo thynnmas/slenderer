@@ -15,9 +15,10 @@
 #define VUL_DEFINE
 #include "renderer/scene.h"
 
-void sl_scene_create( sl_scene *scene, sl_window *parent_window, unsigned int scene_id  )
+void sl_scene_create( sl_scene *scene, sl_window *parent_window, unsigned int scene_id, sl_program *post_program  )
 {
 	unsigned int i;
+	sl_box uvs;
 
 	for( i = 0; i < MAX_LAYERS; ++i ) {
 		scene->layers[ i ] = vul_vector_create( sizeof( sl_quad ), 0 );
@@ -26,6 +27,14 @@ void sl_scene_create( sl_scene *scene, sl_window *parent_window, unsigned int sc
 	scene->next_quad_id = 0;
 	scene->window = parent_window;
 	scene->scene_id = scene_id;
+
+	/* Create the default post processing program */
+	scene->post_program = post_program;
+	scene->post_program_callback = NULL;
+
+	/* Create renderable and quad for post rendering */
+	sl_bset_scalar( &uvs, 0.f, 0.f, 1.f, 1.f );
+	sl_renderable_create( &scene->post_renderable, &uvs );
 }
 
 void sl_scene_destroy( sl_scene *scene )
@@ -50,6 +59,12 @@ void sl_scene_sort( sl_scene *scene )
 		vul_sort_vector( scene->layers[ i ], &sl_quad_sort, 0, vul_vector_size( scene->layers[ i ] ) - 1 );
 	}
 	scene->layer_dirty = 0;
+}
+
+void sl_scene_set_post( sl_scene *scene, sl_program *prog, void (*post_program_callback)( sl_program *post_program ) )
+{
+	scene->post_program = prog;
+	scene->post_program_callback = post_program_callback;
 }
 
 unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer, const sl_vec *center, const sl_vec *scale, const float rotation, const unsigned int texture_id, const unsigned int program_id, const unsigned int renderable_id, const sl_box *uvs, const float color[ 4 ], unsigned char is_hidden )

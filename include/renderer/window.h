@@ -27,9 +27,10 @@
 	#include <stdio.h>
 #endif
 
-typedef struct {
+typedef struct sl_window {
 	unsigned int window_id;
 	GLFWwindow *handle;
+	GLuint fbo, fbo_texture, rbo_depth;
 } sl_window;
 
 /**
@@ -47,9 +48,21 @@ void sl_window_create( sl_window* win, unsigned int width, unsigned int height, 
 void sl_window_destroy( sl_window *win );
 
 /**
+ * Create an FBO; allows the window to do post processing.
+ * Can't be done in window creation because we aren't guaranteed to have
+ * a complete OpenGL context at that point.
+ */
+void sl_window_create_fbo( sl_window *win, unsigned int width, unsigned int height );
+
+/**
+ * Binds a window's FBO for rendering.
+ */
+void sl_window_bind_framebuffer_fbo( sl_window *win );
+
+/**
  * Binds a window's framebuffer for rendering.
  */
-void sl_window_bind_framebuffer( sl_window *win );
+void sl_window_bind_framebuffer_post( sl_window *win );
 
 /**
  * Swaps the window's framebuffers.
