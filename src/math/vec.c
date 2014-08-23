@@ -69,13 +69,13 @@ void sl_vdivs( sl_vec *result, const sl_vec *v, const float s )
 
 void sl_veq( sl_bvec *result, const sl_vec *a, const sl_vec *b )
 {
-	result->x = a->x == b->x ? 0xf : 0;
-	result->y = a->y == b->y ? 0xf : 0;
+	result->x = a->x == b->x ? 0xff : 0;
+	result->y = a->y == b->y ? 0xff : 0;
 }
 void sl_vneq( sl_bvec *result, const sl_vec *a, const sl_vec *b )
 {
-	result->x = a->x != b->x ? 0xf : 0;
-	result->y = a->y != b->y ? 0xf : 0;
+	result->x = a->x != b->x ? 0xff : 0;
+	result->y = a->y != b->y ? 0xff : 0;
 }
 void sl_vgt( sl_bvec *result, const sl_vec *a, const sl_vec *b )
 {
