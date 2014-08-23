@@ -127,7 +127,7 @@ void sl_renderer_close_window( sl_window *win )
 	vul_vector_remove_swap( sl_renderer_global->windows, win->window_id );
 }
 
-sl_scene *sl_renderer_add_scene( sl_window *win )
+sl_scene *sl_renderer_add_scene( sl_window *win, sl_program *post_program )
 {
 	sl_scene *s;
 	sl_animator *a;
@@ -135,7 +135,7 @@ sl_scene *sl_renderer_add_scene( sl_window *win )
 
 	// Create the scnee
 	s = ( sl_scene* )vul_vector_add_empty( sl_renderer_global->scenes );
-	sl_scene_create( s, win, vul_vector_size( sl_renderer_global->scenes ) - 1 );
+	sl_scene_create( s, win, vul_vector_size( sl_renderer_global->scenes ) - 1, post_program );
 
 	// Also add the corrisponding animator and the simulator
 	a = ( sl_animator* )vul_vector_add_empty( sl_renderer_global->animators );
@@ -203,7 +203,7 @@ sl_program *sl_renderer_allocate_program( )
 	return p;
 }
 
-void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_index )
+void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_index, SL_BOOL swap_buffers )
 {
 	sl_scene *scene;
 	sl_animator *anim;
@@ -225,8 +225,8 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 		return;
 	}
 #endif
-	sl_window_bind_framebuffer( win );
-
+	sl_window_bind_framebuffer_fbo( win );
+	
 	// Update the corresponding animator
 	anim = ( sl_animator* )vul_vector_get( sl_renderer_global->animators, scene_index );
 	sl_animator_update( anim );
@@ -281,22 +281,47 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 				sl_renderable_bind( cr );
 			}
 			// Render the quad
-			sl_renderar_draw_instance( cp, it );
+			sl_renderer_draw_instance( cp, it );
 		}
 	}
 
+	// Render post
+	sl_window_bind_framebuffer_post( win );
+	{
+		// Bind the program
+		sl_program_bind( scene->post_program );
+		// Bind the FBO as the texture
+		glActiveTexture( GL_TEXTURE0 );
+		glBindTexture( GL_TEXTURE_2D, win->fbo_texture );
+		glUniform1i( glGetUniformLocation( scene->post_program->gl_prog_id, "texture" ), 0 );
+		// Bind the renderable
+		sl_renderable_bind( &scene->post_renderable );
+		// Bind program parameters
+		if( scene->post_program_callback ) {
+			scene->post_program_callback( scene->post_program );
+		}
+		// And draw the instance
+		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );
+		// And unbind things
+		sl_renderable_unbind( &scene->post_renderable );
+		glBindTexture( GL_TEXTURE_2D, 0 );
+		sl_program_unbind( scene->post_program );
+	}
+
 	// Swap buffers
-	sl_window_swap_buffers( win );
+	if( swap_buffers ) {
+		sl_window_swap_buffers( win );
+	}
 }
 
-void sl_renderar_draw_instance( sl_program *prog, sl_quad *quad )
+void sl_renderer_draw_instance( sl_program *prog, sl_quad *quad )
 {
 	// Set world matrix
 	glUniformMatrix4fv( glGetUniformLocation( prog->gl_prog_id, "mvp" ), 1, GL_FALSE, ( ( GLfloat* )&quad->world_matrix.data[ 0 ] ) );
 	glUniform4fv( glGetUniformLocation( prog->gl_prog_id, "color" ), 1, ( ( GLfloat* )&quad->color ) );
 	
 	// Draw the quad
-	glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );	
+	glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );
 
 }
 

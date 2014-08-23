@@ -50,6 +50,7 @@
 #endif
 #include <stdio.h>
 
+#define SL_BOOL int
 #define SL_TRUE 1
 #define SL_FALSE 0
 
@@ -102,12 +103,12 @@ void sl_renderer_close_window( sl_window *win );
 /**
  * Renders the scene at the given index to the window at the given index.
  */
-void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_index );
+void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_index, SL_BOOL swap_buffers );
 
 /**
  * Creates a new scene and adds it to the renderer.
  */
-sl_scene *sl_renderer_add_scene( sl_window *win );
+sl_scene *sl_renderer_add_scene( sl_window *win, sl_program *post_program );
 
 /**
  * Retrieves the animator for the scene with the given id
@@ -137,7 +138,7 @@ sl_program *sl_renderer_allocate_program( );
 /**
  * Renders a single quad instance. Binds the world matrix uniform, then draws.
  */
-void sl_renderar_draw_instance( sl_program *prog, sl_quad *quad );
+void sl_renderer_draw_instance( sl_program *prog, sl_quad *quad );
 
 /**
  * A callback function that handles errors in GLFW. We assert false in debug mode,
