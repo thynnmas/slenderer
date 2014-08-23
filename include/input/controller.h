@@ -37,10 +37,10 @@
 #define SL_WINDOW_BUCKET_COUNT 4
 
 #define SL_MOUSE_ENTER_EXIT_CALLBACK( name ) void (*name)( GLFWwindow *win_handle, int entered )
-#define SL_MOUSE_DOWN_CALLBACK( name ) void (*name)( int quad_id, int button )
-#define SL_MOUSE_UP_CALLBACK( name ) void (*name)( int quad_id, int button )
-#define SL_MOUSE_OVER_CALLBACK( name ) void (*name)( int quad_id )
-#define SL_MOUSE_OUT_CALLBACK( name ) void (*name)( int quad_id )
+#define SL_MOUSE_DOWN_CALLBACK( name ) void (*name)( unsigned int scene_id, unsigned int quad_id, int button )
+#define SL_MOUSE_UP_CALLBACK( name ) void (*name)( unsigned int scene_id, unsigned int quad_id, int button )
+#define SL_MOUSE_OVER_CALLBACK( name ) void (*name)( unsigned int scene_id, unsigned int quad_id )
+#define SL_MOUSE_OUT_CALLBACK( name ) void (*name)( unsigned int scene_id, unsigned int quad_id )
 #define SL_KEY_PRESSED( name ) void (*name)( GLFWwindow *win_handle, int key, int scancode, int modifiers )
 #define SL_KEY_RELEASED( name ) void (*name)( GLFWwindow *win_handle, int key, int scancode, int modifiers )
 #define SL_KEY_REPEAT( name ) void (*name)( GLFWwindow *win_handle, int key, int scancode, int modifiers )
@@ -56,6 +56,7 @@ typedef struct {
 	vul_hash_map_t *key_repeat_callbacks; // Hashmap of < key, SL_KEY_REPEAT >
 	
 	vul_list_element_t *hash_map_keys; // List of unsigned integers we use as keys in the hashmaps.
+	vul_list_element_t *hash_map_key_pairs; // List of unsigned integers we use as keys in the hashmaps.
 	vul_list_element_t *hash_map_ptr_keys; // List of pointers we use as keys in the hashmaps.
 
 	sl_vec mouse_pos;
@@ -107,25 +108,25 @@ void sl_controller_add_key_repeat_callback( int key, SL_KEY_REPEAT( callback ) )
  * Adds a mouse down callback for the given quad. 
  * Replaces any already registered callback for that quad.
  */
-void sl_controller_add_mouse_down_callback( unsigned int quad_id, SL_MOUSE_DOWN_CALLBACK( callback ) );
+void sl_controller_add_mouse_down_callback( unsigned int scene_id, unsigned int quad_id, SL_MOUSE_DOWN_CALLBACK( callback ) );
 
 /**
  * Adds a mouse up callback for the given quad. 
  * Replaces any already registered callback for that quad.
  */
-void sl_controller_add_mouse_up_callback( unsigned int quad_id, SL_MOUSE_UP_CALLBACK( callback ) );
+void sl_controller_add_mouse_up_callback( unsigned int scene_id, unsigned int quad_id, SL_MOUSE_UP_CALLBACK( callback ) );
 
 /**
  * Adds a mouse over callback for the given quad. 
  * Replaces any already registered callback for that quad.
  */
-void sl_controller_add_mouse_over_callback( unsigned int quad_id, SL_MOUSE_OVER_CALLBACK( callback ) );
+void sl_controller_add_mouse_over_callback( unsigned int scene_id, unsigned int quad_id, SL_MOUSE_OVER_CALLBACK( callback ) );
 
 /**
  * Adds a mouse out callback for the given quad. 
  * Replaces any already registered callback for that quad.
  */
-void sl_controller_add_mouse_out_callback( unsigned int quad_id, SL_MOUSE_OUT_CALLBACK( callback ) );
+void sl_controller_add_mouse_out_callback( unsigned int scene_id, unsigned int quad_id, SL_MOUSE_OUT_CALLBACK( callback ) );
 
 /**
  * Hashes an integer key. Since we know our quad_ids are consecutive, unique ids,
@@ -139,6 +140,15 @@ ui32_t sl_controller_hash_func( const ui8_t* data, ui32_t len );
  */
 int sl_controller_compare_func( void *a, void *b );
 
+/**
+ * Hashes a key of two integers. We shift the first 16 bits left, then add the second.
+ */
+ui32_t sl_controller_hash_func_pair( const ui8_t* data, ui32_t len );
+
+/**
+ * Compares two two-integer keys of a vul_hash_map_element_t
+ */
+int sl_controller_compare_func_pair( void *a, void *b );
 /**
  * Hashes a pointer key. Since we know our quad_ids are consecutive, unique ids,
  * and keys are also unique and somewhat uniformely distributed, we just use the
