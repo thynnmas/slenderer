@@ -88,6 +88,7 @@ it there was a goal of the premature release, but it means the state of it is no
 # Future plans
 
 * Fix all the things that aren't ready yet due to the rushed release
+* Post-processing
 * A small audio playing component. This is likely to appear during the weekend.
 * OpenGL ES support; I have an ARM-based laptop, so this will happen at some point.
 
