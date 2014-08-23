@@ -91,7 +91,7 @@ it there was a goal of the premature release, but it means the state of it is no
 * Post-processing
 * A small audio playing component. This is likely to appear during the weekend.
 * OpenGL ES support; I have an ARM-based laptop, so this will happen at some point.
-* 
+
 # License
 
 As is noted in the source, Slenderer is released into the public domain in legal jurisdiction where such a thing exists
