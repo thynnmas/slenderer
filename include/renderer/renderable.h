@@ -28,7 +28,7 @@ typedef struct {
 	sl_vec texcoords;
 } sl_vertex;
 
-typedef struct {
+typedef struct sl_renderable {
 	GLuint arrayBufferIndex;
 	GLuint vertBufferObjectIndex;
 	GLuint indexBufferObjectIndex;
