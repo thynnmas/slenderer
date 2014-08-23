@@ -15,6 +15,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef SLENDERER_SIMULATOR_H
+#define SLENDERER_SIMULATOR_H
 
 #include <vul_resizable_array.h>
 #include <vul_hash_map.h>
@@ -27,7 +29,7 @@
 
 #define SL_SIMULATOR_CALLBACK_BUCKETS 16
 
-typedef struct {
+typedef struct sl_simulator_quad {
 	const sl_quad *quad;
 	sl_vec pos;
 	sl_vec velocity;
@@ -127,3 +129,5 @@ void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_quad *quad
  * and advances by the distance of intersection in the new direction.
  */
 void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_quad *quad, sl_simulator_quad *sphere, double time_frame_delta );
+
+#endif
