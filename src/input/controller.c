@@ -433,7 +433,7 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 	sl_vcopy( &sl_controller_global->mouse_pos_prev, &sl_controller_global->mouse_pos );
 	sl_vset( &sl_controller_global->mouse_pos,
 			 ( ( float )x / ( float )ww ) * 2.f - 1.f,
-			 ( ( float )y / ( float )wh ) * 2.f - 1.f );
+			-( ( float )y / ( float )wh ) * 2.f + 1.f );
 	
 	// Get the scene
 	scenes = vul_vector_create( sizeof( sl_scene* ), 0 );
