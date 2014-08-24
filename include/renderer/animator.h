@@ -23,6 +23,12 @@
 #include "renderer/scene.h"
 #include "renderer/quad.h"
 
+#ifndef SL_BOOL
+	#define SL_BOOL int
+	#define SL_TRUE 1
+	#define SL_FALSE 0
+#endif
+
 typedef enum {
 	SL_ANIMATION_TRANSFORM,
 	SL_ANIMATION_SPRITE,
@@ -49,6 +55,7 @@ typedef struct {
 	unsigned long long end_time;
 	sl_mat4 start_world_mat;
 	sl_mat4 end_world_mat;
+	sl_animation_state state;
 } sl_animation_transform;
 
 typedef struct {
@@ -56,9 +63,11 @@ typedef struct {
 	unsigned int quad_id;
 	unsigned long long time_per_frame_in_ms;
 	vul_vector_t *frames; // Vector of sl_animation_sprite_state
+	sl_animation_state state;
 	unsigned int frame_count; // == vul_vector_size( frames ), but stored for speed
-	unsigned int current_frame;
+	int current_frame; // Signed because looping...
 	unsigned long long time_since_current_frame;
+	SL_BOOL period_rising; // Increasing frame count if true, decreasing otheriwse
 } sl_animation_sprite;
 
 
@@ -87,15 +96,19 @@ void sl_animator_destroy( sl_animator *animator );
 
 /**
  * Add a transform. Returns the unique animation id.
+ * State must be either SL_ANIMATION_RUNNING, SL_ANIMATION_RUNNING_LOOPED or 
+ * SL_ANIMATION_RUNNING_PERIODIC.
  */
-unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms );
+unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state );
 
 /**
  * Adds a new sprite animation. Returns the unique animation id.
  * The vul_vector_t of frames is destroyed by the animator, and should be created by calling:
  *     vul_vector_create( sizeof( sl_animation_sprite_state ), initial_size );
+ * State must be either SL_ANIMATION_RUNNING, SL_ANIMATION_RUNNING_LOOPED or 
+ * SL_ANIMATION_RUNNING_PERIODIC.
  */
-unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int quad_id, vul_vector_t *frames, unsigned long long ms_per_frame );
+unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int quad_id, vul_vector_t *frames, unsigned long long ms_per_frame, sl_animation_state state );
 
 /** 
  * Removes the animation of the given id.

@@ -319,6 +319,7 @@ void sl_renderer_draw_instance( sl_program *prog, sl_quad *quad )
 	// Set world matrix
 	glUniformMatrix4fv( glGetUniformLocation( prog->gl_prog_id, "mvp" ), 1, GL_FALSE, ( ( GLfloat* )&quad->world_matrix.data[ 0 ] ) );
 	glUniform4fv( glGetUniformLocation( prog->gl_prog_id, "color" ), 1, ( ( GLfloat* )&quad->color ) );
+	glUniform4fv( glGetUniformLocation( prog->gl_prog_id, "texcoord_offset_scale" ), 1, ( ( GLfloat* )&quad->uvs ) );
 	
 	// Draw the quad
 	glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );

@@ -23,6 +23,7 @@ void sl_animator_create( sl_animator *animator, sl_scene *scene )
 	animator->next_animation_id = 0;
 
 	animator->clock = vul_timer_create( );
+	animator->last_time = vul_timer_get_millis( animator->clock );
 
 	animator->scene = scene;
 }
@@ -34,7 +35,7 @@ void sl_animator_destroy( sl_animator *animator )
 	vul_timer_destroy( animator->clock );
 }
 
-unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms )
+unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state )
 {
 	sl_animation_transform* t;
 
@@ -45,11 +46,13 @@ unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad
 	t->end_time = t->start_time + length_in_ms;
 	t->start_world_mat = sl_scene_get_const_quad( animator->scene, quad_id, 0xffffffff )->world_matrix;
 	t->end_world_mat = *end_world_matrix;
+	assert( state == SL_ANIMATION_RUNNING || SL_ANIMATION_RUNNING_LOOPED || SL_ANIMATION_RUNNING_PERIODIC );
+	t->state = state;
 
 	return t->animation_id;
 }
 
-unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int quad_id, vul_vector_t *frames, unsigned long long ms_per_frame )
+unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int quad_id, vul_vector_t *frames, unsigned long long ms_per_frame, sl_animation_state state )
 {
 	sl_animation_sprite* t;
 
@@ -60,6 +63,10 @@ unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int quad_id
 	t->time_since_current_frame = 0ull;
 	t->frames = frames;
 	t->frame_count = vul_vector_size( frames );
+	t->current_frame = 0;
+	assert( state == SL_ANIMATION_RUNNING || SL_ANIMATION_RUNNING_LOOPED || SL_ANIMATION_RUNNING_PERIODIC );
+	t->state = state;
+	t->period_rising = SL_TRUE;
 
 	return t->animation_id;
 }
@@ -100,7 +107,7 @@ void sl_animator_remove_animation( sl_animator *animator, unsigned int id, sl_an
 
 void sl_animator_update( sl_animator *animator )
 {
-	unsigned long long now, elapsed, now_relative, total;
+	unsigned long long now, elapsed, now_relative, total, length_in_ms;
 	unsigned int i;
 	float t;
 	sl_animation_transform *ita, *last_ita;
@@ -108,10 +115,14 @@ void sl_animator_update( sl_animator *animator )
 	sl_quad *quad;
 	sl_animation_sprite_state *state;
 	int deleted;
+	sl_mat4 tmp;
 
 	// Calculate time since last frame
 	now = vul_timer_get_millis( animator->clock );
 	elapsed = now - animator->last_time;
+	animator->last_time = now;
+
+	// @TODO: For stopped animations; add elapes to all times!
 
 	// First, remove any animations that are done. @NOTE: This is slow, since
 	// we may have resizes in vul_vector at any time, so any deletion leads to a restart
@@ -123,12 +134,32 @@ void sl_animator_update( sl_animator *animator )
 		vul_foreach( sl_animation_transform, ita, last_ita, animator->transforms )
 		{
 			if( ita->end_time < now ) {
-				// @TODO: Periodic and looped need to be reset here!
-				// @TODO: Add callbacks that are called at loop reset/periodic reset
-				// to f.ex. add an effect there.
-				deleted = 1;
-				vul_vector_remove_swap( animator->transforms, i );
-				break;
+				if( ita->state == SL_ANIMATION_RUNNING_LOOPED ) {
+					// Reset to beginning
+					length_in_ms = ita->end_time - ita->start_time;
+					ita->start_time = now;
+					ita->end_time = now + length_in_ms;
+					// @TODO: Add callbacks that are called at loop reset/periodic reset
+					// to f.ex. add an effect there.
+				} else if( ita->state == SL_ANIMATION_RUNNING_PERIODIC ) {
+					// Reset time beginning
+					length_in_ms = ita->end_time - ita->start_time;
+					ita->start_time = now;
+					ita->end_time = now + length_in_ms;
+					// Swap end and beginning matrices
+					sl_mcopy4( &tmp, &ita->end_world_mat );
+					sl_mcopy4( &ita->end_world_mat, &ita->start_world_mat );
+					sl_mcopy4( &ita->start_world_mat, &tmp );
+					// @TODO: Add callbacks that are called at loop reset/periodic reset
+					// to f.ex. add an effect there.
+				} else {
+					ita->state = SL_ANIMATION_FINISHED;
+				}
+				if( ita->state == SL_ANIMATION_FINISHED ) {
+					deleted = 1;
+					vul_vector_remove_swap( animator->transforms, i );
+					break;
+				}
 			}
 			++i;
 		}
@@ -141,11 +172,26 @@ void sl_animator_update( sl_animator *animator )
 		i = 0;
 		vul_foreach( sl_animation_sprite, its, last_its, animator->sprites )
 		{
-			if( its->current_frame == its->frame_count - 1 
+			if( its->current_frame == ( int )its->frame_count - 1 && its->period_rising
 				&& ( elapsed + its->time_since_current_frame ) >= its->time_per_frame_in_ms ) {
-				deleted = 1;
-				vul_vector_remove_swap( animator->sprites, i );
-				break;
+				if( its->state == SL_ANIMATION_RUNNING_LOOPED ) {
+					// Reset to beginning
+					its->current_frame = -1;
+				} else if( its->state == SL_ANIMATION_RUNNING_PERIODIC ) {
+					// Change period
+					its->period_rising = SL_FALSE;
+				} else {
+					its->state = SL_ANIMATION_FINISHED;
+				}
+				if( its->state == SL_ANIMATION_FINISHED ) {
+					deleted = 1;
+					vul_vector_remove_swap( animator->sprites, i );
+					break;
+				}
+			} else if ( its->current_frame == 0 && !its->period_rising
+				&& ( elapsed + its->time_since_current_frame ) >= its->time_per_frame_in_ms ) {
+				// Can only happen for oscillating things
+				its->period_rising = SL_TRUE;
 			}
 			++i;
 		}
@@ -177,14 +223,15 @@ void sl_animator_update( sl_animator *animator )
 			// Advance the animation
 			its->time_since_current_frame -= its->time_per_frame_in_ms;
 
-			quad = sl_scene_get_volitile_quad( animator->scene, its->quad_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a transform!
-			state = ( sl_animation_sprite_state* )vul_vector_get( its->frames, its->current_frame++ );
+			quad = sl_scene_get_volitile_quad( animator->scene, its->quad_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a sprite!
+			if( its->period_rising ) {
+				state = ( sl_animation_sprite_state* )vul_vector_get( its->frames, ++its->current_frame );
+			} else {
+				state = ( sl_animation_sprite_state* )vul_vector_get( its->frames, --its->current_frame );
+			}
 
 			quad->uvs = state->uvs;
 			quad->texture_id = state->texture_id;
 		}
 	}
-
-	// Store time of this frame time
-	animator->last_time = now;
 }
