@@ -34,7 +34,7 @@ const char *sl_program_default_fp_src =	"#version 400 core\n"
 										"out vec4 oColor;\n"
 										"uniform sampler2D texture;\n"
 										"void main() {\n"
-										"	oColor = color_out * texture2D( texture, texcoord_out.xy ).rgba;\n"
+										"	oColor = clamp( color_out * texture2D( texture, texcoord_out.xy ).rgba, 0.0, 1.0 );\n"
 										"}";
 
 const char *sl_program_default_post_vp_src =  "#version 400 core\n"
