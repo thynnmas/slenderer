@@ -421,7 +421,7 @@ void sl_controller_glfw_mouse_enter_exit_callback( GLFWwindow *win_handle, int s
 
 void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, double y )
 {
-	sl_scene **its, **last_its;
+	sl_scene **its, **last_its, **its2, **last_its2;
 	vul_vector_t *over, *scenes;
 	unsigned int *it, *last_it, *it2, *last_it2, i, pair[ 2 ];
 	int found, deleted;
@@ -460,12 +460,16 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 					}
 				}
 				if( !found ) {
-					// Play mouse out iteration!
-					pair[ 0 ] = ( *its )->scene_id;
-					pair[ 1 ] = *it;
-					e = vul_map_get( sl_controller_global->mouse_out_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
-					if( e != NULL ) {
-						( ( SL_MOUSE_OUT_CALLBACK( ) )e->data )( ( *its )->scene_id, *it );
+					// Call mouse out for all scenes.
+					vul_foreach( sl_scene*, its2, last_its2, scenes )
+					{
+						// Play mouse out iteration!
+						pair[ 0 ] = ( *its2 )->scene_id;
+						pair[ 1 ] = *it;
+						e = vul_map_get( sl_controller_global->mouse_out_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+						if( e != NULL ) {
+							( ( SL_MOUSE_OUT_CALLBACK( ) )e->data )( ( *its2 )->scene_id, *it );
+						}
 					}
 					// Remove it
 					vul_vector_remove_swap( sl_controller_global->mouse_overs, i );
