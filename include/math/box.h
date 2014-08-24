@@ -31,6 +31,10 @@ void sl_bset_vec( sl_box *result, const sl_vec *min_p, const sl_vec *max_p );
 /**
  * Sets the contents of a box.
  */
+void sl_bset( sl_box *result, const sl_box *copy );
+/**
+ * Sets the contents of a box.
+ */
 void sl_bset_scalar( sl_box *result, const float min_x, const float min_y,
 											   const float max_x, const float max_y );
 /**

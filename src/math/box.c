@@ -21,6 +21,13 @@ void sl_bset_vec( sl_box *result, const sl_vec *min_p, const sl_vec *max_p )
 	result->max_p.x = max_p->x;
 	result->max_p.y = max_p->y;
 }
+void sl_bset( sl_box *result, const sl_box *copy )
+{
+	result->min_p.x = copy->min_p.x;
+	result->min_p.y = copy->min_p.y;
+	result->max_p.x = copy->max_p.x;
+	result->max_p.y = copy->max_p.y;
+}
 void sl_bset_scalar( sl_box *result, const float min_x, const float min_y,
 											   const float max_x, const float max_y )
 {
