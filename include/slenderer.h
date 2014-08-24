@@ -156,4 +156,9 @@ void sl_renderer_get_scenes_by_window_handle( vul_vector_t *vec, GLFWwindow *win
  */
 sl_scene *sl_renderer_get_scene_by_id( unsigned int id );
 
+/**
+ * Retrieve a texture by id.
+ */
+sl_texture *sl_renderer_get_texture_by_id( unsigned int id );
+
 #endif

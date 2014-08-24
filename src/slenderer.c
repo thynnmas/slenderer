@@ -362,3 +362,16 @@ sl_scene *sl_renderer_get_scene_by_id( unsigned int id )
 	}
 	return NULL;
 }
+
+sl_texture *sl_renderer_get_texture_by_id( unsigned int id )
+{
+	sl_texture *ti, *til;
+
+	vul_foreach( sl_texture, ti, til, sl_renderer_global->textures )
+	{
+		if( ti->texture_id == id ) {
+			return ti;
+		}
+	}
+	return NULL;
+}
