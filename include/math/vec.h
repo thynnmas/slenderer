@@ -22,7 +22,7 @@
 /**
  * The sl_vector struct itself.
  */
-typedef struct {
+typedef struct sl_vec {
 	float x, y;
 } sl_vec;
 
