@@ -151,4 +151,9 @@ void sl_renderer_glfw_error_callback( int error, const char *desc );
  */
 void sl_renderer_get_scenes_by_window_handle( vul_vector_t *vec, GLFWwindow *win_handle );
 
+/** 
+ * Retrieve a scene by id
+ */
+sl_scene *sl_renderer_get_scene_by_id( unsigned int id );
+
 #endif

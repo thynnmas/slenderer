@@ -349,3 +349,16 @@ void sl_renderer_get_scenes_by_window_handle( vul_vector_t *vec, GLFWwindow *win
 		}
 	}
 }
+
+sl_scene *sl_renderer_get_scene_by_id( unsigned int id )
+{
+	sl_scene *si, *sil;
+
+	vul_foreach( sl_scene, si, sil, sl_renderer_global->scenes )
+	{
+		if( si->scene_id == id ) {
+			return si;
+		}
+	}
+	return NULL;
+}
