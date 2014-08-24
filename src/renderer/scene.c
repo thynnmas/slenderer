@@ -35,6 +35,8 @@ void sl_scene_create( sl_scene *scene, sl_window *parent_window, unsigned int sc
 	/* Create renderable and quad for post rendering */
 	sl_bset_scalar( &uvs, 0.f, 0.f, 1.f, 1.f );
 	sl_renderable_create( &scene->post_renderable, &uvs );
+
+	sl_vset( &scene->camera_pos, 0.0f, 0.f );
 }
 
 void sl_scene_destroy( sl_scene *scene )

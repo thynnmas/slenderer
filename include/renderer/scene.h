@@ -43,6 +43,7 @@ typedef struct {
 	sl_program *post_program; // Post processing program; by default the normal shader!
 	void (*post_program_callback)( sl_program *post_program ); // Called last second before tendering the post process quad; use to set parameters for the program.
 	sl_renderable post_renderable;
+	sl_vec camera_pos;
 } sl_scene;
 
 /**

@@ -102,6 +102,7 @@ void sl_renderer_close_window( sl_window *win );
 
 /**
  * Renders the scene at the given index to the window at the given index.
+ * Applies the given camera offset to all coorindates before rendering.
  */
 void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_index, SL_BOOL swap_buffers );
 
@@ -138,7 +139,7 @@ sl_program *sl_renderer_allocate_program( );
 /**
  * Renders a single quad instance. Binds the world matrix uniform, then draws.
  */
-void sl_renderer_draw_instance( sl_program *prog, sl_quad *quad );
+void sl_renderer_draw_instance( sl_vec *camera_offset, sl_program *prog, sl_quad *quad );
 
 /**
  * A callback function that handles errors in GLFW. We assert false in debug mode,

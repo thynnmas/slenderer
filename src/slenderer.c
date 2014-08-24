@@ -203,7 +203,7 @@ sl_program *sl_renderer_allocate_program( )
 	return p;
 }
 
-void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_index, SL_BOOL swap_buffers )
+void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_index, SL_BOOL swap_buffers, sl_vec *camera_offset )
 {
 	sl_scene *scene;
 	sl_animator *anim;
@@ -281,7 +281,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 				sl_renderable_bind( cr );
 			}
 			// Render the quad
-			sl_renderer_draw_instance( cp, it );
+			sl_renderer_draw_instance( &scene->camera_pos, cp, it );
 		}
 	}
 
@@ -314,10 +314,17 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	}
 }
 
-void sl_renderer_draw_instance( sl_program *prog, sl_quad *quad )
+void sl_renderer_draw_instance( sl_vec *camera_offset, sl_program *prog, sl_quad *quad )
 {
+	sl_mat4 mat;
+
+	// Calculate offset into matrix
+	sl_mcopy4( &mat, &quad->world_matrix );
+	mat.data[ 12 ] -= camera_offset->x;
+	mat.data[ 13 ] -= camera_offset->y;
+
 	// Set world matrix
-	glUniformMatrix4fv( glGetUniformLocation( prog->gl_prog_id, "mvp" ), 1, GL_FALSE, ( ( GLfloat* )&quad->world_matrix.data[ 0 ] ) );
+	glUniformMatrix4fv( glGetUniformLocation( prog->gl_prog_id, "mvp" ), 1, GL_FALSE, ( ( GLfloat* )&mat.data[ 0 ] ) );
 	glUniform4fv( glGetUniformLocation( prog->gl_prog_id, "color" ), 1, ( ( GLfloat* )&quad->color ) );
 	glUniform4fv( glGetUniformLocation( prog->gl_prog_id, "texcoord_offset_scale" ), 1, ( ( GLfloat* )&quad->uvs ) );
 	
