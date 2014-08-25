@@ -40,7 +40,8 @@ typedef enum {
 	SL_ANIMATION_RUNNING,
 	SL_ANIMATION_RUNNING_LOOPED,	// Wraps around the end
 	SL_ANIMATION_RUNNING_PERIODIC,	// Goes 0->1->0->1->0...Back and forth infinitely.
-	SL_ANIMATION_FINISHED
+	SL_ANIMATION_FINISHED,
+	SL_ANIMATION_COUNT
 } sl_animation_state;
 
 typedef struct {

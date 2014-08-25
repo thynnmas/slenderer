@@ -69,7 +69,12 @@ void sl_scene_set_post( sl_scene *scene, sl_program *prog, void (*post_program_c
  * Adds a sprite with the given texture & uvs at the given location.
  * Returns the unique id of the quad.
  */
-unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer, const sl_vec *center, const sl_vec *scale, const float rotation, const unsigned int texture_id, const unsigned int program_id, const unsigned int renderable_id, const sl_box *uvs, const float color[ 4 ], unsigned char is_hidden );
+unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer, 
+								  const sl_vec *center, const sl_vec *scale,
+								  const float rotation, const unsigned int texture_id,
+								  const unsigned int program_id, const unsigned int renderable_id,
+								  const sl_box *uvs, const sl_bvec *flip_uvs,
+								  const float color[ 4 ], unsigned char is_hidden );
 
 /**
  * Removes the quad with the given id. If a layer == 0xffffffff, all layers are searched.

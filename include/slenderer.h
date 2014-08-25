@@ -64,8 +64,11 @@
 #include "renderer/animator.h"
 #include "renderer/renderable.h"
 #include "physics/simulator.h"
-
 #include "input/controller.h"
+#include "audio/aurator.h"
+#define SL_AUDIO_CHANNEL_COUNT 2
+#define SL_AUDIO_SAMPLE_RATE 44100
+#define SL_AUDIO_FRAME_RATE_GUARANTEE 30
 
 typedef struct {
 	vul_vector_t *windows; // Vector of sl_window
@@ -76,6 +79,7 @@ typedef struct {
 	vul_vector_t *programs; // Vector of sl_program. An array with all the programs
 	vul_vector_t *renderables; // Vector of sl_renderable. Ones that are not sprite-animated
 							   // should use the same one. Ohters should have their own.
+	vul_vector_t *aurators; // Vector of sl_aurator.
 } sl_renderer;
 
 sl_renderer *sl_renderer_global;
@@ -112,9 +116,19 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 sl_scene *sl_renderer_add_scene( sl_window *win, sl_program *post_program );
 
 /**
+ * Cleans up a scene 
+ */
+void sl_renderer_finalize_scene( unsigned int scene_id );
+
+/**
  * Retrieves the animator for the scene with the given id
  */
 sl_animator *sl_renderer_get_animator_for_scene( unsigned int scene_id );
+
+/**
+ * Retrieves the aurator for the scene with the given id
+ */
+sl_aurator *sl_renderer_get_aurator_for_scene( unsigned int scene_id );
 
 /**
  * Retrieves the simulator for the scene with the given id

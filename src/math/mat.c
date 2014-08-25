@@ -441,45 +441,45 @@ void sl_mlerp2( sl_mat2 *result, const sl_mat2 *a, const sl_mat2 *b, const float
 {
 	const float t1 = 1.0f - t;
 
-	result->data[ 0 ] = a->data[ 0 ] * t + b->data[ 0 ] * t1;
-	result->data[ 1 ] = a->data[ 1 ] * t + b->data[ 1 ] * t1;
-	result->data[ 2 ] = a->data[ 2 ] * t + b->data[ 2 ] * t1;
-	result->data[ 3 ] = a->data[ 3 ] * t + b->data[ 3 ] * t1;
+	result->data[ 0 ] = a->data[ 0 ] * t1 + b->data[ 0 ] * t;
+	result->data[ 1 ] = a->data[ 1 ] * t1 + b->data[ 1 ] * t;
+	result->data[ 2 ] = a->data[ 2 ] * t1 + b->data[ 2 ] * t;
+	result->data[ 3 ] = a->data[ 3 ] * t1 + b->data[ 3 ] * t;
 }
 void sl_mlerp3( sl_mat3 *result, const sl_mat3 *a, const sl_mat3 *b, const float t )
 {
 	const float t1 = 1.0f - t;
 
-	result->data[ 0 ] = a->data[ 0 ] * t + b->data[ 0 ] * t1;
-	result->data[ 1 ] = a->data[ 1 ] * t + b->data[ 1 ] * t1;
-	result->data[ 2 ] = a->data[ 2 ] * t + b->data[ 2 ] * t1;
-	result->data[ 3 ] = a->data[ 3 ] * t + b->data[ 3 ] * t1;
-	result->data[ 4 ] = a->data[ 4 ] * t + b->data[ 4 ] * t1;
-	result->data[ 5 ] = a->data[ 5 ] * t + b->data[ 5 ] * t1;
-	result->data[ 6 ] = a->data[ 6 ] * t + b->data[ 6 ] * t1;
-	result->data[ 7 ] = a->data[ 7 ] * t + b->data[ 7 ] * t1;
-	result->data[ 8 ] = a->data[ 8 ] * t + b->data[ 8 ] * t1;
+	result->data[ 0 ] = a->data[ 0 ] * t1 + b->data[ 0 ] * t;
+	result->data[ 1 ] = a->data[ 1 ] * t1 + b->data[ 1 ] * t;
+	result->data[ 2 ] = a->data[ 2 ] * t1 + b->data[ 2 ] * t;
+	result->data[ 3 ] = a->data[ 3 ] * t1 + b->data[ 3 ] * t;
+	result->data[ 4 ] = a->data[ 4 ] * t1 + b->data[ 4 ] * t;
+	result->data[ 5 ] = a->data[ 5 ] * t1 + b->data[ 5 ] * t;
+	result->data[ 6 ] = a->data[ 6 ] * t1 + b->data[ 6 ] * t;
+	result->data[ 7 ] = a->data[ 7 ] * t1 + b->data[ 7 ] * t;
+	result->data[ 8 ] = a->data[ 8 ] * t1 + b->data[ 8 ] * t;
 }
 void sl_mlerp4( sl_mat4 *result, const sl_mat4 *a, const sl_mat4 *b, const float t )
 {
 	const float t1 = 1.0f - t;
 
-	result->data[ 0 ]  = a->data[ 0 ]  * t + b->data[ 0 ]  * t1;
-	result->data[ 1 ]  = a->data[ 1 ]  * t + b->data[ 1 ]  * t1;
-	result->data[ 2 ]  = a->data[ 2 ]  * t + b->data[ 2 ]  * t1;
-	result->data[ 3 ]  = a->data[ 3 ]  * t + b->data[ 3 ]  * t1;
-	result->data[ 4 ]  = a->data[ 4 ]  * t + b->data[ 4 ]  * t1;
-	result->data[ 5 ]  = a->data[ 5 ]  * t + b->data[ 5 ]  * t1;
-	result->data[ 6 ]  = a->data[ 6 ]  * t + b->data[ 6 ]  * t1;
-	result->data[ 7 ]  = a->data[ 7 ]  * t + b->data[ 7 ]  * t1;
-	result->data[ 8 ]  = a->data[ 8 ]  * t + b->data[ 8 ]  * t1;
-	result->data[ 9 ]  = a->data[ 9 ]  * t + b->data[ 9 ]  * t1;
-	result->data[ 10 ] = a->data[ 10 ] * t + b->data[ 10 ] * t1;
-	result->data[ 11 ] = a->data[ 11 ] * t + b->data[ 11 ] * t1;
-	result->data[ 12 ] = a->data[ 12 ] * t + b->data[ 12 ] * t1;
-	result->data[ 13 ] = a->data[ 13 ] * t + b->data[ 13 ] * t1;
-	result->data[ 14 ] = a->data[ 14 ] * t + b->data[ 14 ] * t1;
-	result->data[ 15 ] = a->data[ 15 ] * t + b->data[ 15 ] * t1;
+	result->data[ 0 ]  = a->data[ 0 ]  * t1 + b->data[ 0 ]  * t;
+	result->data[ 1 ]  = a->data[ 1 ]  * t1 + b->data[ 1 ]  * t;
+	result->data[ 2 ]  = a->data[ 2 ]  * t1 + b->data[ 2 ]  * t;
+	result->data[ 3 ]  = a->data[ 3 ]  * t1 + b->data[ 3 ]  * t;
+	result->data[ 4 ]  = a->data[ 4 ]  * t1 + b->data[ 4 ]  * t;
+	result->data[ 5 ]  = a->data[ 5 ]  * t1 + b->data[ 5 ]  * t;
+	result->data[ 6 ]  = a->data[ 6 ]  * t1 + b->data[ 6 ]  * t;
+	result->data[ 7 ]  = a->data[ 7 ]  * t1 + b->data[ 7 ]  * t;
+	result->data[ 8 ]  = a->data[ 8 ]  * t1 + b->data[ 8 ]  * t;
+	result->data[ 9 ]  = a->data[ 9 ]  * t1 + b->data[ 9 ]  * t;
+	result->data[ 10 ] = a->data[ 10 ] * t1 + b->data[ 10 ] * t;
+	result->data[ 11 ] = a->data[ 11 ] * t1 + b->data[ 11 ] * t;
+	result->data[ 12 ] = a->data[ 12 ] * t1 + b->data[ 12 ] * t;
+	result->data[ 13 ] = a->data[ 13 ] * t1 + b->data[ 13 ] * t;
+	result->data[ 14 ] = a->data[ 14 ] * t1 + b->data[ 14 ] * t;
+	result->data[ 15 ] = a->data[ 15 ] * t1 + b->data[ 15 ] * t;
 }
 
 void sl_mmul2( sl_mat2 *result, const sl_mat2 *a, const sl_mat2 *b )

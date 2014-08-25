@@ -334,7 +334,7 @@ int sl_controller_compare_func( void *a, void *b )
 	ea = ( vul_hash_map_element_t* )a;
 	eb = ( vul_hash_map_element_t* )b;
 
-	return ( int )( ( long long )*( ui32_t* )eb->key - ( long long )*( ui32_t* )ea->key );
+	return ( int )( ( long long )*( ui32_t* )ea->key - ( long long )*( ui32_t* )eb->key );
 }
 
 int sl_controller_compare_func_pair( void *a, void *b )
@@ -346,12 +346,12 @@ int sl_controller_compare_func_pair( void *a, void *b )
 	ea = ( vul_hash_map_element_t* )a;
 	eb = ( vul_hash_map_element_t* )b;
 
-	d = ( int )( ( long long )( ( ui32_t* )eb->key )[ 0 ] - ( long long )( ( ui32_t* )ea->key )[ 0 ] );
+	d = ( int )( ( long long )( ( ui32_t* )ea->key )[ 0 ] - ( long long )( ( ui32_t* )eb->key )[ 0 ] );
 	if( d != 0 ) {
 		return d;
 	}
 
-	return ( int )( ( long long )( ( ui32_t* )eb->key )[ 1 ] - ( long long )( ( ui32_t* )ea->key )[ 1 ] );
+	return ( int )( ( long long )( ( ui32_t* )ea->key )[ 1 ] - ( long long )( ( ui32_t* )eb->key )[ 1 ] );
 }
 
 ui32_t sl_controller_hash_ptr_func( const ui8_t* data, ui32_t len )
@@ -389,11 +389,11 @@ int sl_controller_compare_ptr_func( void *a, void *b )
 	if( sizeof( GLFWwindow* ) == 4 ) {
 		ai = *( ui32_t* )ea->key;
 		bi = *( ui32_t* )eb->key;
-		return ( int )( ( long long )bi - ( long long )ai );
+		return ( int )( ( long long )ai - ( long long )bi );
 	} else if ( sizeof( GLFWwindow* ) == 8 ) {
 		al = *( ui64_t* )ea->key;
 		bl = *( ui64_t* )eb->key;
-		return ( int )( bl - al );
+		return ( int )( ( i64_t )al - ( i64_t )bl );
 	}
 #ifdef SL_DEBUG
 	assert( 0 );
@@ -427,6 +427,7 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 	int found, deleted;
 	vul_hash_map_element_t *e;
 	int ww, wh;
+	sl_vec scene_local_pos;
 
 	// Update mouse position
 	glfwGetWindowSize( win_handle, &ww, &wh );
@@ -441,9 +442,11 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 
 	vul_foreach( sl_scene*, its, last_its, scenes )
 	{
+		// Calculate scene local position
+		sl_vadd( &scene_local_pos, &sl_controller_global->mouse_pos, &( *its )->camera_pos );
 		// Get all quads we are hovering over
 		over = vul_vector_create( sizeof( unsigned int ), 0 );
-		sl_scene_get_quads_at_pos( over, *its, &sl_controller_global->mouse_pos );
+		sl_scene_get_quads_at_pos( over, *its, &scene_local_pos );
 
 		// Prune out all quads we were over but aren't any more. Slow!
 		while( 1 ) {
@@ -520,6 +523,7 @@ void sl_controller_glfw_mouse_button_callback( GLFWwindow *win_handle, int butto
 	sl_scene **its, **last_its;
 	vul_vector_t *over, *scenes;
 	unsigned int *it, *last_it, pair[ 2 ];
+	sl_vec scene_local_pos;
 
 #ifdef SL_DEBUG
 	assert( sl_controller_global != NULL );
@@ -530,8 +534,12 @@ void sl_controller_glfw_mouse_button_callback( GLFWwindow *win_handle, int butto
 
 	vul_foreach( sl_scene*, its, last_its, scenes )
 	{
+		// Calculate scene local position
+		sl_vadd( &scene_local_pos, &sl_controller_global->mouse_pos, &( *its )->camera_pos );
+		// Get quads we overlap
 		over = vul_vector_create( sizeof( unsigned int ), 0 );
-		sl_scene_get_quads_at_pos( over, *its, &sl_controller_global->mouse_pos );
+		sl_scene_get_quads_at_pos( over, *its, &scene_local_pos );
+		
 		vul_foreach( unsigned int, it, last_it, over )
 		{
 			pair[ 0 ] = ( *its )->scene_id;

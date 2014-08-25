@@ -25,6 +25,7 @@ typedef struct {
 	unsigned int quad_id;
 	sl_mat4 world_matrix;
 	sl_box uvs;
+	sl_bvec flip_uvs;
 	unsigned int texture_id;
 	unsigned int program_id;
 	unsigned int renderable_id;

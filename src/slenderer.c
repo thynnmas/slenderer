@@ -46,6 +46,7 @@ void sl_renderer_create(  )
 	sl_renderer_global->textures = vul_vector_create( sizeof( sl_texture ), 0 );
 	sl_renderer_global->programs = vul_vector_create( sizeof( sl_program ), 0 );
 	sl_renderer_global->renderables = vul_vector_create( sizeof( sl_renderable ), 0 );
+	sl_renderer_global->aurators = vul_vector_create( sizeof( sl_aurator), 0 );
 	
 	sl_controller_create( );
 }
@@ -59,6 +60,7 @@ void sl_renderer_destroy( )
 	sl_scene *its, *lasts;
 	sl_window *itw, *lastw;
 	sl_renderable *itr, *lastr;
+	sl_aurator *itar, *lastar;
 
 	// Clean up
 	vul_foreach( sl_renderable, itr, lastr, sl_renderer_global->renderables ) {
@@ -95,7 +97,16 @@ void sl_renderer_destroy( )
 		sl_window_destroy( itw );
 	}
 	vul_vector_destroy( sl_renderer_global->windows );
+		
+	vul_foreach( sl_aurator, itar, lastar, sl_renderer_global->aurators ) {
+		sl_aurator_destroy( itar );
+	}
+	vul_vector_destroy( sl_renderer_global->aurators );
 
+	// Destroy portaudio system
+	sl_aurator_finalize_system( );
+
+	// Destroy the controller
 	sl_controller_destroy( );
 
 	free( sl_renderer_global );
@@ -132,6 +143,7 @@ sl_scene *sl_renderer_add_scene( sl_window *win, sl_program *post_program )
 	sl_scene *s;
 	sl_animator *a;
 	sl_simulator *sim;
+	sl_aurator *ar;
 
 	// Create the scnee
 	s = ( sl_scene* )vul_vector_add_empty( sl_renderer_global->scenes );
@@ -143,9 +155,41 @@ sl_scene *sl_renderer_add_scene( sl_window *win, sl_program *post_program )
 
 	sim = ( sl_simulator* )vul_vector_add_empty( sl_renderer_global->simulators );
 	sl_simulator_create( sim, s );
+	
+	// If we have sound, create the aurator
+	ar = ( sl_aurator* )vul_vector_add_empty( sl_renderer_global->aurators );
+	sl_aurator_create( ar, SL_AUDIO_CHANNEL_COUNT, SL_AUDIO_SAMPLE_RATE, SL_AUDIO_FRAME_RATE_GUARANTEE );
 
 	// Return the scene
 	return s;
+}
+
+void sl_renderer_finalize_scene( unsigned int scene_id )
+{
+	// @TODO: This doesn't seem to quite work...
+	sl_scene *si, *sil;
+	sl_animator *a;
+	sl_simulator *s;
+	sl_aurator *ar;
+	ui32_t i;
+
+	i = 0;
+	vul_foreach( sl_scene, si, sil, sl_renderer_global->scenes )
+	{
+		if( si->scene_id == scene_id ) {
+			sl_scene_destroy( si );
+			vul_vector_remove_cascade( sl_renderer_global->scenes, i );
+			break;
+		}
+		++i;
+	}
+
+	a = sl_renderer_get_animator_for_scene( scene_id );
+	sl_animator_destroy( a );
+	s = sl_renderer_get_simulator_for_scene( scene_id );
+	sl_simulator_destroy( s );
+	ar = sl_renderer_get_aurator_for_scene( scene_id );
+	sl_aurator_destroy( ar );
 }
 
 sl_animator *sl_renderer_get_animator_for_scene( unsigned int scene_id )
@@ -154,6 +198,14 @@ sl_animator *sl_renderer_get_animator_for_scene( unsigned int scene_id )
 	assert( scene_id < vul_vector_size( sl_renderer_global->animators ) );
 #endif
 	return ( sl_animator* )vul_vector_get( sl_renderer_global->animators, scene_id );
+}
+
+sl_aurator *sl_renderer_get_aurator_for_scene( unsigned int scene_id )
+{
+#ifdef SL_DEBUG
+	assert( scene_id < vul_vector_size( sl_renderer_global->aurators ) );
+#endif
+	return ( sl_aurator* )vul_vector_get( sl_renderer_global->aurators, scene_id );
 }
 
 sl_simulator *sl_renderer_get_simulator_for_scene( unsigned int scene_id )
@@ -207,6 +259,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 {
 	sl_scene *scene;
 	sl_animator *anim;
+	sl_aurator *aur;
 	sl_simulator *sim;
 	sl_window *win;
 	sl_quad *it, *last_it; // iterator
@@ -234,6 +287,10 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	// Update the corresponding simulator
 	sim = ( sl_simulator* )vul_vector_get( sl_renderer_global->simulators, scene_index );
 	sl_simulator_update( sim );
+
+	// Update the corresponding audio manager
+	aur = ( sl_aurator* )vul_vector_get( sl_renderer_global->aurators, scene_index );
+	sl_aurator_update( aur );
 
 	// Grab the scene and sort it
 	scene = ( sl_scene* )vul_vector_get( sl_renderer_global->scenes, scene_index );
@@ -317,16 +374,31 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 void sl_renderer_draw_instance( sl_vec *camera_offset, sl_program *prog, sl_quad *quad )
 {
 	sl_mat4 mat;
+	sl_box uvs;
+	f32_t tmp;
 
 	// Calculate offset into matrix
 	sl_mcopy4( &mat, &quad->world_matrix );
 	mat.data[ 12 ] -= camera_offset->x;
 	mat.data[ 13 ] -= camera_offset->y;
 
+	// Calculate the uvs; they may be flipped
+	sl_bset( &uvs, &quad->uvs );
+	if( quad->flip_uvs.x ) {
+		tmp = uvs.min_p.x;
+		uvs.min_p.x = uvs.max_p.x;
+		uvs.max_p.x = tmp;
+	}
+	if( quad->flip_uvs.y ) {
+		tmp = uvs.min_p.y;
+		uvs.min_p.y = uvs.max_p.y;
+		uvs.max_p.y = tmp;
+	}
+
 	// Set world matrix
 	glUniformMatrix4fv( glGetUniformLocation( prog->gl_prog_id, "mvp" ), 1, GL_FALSE, ( ( GLfloat* )&mat.data[ 0 ] ) );
 	glUniform4fv( glGetUniformLocation( prog->gl_prog_id, "color" ), 1, ( ( GLfloat* )&quad->color ) );
-	glUniform4fv( glGetUniformLocation( prog->gl_prog_id, "texcoord_offset_scale" ), 1, ( ( GLfloat* )&quad->uvs ) );
+	glUniform4fv( glGetUniformLocation( prog->gl_prog_id, "texcoord_offset_scale" ), 1, ( ( GLfloat* )&uvs ) );
 	
 	// Draw the quad
 	glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );

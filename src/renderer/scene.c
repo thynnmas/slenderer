@@ -69,7 +69,12 @@ void sl_scene_set_post( sl_scene *scene, sl_program *prog, void (*post_program_c
 	scene->post_program_callback = post_program_callback;
 }
 
-unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer, const sl_vec *center, const sl_vec *scale, const float rotation, const unsigned int texture_id, const unsigned int program_id, const unsigned int renderable_id, const sl_box *uvs, const float color[ 4 ], unsigned char is_hidden )
+unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer, 
+								  const sl_vec *center, const sl_vec *scale,
+								  const float rotation, const unsigned int texture_id,
+								  const unsigned int program_id, const unsigned int renderable_id,
+								  const sl_box *uvs, const sl_bvec *flip_uvs,
+								  const float color[ 4 ], unsigned char is_hidden )
 {
 	sl_quad *q;
 
@@ -84,6 +89,7 @@ unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer, con
 	q->program_id = program_id;
 	q->renderable_id = renderable_id;
 	q->uvs = *uvs;
+	q->flip_uvs = *flip_uvs;
 	sl_quad_create_world_matrix( q, center, scale, rotation );
 
 	if( color == NULL ) {

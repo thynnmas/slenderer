@@ -227,9 +227,9 @@ int sl_simulator_callback_comp( void *a, void *b )
 	qbb = ( ( sl_simulator_collider_pair* )eb->key )->quad_id_b;
 
 	if( qaa != qba ) {
-		return qaa - qba; // Compare a with a first
+		return ( int )( ( i32_t )qaa - ( i32_t )qba ); // Compare a with a first
 	} else {
-		return qab - qbb; // If a == a, compare bs
+		return ( int )( ( i32_t )qab - ( i32_t )qbb ); // If a == a, compare bs
 	}
 }
 
