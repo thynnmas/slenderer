@@ -278,4 +278,30 @@ unsigned long long vul_timer_get_micros_cpu( vul_timer_t *c )
 }
 #endif
 
+/*
+ * OS agnostic sleep.
+ * Takes milliseconds to sleep.
+ * Returns milliseconds the amount of time left if interrupted before finishing
+ * the alotted sleeping time; only on unix.
+ */
+#ifndef VUL_DEFINE
+unsigned int vul_sleep( unsigned int milliseconds );
+#else
+unsigned int vul_sleep( unsigned int milliseconds )
+{
+#ifdef VUL_WINDOWS
+	DWORD ms;
+
+	ms = milliseconds;
+	Sleep( ms );
+	return 0;
+#elif defined( VUL_LINUX ) || defined( VUL_OSX )
+	return sleep( milliseconds );
+#else
+	assert( 0 && "vul_timer.h: OS not supported. Did you forget to specify an OS define?" );
+#endif
+}
+#endif
+
+
 #endif

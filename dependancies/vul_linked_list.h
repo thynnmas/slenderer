@@ -125,7 +125,7 @@ vul_list_element_t *vul_list_find( vul_list_element_t *head, void *data, int (*c
 	}
 
 	while( head->next != NULL // Return last element of the list if data is bigger than all elements, not null
-		   && comparator( data, head->next->data ) >= 0 )	// And keep moving while data is bigger than or equal to the next element.
+		   && comparator( head->next->data, data ) <= 0 )	// And keep moving while data is bigger than or equal to the next element.
 	{
 		head = head->next;
 	}
@@ -216,11 +216,13 @@ void vul_list_destroy( vul_list_element_t *list_head )
 	while( list_head != NULL )
 	{
 		next = list_head->next;
-
-		free( list_head->data );
-		free( list_head );
+		
 		// By setting to null we are much more likely to trigger asserts if used after free.
+		
+		free( list_head->data );
 		list_head->data = NULL;
+		
+		free( list_head );
 		list_head = NULL;
 		
 		list_head = next;

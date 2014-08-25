@@ -48,7 +48,7 @@ typedef struct vul_hash_map_t {
 	ui32_t bucket_count;
 	vul_list_element_t **buckets;
 	vul_hash_function hash;
-	int (*comparator)( void* a, void *b );	// Comparison function
+	int (*comparator)( void* a, void *b );	// Comparison function, a-b
 } vul_hash_map_t;
 
 typedef struct vul_hash_map_element_t {
