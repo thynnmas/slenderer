@@ -255,7 +255,7 @@ sl_program *sl_renderer_allocate_program( )
 	return p;
 }
 
-void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_index, SL_BOOL swap_buffers, sl_vec *camera_offset )
+void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_index, SL_BOOL swap_buffers )
 {
 	sl_scene *scene;
 	sl_animator *anim;
