@@ -86,7 +86,7 @@ void sl_renderable_bind( sl_renderable *ren )
 	glEnableVertexAttribArray( 1 );
 }
 
-void sl_renderable_unbind( sl_renderable *ren )
+void sl_renderable_unbind( )
 {
 	glDisableVertexAttribArray( 0 );
 	glDisableVertexAttribArray( 1 );

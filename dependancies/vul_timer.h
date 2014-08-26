@@ -40,6 +40,7 @@
 	#include <windows.h>
 #elif defined( VUL_LINUX )
 	#include <unistd.h>
+	#include <time.h>
 	#include <sys/resource.h>
 	#include <sys/times.h>
 #elif defined( VUL_OSX )

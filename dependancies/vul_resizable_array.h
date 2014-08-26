@@ -100,9 +100,9 @@ void *vul_vector_end( vul_vector_t *vec )
 * Returns the element size of the type kept. Only for non-templated vectors.
 */
 #ifndef VUL_DEFINE
-const unsigned int vul_vector_size( const vul_vector_t *vec );
+unsigned int vul_vector_size( const vul_vector_t *vec );
 #else
-const unsigned int vul_vector_size( const vul_vector_t *vec ) 
+unsigned int vul_vector_size( const vul_vector_t *vec ) 
 {
 	assert( vec != NULL );
 	return vec->size;

@@ -6,8 +6,8 @@ BIN_PTH = ./bin
 LIB_PTH = ./lib
 LIB_NAME = slenderer
 BIN_NAME = example
-CFLAGS = -std=c99 -Wall -Wextra -g -Werror -DVUL_LINUX $(INC_PTH)
-LDFLAGS = -lglfw -lGL
+CFLAGS = -std=gnu99 -Wall -Wextra -Werror -g -DVUL_LINUX $(INC_PTH)
+LDFLAGS = -lglfw -lGL -lglew -lm
 SHELL = /bin/bash
 
 SOURCES = $(shell find $(SRC_PTH)/ -name '*.c')
@@ -31,14 +31,14 @@ clean:
 	@$(RM) -r $(BLD_PTH)
 	@$(RM) -r $(LIB_PTH)
 
-all: $(LIB_PTH)/$(LIB_NAME) $(BIN_PTH)/$(BIN_NAME)
+all: dirs $(LIB_PTH)/$(LIB_NAME) $(BIN_PTH)/$(BIN_NAME)
 	@echo $(OBJECTS)
 
 $(LIB_PTH)/$(LIB_NAME): $(OBJECTS)
 
 $(OBJECTS): $(SOURCES)
 	@echo "Compiling: $@"
-	$(CMD_PREFIX)$(CC) $(CFLAGS) -o $@ $<
+	$(CMD_PREFIX)$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BIN_PTH)/$(BIN_NAME):
 	@echo "Compiling: $@"

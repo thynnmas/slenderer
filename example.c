@@ -30,7 +30,7 @@
 #include <vul_timer.h>
 #include "slenderer.h"
 #define STBI_HEADER_FILE_ONLY
-#include "stb_image.c"
+#include "stb_image.h"
 
 #define SLE_LAYER_BACKGROUND 0
 #define SLE_LAYER_WATER 1
@@ -90,6 +90,11 @@ void sle_move_player1( GLFWwindow *win_handle, int key, int scancode, int modifi
 {
 	float eps;
 
+	// Prevent unused parameter warningsy
+	(void)win_handle;
+	(void)scancode;
+	(void)modifiers;
+
 	eps = 0.01f;
 	if( key == GLFW_KEY_W ) {
 		if( sle_player1_pquad->pos.y < SLE_FLOOR + SLE_PLAYER_SCALE.y + eps ) {
@@ -106,12 +111,24 @@ void sle_move_player1( GLFWwindow *win_handle, int key, int scancode, int modifi
 
 void sle_stop_player1( GLFWwindow *win_handle, int key, int scancode, int modifiers )
 {
+
+	// Prevent unused parameter warningsy
+	(void)win_handle;
+	(void)scancode;
+	(void)modifiers;
+	(void)key;
+
 	sle_player1_pquad->velocity.x = 0.0f;
 }
 
 void sle_move_player2( GLFWwindow *win_handle, int key, int scancode, int modifiers )
 {
 	float eps;
+
+	// Prevent unused parameter warningsy
+	(void)win_handle;
+	(void)scancode;
+	(void)modifiers;
 
 	eps = 0.01f;
 	if( key == GLFW_KEY_UP ) {
@@ -129,6 +146,12 @@ void sle_move_player2( GLFWwindow *win_handle, int key, int scancode, int modifi
 
 void sle_stop_player2( GLFWwindow *win_handle, int key, int scancode, int modifiers )
 {
+	// Prevent unused parameter warningsy
+	(void)win_handle;
+	(void)scancode;
+	(void)modifiers;
+	(void)key;
+
 	sle_player2_pquad->velocity.x = 0.0f;
 }
 
@@ -182,11 +205,20 @@ void sle_score( sl_scene *scene, int player )
 
 void sle_quit( GLFWwindow *win_handle, int key, int scancode, int modifiers )
 {
+	// Prevent unused parameter warningsy
+	(void)win_handle;
+	(void)scancode;
+	(void)modifiers;
+	(void)key;
+
 	glfwSetWindowShouldClose( win_handle, GL_TRUE );
 }
 
 void sle_ball_dropped( sl_scene *scene, sl_simulator_quad *quad, sl_simulator_quad *sphere, double time_frame_delta )
 {
+	(void)quad;
+	(void)time_frame_delta;
+
 	// Since we know the ground is flat and the sphere reaches the bottom of the quad containing it,
 	// we know this is a collission. Up the score and reset.
 	// Left half of the screen is player 1's court, so 2 scored. Screen coords are normalized.
@@ -229,6 +261,10 @@ void sle_player1_clamp_horizontal( sl_scene *scene, sl_simulator_quad *a, sl_sim
 {
 	float minx, maxx;
 
+	(void)a;
+	(void)b;
+	(void)time_frame_delta;
+
 	sle_player1_pquad->velocity.x = 0.f;
 	minx = -1.f + ( SLE_PLAYER_SCALE.x * 0.5f );
 	maxx = -( SLE_PLAYER_SCALE.x * 0.5f );
@@ -245,6 +281,10 @@ void sle_player1_clamp_horizontal( sl_scene *scene, sl_simulator_quad *a, sl_sim
 void sle_player2_clamp_horizontal( sl_scene *scene, sl_simulator_quad *a, sl_simulator_quad *b, double time_frame_delta )
 {
 	float minx, maxx;
+
+	(void)a;
+	(void)b;
+	(void)time_frame_delta;
 
 	sle_player2_pquad->velocity.x = 0.f;
 	minx = SLE_PLAYER_SCALE.x * 0.5f;
@@ -263,6 +303,10 @@ void sle_player1_clamp_vertical( sl_scene *scene, sl_simulator_quad *a, sl_simul
 {
 	float miny;
 
+	(void)a;
+	(void)b;
+	(void)time_frame_delta;
+
 	sle_player1_pquad->velocity.y = 0.f;
 	miny = SLE_FLOOR + SLE_PLAYER_SCALE.y;
 	if( sle_player1_pquad->pos.y < miny && sle_player1_pquad->velocity.y < 0.f ) {
@@ -277,6 +321,10 @@ void sle_player1_clamp_vertical( sl_scene *scene, sl_simulator_quad *a, sl_simul
 void sle_player2_clamp_vertical( sl_scene *scene, sl_simulator_quad *a, sl_simulator_quad *b, double time_frame_delta )
 {
 	float miny;
+
+	(void)a;
+	(void)b;
+	(void)time_frame_delta;
 
 	miny = SLE_FLOOR + SLE_PLAYER_SCALE.y;
 	if( sle_player2_pquad->pos.y < miny && sle_player2_pquad->velocity.y < 0.f ) {
@@ -294,7 +342,8 @@ int main( int argc, char **argv )
 	sl_scene *scene;
 	sl_animator *animator;
 	sl_simulator *sim;
-	sl_program *program;
+	sl_program *program,
+		   *post_program;;
 	sl_texture *bg_tex,
 			   *water_tex,
 			   *rain_tex, 
@@ -309,6 +358,7 @@ int main( int argc, char **argv )
 
 	sl_vec pos, scale, tmp;
 	sl_box uvs;
+	sl_bvec flip_uvs;
 	GLfloat color[ 4 ];
 
 	unsigned int world_bounds_left, 
@@ -353,13 +403,20 @@ int main( int argc, char **argv )
 	program->frag_prog_src = sl_program_default_fp_src;
 	sl_program_create( program );
 
+	// Create the default post process program
+	post_program = sl_renderer_allocate_program( );
+	post_program->vert_prog_src = sl_program_default_post_vp_src;
+	post_program->frag_prog_src = sl_program_default_post_fp_src;
+	sl_program_create( post_program );
+
 	// Set up the scene
-	scene = sl_renderer_add_scene( win );
+	scene = sl_renderer_add_scene( win->window_id, post_program->program_id );
 	animator = sl_renderer_get_animator_for_scene( scene->scene_id );
 	sim = sl_renderer_get_simulator_for_scene( scene->scene_id );
 
 	sl_vset( &pos, 0.0f, 0.0f );
 	sl_vset( &scale, 1.0f, 1.0f );
+	flip_uvs.x = SL_FALSE; flip_uvs.y = SL_FALSE;
 	
 	// Add static sprites
 	color[ 0 ] = color[ 1 ] = color[ 2 ] = color[ 3 ] = 1.0f;
@@ -368,7 +425,7 @@ int main( int argc, char **argv )
 						 bg_tex->texture_id,
 						 program->program_id,
 						 static_mesh->renderable_id,
-						 &uvs,
+						 &uvs, &flip_uvs,
 						 color,
 						 SLE_SPRITE_VISIBLE );
 	sl_scene_add_sprite( scene, SLE_LAYER_WATER, 
@@ -376,7 +433,7 @@ int main( int argc, char **argv )
 						 water_tex->texture_id,
 						 program->program_id,
 						 static_mesh->renderable_id,
-						 &uvs,
+						 &uvs, &flip_uvs,
 						 color,
 						 SLE_SPRITE_VISIBLE );
 	sl_scene_add_sprite( scene, SLE_LAYER_BEACH, 
@@ -384,7 +441,7 @@ int main( int argc, char **argv )
 						 beach_tex->texture_id,
 						 program->program_id,
 						 static_mesh->renderable_id,
-						 &uvs,
+						 &uvs, &flip_uvs,
 						 color,
 						 SLE_SPRITE_VISIBLE );
 	sl_vset( &pos, 0.0f, -0.5f ); sl_vset( &scale, 0.5f, 0.5f );
@@ -393,16 +450,16 @@ int main( int argc, char **argv )
 						 net_tex->texture_id,
 						 program->program_id,
 						 static_mesh->renderable_id,
-						 &uvs,
+						 &uvs, &flip_uvs,
 						 color,
 						 SLE_SPRITE_VISIBLE );
 	sl_vset( &pos, -2.f, 0.0f ); sl_vset( &scale, 1.f, 1.f );
 	world_bounds_left = sl_scene_add_sprite( scene, SLE_LAYER_BACKGROUND, 
 											 &pos, &scale, 0.0f,
-											 NULL,
+											 SL_INVISIBLE_TEXTURE,
 											 program->program_id,
 											 static_mesh->renderable_id,
-											 &uvs,
+											 &uvs, &flip_uvs,
 											 color,
 											 SLE_SPRITE_VISIBLE );
 	sl_vset( &pos, 2.0f, 0.0f );
@@ -411,7 +468,7 @@ int main( int argc, char **argv )
 											  NULL,
 											  program->program_id,
 											  static_mesh->renderable_id,
-											  &uvs,
+											  &uvs, &flip_uvs,
 											  color,
 											  SLE_SPRITE_VISIBLE );
 	sl_vset( &pos, 0.0f, -1.f + SLE_FLOOR );
@@ -420,7 +477,7 @@ int main( int argc, char **argv )
 											   NULL,
 											   program->program_id,
 											   static_mesh->renderable_id,
-											   &uvs,
+											   &uvs, &flip_uvs,
 											   color,
 											   SLE_SPRITE_VISIBLE );
 	sl_vset( &pos, 0.0f, 2.0f );
@@ -429,7 +486,7 @@ int main( int argc, char **argv )
 											NULL,
 											program->program_id,
 											static_mesh->renderable_id,
-											&uvs,
+											&uvs, &flip_uvs,
 											color,
 											SLE_SPRITE_VISIBLE );
 	sl_vset( &pos, 0.0f, -0.5f ); sl_vset( &scale, 0.01f, 0.5f );
@@ -438,7 +495,7 @@ int main( int argc, char **argv )
 										 NULL,
 										 program->program_id,
 										 static_mesh->renderable_id,
-										 &uvs,
+										 &uvs, &flip_uvs,
 										 color,
 										 SLE_SPRITE_HIDE );
 
@@ -452,7 +509,7 @@ int main( int argc, char **argv )
 									   ball_tex->texture_id,
 									   program->program_id,
 									   static_mesh->renderable_id,
-									   &uvs,
+									   &uvs, &flip_uvs,
 									   color,
 									   SLE_SPRITE_VISIBLE );
 	sle_player1_id = sl_scene_add_sprite( scene, SLE_LAYER_PLAYERS,
@@ -460,7 +517,7 @@ int main( int argc, char **argv )
 										  player1_tex->texture_id,
 										  program->program_id,
 										  static_mesh->renderable_id,
-										  &uvs,
+										  &uvs, &flip_uvs,
 										  color,
 										  SLE_SPRITE_VISIBLE );
 	sle_player2_id = sl_scene_add_sprite( scene, SLE_LAYER_PLAYERS,
@@ -468,7 +525,7 @@ int main( int argc, char **argv )
 										  player2_tex->texture_id,
 										  program->program_id,
 										  static_mesh->renderable_id,
-										  &uvs,
+										  &uvs, &flip_uvs,
 										  color,
 										  SLE_SPRITE_VISIBLE );
 

@@ -53,6 +53,6 @@ void sl_renderable_bind( sl_renderable *ren );
 /**
  * Unbind the Vertex Array and its buffers after rendering.
  */
-void sl_renderable_unbind( sl_renderable *ren );
+void sl_renderable_unbind( );
 
 #endif

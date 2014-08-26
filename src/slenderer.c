@@ -372,7 +372,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 			// If new renderable, rebind it
 			if( cri != it->renderable_id ) {
 				cri = it->renderable_id;
-				sl_renderable_unbind( cr );
+				sl_renderable_unbind( );
 				cr = ( sl_renderable* )vul_vector_get( sl_renderer_global->renderables, cri );
 				sl_renderable_bind( cr );
 			}
