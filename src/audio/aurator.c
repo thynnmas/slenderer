@@ -1,3 +1,18 @@
+/*
+ * Slenderer - Thomas Martin Schmid, 2014. Public domain¹
+ * 
+ * ¹ If public domain is not legally valid in your legal jurisdiction
+ *   the MIT licence applies (see the LICENCE file)
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "audio/aurator.h"
 
 SL_BOOL sl_aurator_pa_intialized = SL_FALSE;
@@ -24,7 +39,7 @@ void sl_aurator_create( sl_aurator *ret, ui32_t channel_count, ui32_t sample_rat
 	// State
 	ret->next_id = 0;
 	ret->frames_per_buffer = sample_rate / updates_per_second_guaranteed; // @TODO: Move to next power of 2 or something
-	ret->volume = 0.8;
+	ret->volume = 0.5f;
 
 	// Timing, we wait at least half a frame before uploading the next one.
 	ret->clk = vul_timer_create( );
@@ -255,7 +270,6 @@ void sl_aurator_update( sl_aurator *aurator )
 
 void sl_aurator_load_ogg( sl_aurator *aurator, sl_aurator_clip **clip, char *path )
 {
-	i32_t sample_count;
 	i32_t channel_count;
 	i16_t *str;
 	ui32_t i, c;
@@ -268,7 +282,7 @@ void sl_aurator_load_ogg( sl_aurator *aurator, sl_aurator_clip **clip, char *pat
 		str = ( i16_t* )malloc( sizeof( i16_t ) * ( *clip )->sample_count * aurator->data.channel_count );
 		for( i = 0; i < ( *clip )->sample_count; i += aurator->data.channel_count ) {
 			for( c = 0; c < aurator->data.channel_count; ++c ) {
-				if( c < channel_count ) {
+				if( c < ( ui32_t )channel_count ) {
 					str[ i * aurator->data.channel_count + c ] = i&(*clip)->stream[ i * channel_count + c ];
 				} else {
 					str[ i * aurator->data.channel_count + c ] = i&(*clip)->stream[ i * channel_count + ( channel_count - 1 ) ];
