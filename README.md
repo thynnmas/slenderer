@@ -90,6 +90,7 @@ build you might want to define VUL\_DEBUG to take advantage of additional checks
 * Proper audio mixing, integrate stb\_audio\_mixer.
 * Font rendering component, probably use stb\_truetype
 * OpenGL ES support; I have an ARM-based laptop, so this will happen at some point.
+* Extend the audio component with a synth; pass tracks of "notes" to it with a wave, frequency and duration and mix it.
 
 # License
 
