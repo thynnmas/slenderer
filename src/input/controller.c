@@ -341,7 +341,6 @@ int sl_controller_compare_func_pair( void *a, void *b )
 {
 	vul_hash_map_element_t *ea, *eb;
 	int d;
-	long long ta, tb;
 
 	ea = ( vul_hash_map_element_t* )a;
 	eb = ( vul_hash_map_element_t* )b;

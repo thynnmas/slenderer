@@ -21,7 +21,7 @@ void sl_simulator_create( sl_simulator *sim, sl_scene *scene )
 	sim->collission_callback_keys = NULL;
 	sim->scene = scene;
 	sim->clock = vul_timer_create( );
-	sim->last_time = 0.0;
+	sim->last_time = 0;
 }
 
 void sl_simulator_destroy( sl_simulator *sim )
@@ -144,7 +144,7 @@ void sl_simulator_update( sl_simulator *sim )
 
 	// Get time delta and reset clock
 	time_now = vul_timer_get_micros( sim->clock );
-	time_delta_in_s = ( float )( time_now - sim->last_time ) / 1000000.0;
+	time_delta_in_s = ( float )( ( double )( time_now - sim->last_time ) / 1000000.0 );
 	sim->last_time = time_now;
 
 	vul_foreach( sl_simulator_quad, it, lit, sim->quads )
@@ -330,7 +330,6 @@ void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_quad *quad
 	float radius_n, cos_n, sin_n;			// Radius at the normal & temps
 	float t;								// Intersection point
 	sl_vec combined_vel;					// The combined velocity, i.e velocity relative to each other.
-	float frame_offset;						// The traveled distance relative to each other per frame
 	sl_vec n2, n2m;							// Temporaries used
 	float vdotn;							// to calculate reflection.
 	sl_vec old_vel_q, old_vel_s;			// Store old velocities
@@ -417,7 +416,6 @@ void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_quad *a,
 	float radius_n_a, radius_n_b, cos_n, sin_n;		// Radius at the normal & temps
 	float t;										// Intersection point
 	sl_vec combined_vel;							// The combined velocity, i.e velocity relative to each other.
-	float frame_offset;								// The traveled distance relative to each other per frame
 	sl_vec n2, n2m;									// Temporaries used
 	float vdotn;									// to calculate reflection.
 	sl_vec old_vel_a, old_vel_b;					// Store old velocities
