@@ -16,8 +16,6 @@
 
 void sl_texture_create( sl_texture* tex, void *data, unsigned int width, unsigned int height, GLenum format, GLenum internal_format )
 {
-	GLint i;
-
 	tex->width = width;
 	tex->height = height;
 	tex->format = format;
