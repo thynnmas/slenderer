@@ -31,11 +31,13 @@
 #include "renderer/texture.h"
 #include "renderer/window.h"
 
-#define MAX_LAYERS 16
-#define LAYER_CHUNK_SIZE 8
+#define SL_MAX_LAYERS 16
+#define SL_LAYER_CHUNK_SIZE 8
+// Texture ID indicating that this is a textureless quad.
+#define SL_INVISIBLE_TEXTURE 0xffffffff
 
 typedef struct {
-	vul_vector_t *layers[ MAX_LAYERS ]; // Vector of sl_quad. MAX_LAYERS arrays of quads, one for each layer.
+	vul_vector_t *layers[ SL_MAX_LAYERS ]; // Vector of sl_quad. MAX_LAYERS arrays of quads, one for each layer.
 	unsigned short layer_dirty; // Each bit indicates whether a layer must be re-sorted
 	unsigned int next_quad_id; // ID of the next added quad.
 	ui32_t window_id;

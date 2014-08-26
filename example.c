@@ -25,7 +25,6 @@
  */
 
 #define VUL_DEBUG
-#define VUL_VECTOR_C89_ITERATORS
 
 #include <vul_timer.h>
 #include "slenderer.h"
@@ -346,9 +345,9 @@ int main( int argc, char **argv )
 		   *post_program;;
 	sl_texture *bg_tex,
 			   *water_tex,
-			   *rain_tex, 
+// @TODO: Rain		   *rain_tex, 
 			   *beach_tex, 
-			   *splash_tex, 
+// @TODO: Rain->splash	   *splash_tex, 
 			   *net_tex, 
 			   *ball_tex, 
 			   *player1_tex,
@@ -366,6 +365,10 @@ int main( int argc, char **argv )
 				 world_bounds_sky,
 				 world_bounds_ground,
 				 net_bounds_id;
+	// These are unused
+	(void)argc;
+	(void)argv;
+
 	// @TODO: UI
 
 	// Initialize slenderer
@@ -465,7 +468,7 @@ int main( int argc, char **argv )
 	sl_vset( &pos, 2.0f, 0.0f );
 	world_bounds_right = sl_scene_add_sprite( scene, SLE_LAYER_BACKGROUND, 
 											  &pos, &scale, 0.0f,
-											  NULL,
+											  SL_INVISIBLE_TEXTURE,
 											  program->program_id,
 											  static_mesh->renderable_id,
 											  &uvs, &flip_uvs,
@@ -474,7 +477,7 @@ int main( int argc, char **argv )
 	sl_vset( &pos, 0.0f, -1.f + SLE_FLOOR );
 	world_bounds_ground = sl_scene_add_sprite( scene, SLE_LAYER_BACKGROUND, 
 											   &pos, &scale, 0.0f,
-											   NULL,
+											   SL_INVISIBLE_TEXTURE,
 											   program->program_id,
 											   static_mesh->renderable_id,
 											   &uvs, &flip_uvs,
@@ -483,7 +486,7 @@ int main( int argc, char **argv )
 	sl_vset( &pos, 0.0f, 2.0f );
 	world_bounds_sky = sl_scene_add_sprite( scene, SLE_LAYER_BACKGROUND, 
 											&pos, &scale, 0.0f,
-											NULL,
+											SL_INVISIBLE_TEXTURE,
 											program->program_id,
 											static_mesh->renderable_id,
 											&uvs, &flip_uvs,
@@ -492,7 +495,7 @@ int main( int argc, char **argv )
 	sl_vset( &pos, 0.0f, -0.5f ); sl_vset( &scale, 0.01f, 0.5f );
 	net_bounds_id = sl_scene_add_sprite( scene, SLE_LAYER_BACKGROUND, 
 										 &pos, &scale, 0.0f,
-										 NULL,
+										 SL_INVISIBLE_TEXTURE,
 										 program->program_id,
 										 static_mesh->renderable_id,
 										 &uvs, &flip_uvs,
@@ -618,7 +621,7 @@ int main( int argc, char **argv )
 		sl_animator_update( animator );
 
 		// Render scene
-		sl_renderer_render_scene( scene->scene_id, win->window_id );
+		sl_renderer_render_scene( scene->scene_id, win->window_id, SL_TRUE );
 	}
 
 	// Clean up

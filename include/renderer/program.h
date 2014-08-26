@@ -20,12 +20,11 @@
 #define SL_TRUE 1
 #define SL_FALSE 0
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include <malloc.h>
 #include <string.h>
 #include <stdio.h>
+
+#include "renderer/window.h"
 
 typedef struct sl_program {
 	unsigned int program_id;

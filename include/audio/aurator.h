@@ -25,11 +25,14 @@
 #ifndef SLENDERER_AUDATOR_H
 #define SLENDERER_AUDATOR_H
 
+#include <limits.h>
+
 #include <portaudio.h>
 //#include <stb_audio_mixer.h>
 #include <vul_types.h>
 #include <vul_resizable_array.h>
 #include <vul_timer.h>
+
 #define STB_VORBIS_HEADER_ONLY
 #include <stb_vorbis.h>
 

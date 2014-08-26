@@ -20,7 +20,7 @@ void sl_scene_create( sl_scene *scene, ui32_t parent_window_id, unsigned int sce
 	unsigned int i;
 	sl_box uvs;
 
-	for( i = 0; i < MAX_LAYERS; ++i ) {
+	for( i = 0; i < SL_MAX_LAYERS; ++i ) {
 		scene->layers[ i ] = vul_vector_create( sizeof( sl_quad ), 0 );
 	}
 	scene->layer_dirty = 0;
@@ -43,7 +43,7 @@ void sl_scene_destroy( sl_scene *scene )
 {
 	unsigned int i;
 
-	for( i = 0; i < MAX_LAYERS; ++i ) {
+	for( i = 0; i < SL_MAX_LAYERS; ++i ) {
 		vul_vector_destroy( scene->layers[ i ] );
 	}
 	scene->layer_dirty = 0;
@@ -54,7 +54,7 @@ void sl_scene_sort( sl_scene *scene )
 {
 	unsigned int i;
 
-	for( i = 0; i < MAX_LAYERS; ++i ) {
+	for( i = 0; i < SL_MAX_LAYERS; ++i ) {
 		if( ( scene->layer_dirty & ( 1 << i ) ) == 0 ) {
 			continue;
 		}
@@ -79,7 +79,7 @@ unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer,
 	sl_quad *q;
 
 #ifdef SL_DEBUG
-	assert( layer < MAX_LAYERS );
+	assert( layer < SL_MAX_LAYERS );
 #endif
 
 	q = ( sl_quad* )vul_vector_add_empty( scene->layers[ layer ] );
@@ -109,7 +109,7 @@ void sl_scene_remove_sprite( sl_scene *scene, const unsigned int id, const unsig
 	sl_quad *it, *last_it;
 
 	if( layer == 0xffffffff ) {
-		for( i = 0; i < MAX_LAYERS; ++i ) {
+		for( i = 0; i < SL_MAX_LAYERS; ++i ) {
 			if( scene->layers[ i ] ) {
 				j = 0;
 				vul_foreach( sl_quad, it, last_it, scene->layers[ i ] ) {
@@ -125,7 +125,7 @@ void sl_scene_remove_sprite( sl_scene *scene, const unsigned int id, const unsig
 		}
 	} else {
 #ifdef SL_DEBUG
-		assert( layer < MAX_LAYERS );
+		assert( layer < SL_MAX_LAYERS );
 #endif
 		if( scene->layers[ layer ] ) {
 			j = 0;
@@ -149,7 +149,7 @@ sl_quad *sl_scene_get_volitile_quad( sl_scene *scene, const unsigned int id, con
 
 	ret = NULL;
 	if( layer == 0xffffffff ) {
-		for( i = 0; i < MAX_LAYERS; ++i ) {
+		for( i = 0; i < SL_MAX_LAYERS; ++i ) {
 			if( scene->layers[ i ] ) {
 				vul_foreach( sl_quad, it, last_it, scene->layers[ i ] ) {
 					if( it->quad_id == id ) {
@@ -161,7 +161,7 @@ sl_quad *sl_scene_get_volitile_quad( sl_scene *scene, const unsigned int id, con
 		}
 	} else {
 #ifdef SL_DEBUG
-		assert( layer < MAX_LAYERS );
+		assert( layer < SL_MAX_LAYERS );
 #endif
 		lret = layer;
 		if( scene->layers[ layer ] ) {
@@ -186,7 +186,7 @@ const sl_quad *sl_scene_get_const_quad( sl_scene *scene, const unsigned int id, 
 	sl_quad *it, *last_it;
 	
 	if( layer == 0xffffffff ) {
-		for( i = 0; i < MAX_LAYERS; ++i ) {
+		for( i = 0; i < SL_MAX_LAYERS; ++i ) {
 			if( scene->layers[ i ] ) {
 				vul_foreach( sl_quad, it, last_it, scene->layers[ i ] ) {
 					if( it->quad_id == id ) {
@@ -197,7 +197,7 @@ const sl_quad *sl_scene_get_const_quad( sl_scene *scene, const unsigned int id, 
 		}
 	} else {
 #ifdef SL_DEBUG
-		assert( layer < MAX_LAYERS );
+		assert( layer < SL_MAX_LAYERS );
 #endif
 		lret = layer;
 		if( scene->layers[ layer ] ) {
@@ -219,7 +219,7 @@ void sl_scene_get_quads_at_pos( vul_vector_t *vec, sl_scene *scene, sl_vec *pos 
 	int i;
 	sl_box aabb;
 
-	for( i = MAX_LAYERS - 1; i >= 0; --i ) {
+	for( i = SL_MAX_LAYERS - 1; i >= 0; --i ) {
 		if( scene->layers[ i ] == NULL ) {
 			continue;
 		}

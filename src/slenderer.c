@@ -134,8 +134,11 @@ sl_window *sl_renderer_open_window( unsigned int width, unsigned int height, con
 	return win;
 }
 
-void sl_renderer_close_window( sl_window *win )
+void sl_renderer_close_window( ui32_t win_id )
 {
+	sl_window *win;
+
+	win = sl_renderer_get_window_by_id( win_id );
 	sl_window_destroy( win );
 	vul_vector_remove_swap( sl_renderer_global->windows, win->window_id );
 }
@@ -267,11 +270,7 @@ sl_texture *sl_renderer_allocate_texture( )
 
 void sl_renderer_glfw_error_callback( int error, const char *desc )
 {
-#ifdef SL_DEBUG
-	assert( 0 );
-#else
-	fprintf( stderr, "GLFW error encountered:\n%s\n", descrtiption );
-#endif
+	fprintf( stderr, "GLFW error encountered:\n%s\n", desc );
 }
 
 sl_renderable *sl_renderer_allocate_renderable( )
@@ -347,7 +346,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	cpi = -1;
 	cti = -1;
 	cri = -1;
-	for( i = 0; i < MAX_LAYERS; ++i )
+	for( i = 0; i < SL_MAX_LAYERS; ++i )
 	{
 		vul_foreach( sl_quad, it, last_it, scene->layers[ i ] )
 		{
@@ -366,8 +365,10 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 			if( cti != it->texture_id ) {
 				cti = it->texture_id;
 				sl_texture_unbind( ct );
-				ct = ( sl_texture* )vul_vector_get( sl_renderer_global->textures, cti );
-				sl_texture_bind( cp, ct );
+				if( cti != SL_INVISIBLE_TEXTURE ) {
+					ct = ( sl_texture* )vul_vector_get( sl_renderer_global->textures, cti );
+					sl_texture_bind( cp, ct );
+				}
 			}
 			// If new renderable, rebind it
 			if( cri != it->renderable_id ) {

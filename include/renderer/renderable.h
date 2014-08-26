@@ -17,11 +17,9 @@
 #ifndef SLENDERER_RENDERABLE_H
 #define SLENDERER_RENDERABLE_H
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include "math/vec.h"
 #include "renderer/quad.h"
+#include "renderer/window.h"
 
 typedef struct {
 	sl_vec position;

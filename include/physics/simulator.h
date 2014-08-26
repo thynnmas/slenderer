@@ -29,6 +29,9 @@
 
 #define SL_SIMULATOR_CALLBACK_BUCKETS 16
 
+#define SL_MIN( a, b ) ( ( a ) <= ( b ) ? ( a ) : ( b ) )
+#define SL_MAX( a, b ) ( ( a ) >= ( b ) ? ( a ) : ( b ) )
+
 typedef struct sl_simulator_quad {
 	const sl_quad *quad;
 	sl_vec pos;

@@ -15,7 +15,7 @@
 
 #include "audio/aurator.h"
 
-SL_BOOL sl_aurator_pa_intialized = SL_FALSE;
+static SL_BOOL sl_aurator_pa_intialized = SL_FALSE;
 
 void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_count, ui32_t sample_rate, ui32_t updates_per_second_guaranteed )
 {

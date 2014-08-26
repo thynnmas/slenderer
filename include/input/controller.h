@@ -17,9 +17,6 @@
 #ifndef SLENDERER_CONTROLLER_H
 #define SLENDERER_CONTROLLER_H
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include <stdio.h>
 
 #include <vul_hash_map.h>
@@ -28,6 +25,7 @@
 #include "math/vec.h"
 #include "renderer/scene.h"
 #include "slenderer.h"
+
 
 #define SL_TRUE 1
 #define SL_FALSE 0

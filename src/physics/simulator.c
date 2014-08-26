@@ -114,8 +114,8 @@ void sl_simulator_add_callback( sl_simulator *sim, unsigned int quad_id_a, unsig
 	vul_hash_map_element_t *element, el;
 	vul_list_element_t *le;
 
-	pair.quad_id_a = min( quad_id_a, quad_id_b );
-	pair.quad_id_b = max( quad_id_a, quad_id_b );
+	pair.quad_id_a = SL_MIN( quad_id_a, quad_id_b );
+	pair.quad_id_b = SL_MAX( quad_id_a, quad_id_b );
 
 	element = vul_map_get( sim->collision_callbacks, ( ui8_t* )&pair, sizeof( pair ) );
 	if( element != NULL ) {
@@ -186,8 +186,8 @@ void sl_simulator_update( sl_simulator *sim )
 			if( sl_bintersect( &aabb, &aabb2 ) ) {
 				// Call callback if there is one (if not, the collission isn't handled!)
 				// @NOTE: If this adjusts positions, you need to update the rendering quads from the callback!
-				pair.quad_id_a = min( it->quad->quad_id, it2->quad->quad_id );
-				pair.quad_id_b = max( it->quad->quad_id, it2->quad->quad_id );
+				pair.quad_id_a = SL_MIN( it->quad->quad_id, it2->quad->quad_id );
+				pair.quad_id_b = SL_MAX( it->quad->quad_id, it2->quad->quad_id );
 				el = vul_map_get_const( sim->collision_callbacks, ( ui8_t* )&pair, sizeof( pair ) );
 				if( el != NULL ) {
 					( ( sl_simulator_collider_pair_callback )el->data )( s, it, it2, time_delta_in_s );

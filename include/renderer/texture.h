@@ -17,9 +17,6 @@
 #ifndef SLENDERER_TEXTURE_H
 #define SLENDERER_TEXTURE_H
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include "renderer/program.h"
 
 typedef struct {
