@@ -23,15 +23,12 @@ void sl_window_create( sl_window* win, unsigned int width, unsigned int height, 
 									fullscreen ? glfwGetPrimaryMonitor( ) : NULL, /* <-- @TODO: Multimonitor support */
 									context_share == NULL ? NULL : context_share->handle );
 
-#ifdef SL_DEBUG
-	assert( win->handle );
-#else
-	if ( win->handle )
+	if ( !win->handle )
 	{
 		printf("Failed to create a GLFW window\n");
 		return;
 	}
-#endif
+
 	if ( !fullscreen ) {
 		// If window, make it non-resizable
 		glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
