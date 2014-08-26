@@ -4,13 +4,14 @@ Slenderer
 Slenderer is a tiny 2D rendering library written in C. The goal is to have as small a dependancy-list as possible. At time of writing, that list is:
 
 * GLFW 3
+* glew
 * Portaudio
 * The header-only libraries included in the dependancies-folder.
 
 See the Dependancies section below for more on these.
 
 # Warning
-While this is released at this point, it is not stable, tested or advised for people who aren't either me or very adventurous. It has been released in time for Ludum Dare and will be a companion-work for whatever game I make there, so it is likely to have a lot its faults fixed over the weekend. If anyone wants to try using it in this time, let me know (@thynnmas on twitter/#ludumdare for the weekend) and I'll try to help out as much as I can.
+While this is released at this point, and has been used for the extension of the Ludum Dare 30 weekend, it is still not too stable. If you want to try it out, find me (f.ex. on twitter: @thynnmas) and let me know and I might be able to help you out with issues (or not, depending on time constraints elsewhere).
 
 # Renderer
 
@@ -51,10 +52,17 @@ It is recommended (since working in screen space is bad for anything but renderi
 use your own math library and write conversion-functions that move from your coordinate space and library
 to the internal one to ease your work.
 
+## Aurator
+
+The audio component; it takes clips of sound given as samples in a buffer of shorts, channels interleaved if more than one channel is supplied. Similar in function to the animator; once a clip is finished it is removed, restarted or stopped and kept around based on state given in at the beginning of play.
+We mix clips together with pure addition into a 32-bit buffer, then clip them down before scaling and passing it to the audio stream, which is very much the wrong thing to do, but it was very rushed. Id love to integrate stb\_audio\_mixer into it, and if anyone feels like trying that, go ahead (and let me know).
+We supply a way to load Ogg Vorbis files into the system (through stb\_vorbis), but there is no reason you can't write your own loading code.
+
 # Dependancies
 
-* [GLFW](http://www.glfw.org/) is available from their sire or their [github repository](https://github.com/glfw/glfw).
-* [Portaudio](http://portaudio.com/) is available from their site. It was the slimmest audio stream library I found. If anyone know of an even slimmer one, let me know and I might swap it around.
+* [GLFW 3](http://www.glfw.org/) is available from their sire or their [github repository](https://github.com/glfw/glfw).
+* [GLEW](http://glew.sourceforge.net/) is available from their site or likely in your package manager.
+* [Portaudio 1.9](http://portaudio.com/) is available from their site. It was the slimmest audio stream library I found. If anyone know of an even slimmer one, let me know and I might swap it around.
 * stb_image.h and stb_vorbis.h are a single-file image and ogg vorbis handling libraries by Sean Barrett. All hail the [stb libraries](https://github.com/nothings/stb)!
 * vul_* are a subset of my own header-only libraries. These are previously unrealesed because they have not
   seen the required years of service to make sure they actually work. Using them in this renderer will probably
@@ -71,30 +79,21 @@ build you might want to define VUL\_DEBUG to take advantage of additional checks
 
 # Notes
 
-This was released in haste to be able to use it for Ludum Dare 30. Improving the renderer as a side-efect of using
-it there was a goal of the premature release, but it means the state of it is not quite where it should be for release.
-
-* The animator has not been tested. At all. It will be, but use at own risk.
 * The code is not well commented; for the most part header-files contain comments descriping in somtimes way too obious
   ways what the functions do, but the meat of things are not guaranteed to be well commented.
-* There ARE bugs. Many will be squashed over the weekend. Some won't. If anyone uses this, let me know if you find any
-  and they will be looked at when I have time.
-* The example renders, handles input applies forces to the ball and players and detects collissions, but jumping does
-  not work, touching the ball with the player causes everything to freeze and it's generally not a playable game. I
-  suspect these bugs are mostly in the example itself (although the collission detection handling seems off on one of
-  the players causing drift) and not in the renderer/components though, so it's not as bad as it looks. If they are
-  indeed in the components, they are liekyl to get squashed over the weekend. The example still shows a relatively
-  complete usage of the engine, even if the animation-component is not used; the boilerplate is there, but it is not
-  written into it yet. At some point it will be.
+* There WILL BE bugs. If anyone uses this, let me know if you find any and they will be looked at when I have time.
+* The example gives a good idea of how the engine is used, but has not been tested since the *massive* changes during Ludum Dare, so you're probably better off looking at the code for that if you really want to dive in. Source+binary of that is found [here](http://www.schmidx2.com/Code/LD30.zip).
 
 # Future plans
 
-* Fix all the things that aren't ready yet due to the rushed release
-* Post-processing
-* A small audio playing component. This is likely to appear during the weekend.
+* Rewrite the hash map and/or linked list so they take the same comparator funcions; atm. they don't.
+* Proper audio mixing, integrate stb\_audio\_mixer.
+* Font rendering component, probably use stb\_truetype
 * OpenGL ES support; I have an ARM-based laptop, so this will happen at some point.
 
 # License
 
 As is noted in the source, Slenderer is released into the public domain in legal jurisdiction where such a thing exists
 Where there is no such thing, it is released under the MIT License, as seen in the LICENSE file.
+
+The stb\_-files in dependancies src/dependancies are linceced independantly. See these files for their licensing (public domain).
