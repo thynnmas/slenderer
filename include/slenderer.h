@@ -104,7 +104,7 @@ sl_window *sl_renderer_open_window( unsigned int width, unsigned int height, con
 /**
  * Closes a window and removes it from the renderer.
  */
-void sl_renderer_close_window( sl_window *win );
+void sl_renderer_close_window( ui32_t win_id );
 
 /**
  * Renders the scene at the given index to the window at the given index.
@@ -115,7 +115,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 /**
  * Creates a new scene and adds it to the renderer.
  */
-sl_scene *sl_renderer_add_scene( sl_window *win, sl_program *post_program );
+sl_scene *sl_renderer_add_scene( ui32_t win_id, ui32_t post_program_id );
 
 /**
  * Cleans up a scene 
@@ -178,4 +178,13 @@ sl_scene *sl_renderer_get_scene_by_id( unsigned int id );
  */
 sl_texture *sl_renderer_get_texture_by_id( unsigned int id );
 
+/**
+ * Retrieve a program by id.
+ */
+sl_program *sl_renderer_get_program_by_id( unsigned int id );
+
+/**
+ * Retrieve a window by id.
+ */
+sl_window *sl_renderer_get_window_by_id( unsigned int id );
 #endif

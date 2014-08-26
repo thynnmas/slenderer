@@ -14,6 +14,7 @@
  */
 
 #include "renderer/animator.h"
+#include "slenderer.h"
 
 void sl_animator_create( sl_animator *animator, sl_scene *scene )
 {
@@ -25,7 +26,7 @@ void sl_animator_create( sl_animator *animator, sl_scene *scene )
 	animator->clock = vul_timer_create( );
 	animator->last_time = vul_timer_get_millis( animator->clock );
 
-	animator->scene = scene;
+	animator->scene_id = scene->scene_id;
 }
 void sl_animator_destroy( sl_animator *animator )
 {
@@ -38,13 +39,15 @@ void sl_animator_destroy( sl_animator *animator )
 unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state )
 {
 	sl_animation_transform* t;
+	sl_scene *s;
 
+	s = sl_renderer_get_scene_by_id( animator->scene_id );
 	t = ( sl_animation_transform* )vul_vector_add_empty( animator->transforms );
 	t->animation_id = animator->next_animation_id++;
 	t->quad_id = quad_id;
 	t->start_time = vul_timer_get_millis( animator->clock );
 	t->end_time = t->start_time + length_in_ms;
-	t->start_world_mat = sl_scene_get_const_quad( animator->scene, quad_id, 0xffffffff )->world_matrix;
+	t->start_world_mat = sl_scene_get_const_quad( s, quad_id, 0xffffffff )->world_matrix;
 	t->end_world_mat = *end_world_matrix;
 	assert( state == SL_ANIMATION_RUNNING || SL_ANIMATION_RUNNING_LOOPED || SL_ANIMATION_RUNNING_PERIODIC );
 	t->state = state;
@@ -114,6 +117,7 @@ void sl_animator_update( sl_animator *animator )
 	sl_animation_sprite *its, *last_its;
 	sl_quad *quad;
 	sl_animation_sprite_state *state;
+	sl_scene *s;
 	int deleted;
 	sl_mat4 tmp;
 
@@ -201,6 +205,7 @@ void sl_animator_update( sl_animator *animator )
 	}
 
 	// Iterate over the transforms and update them
+	s = sl_renderer_get_scene_by_id( animator->scene_id );
 	vul_foreach( sl_animation_transform, ita, last_ita, animator->transforms )
 	{		
 		// Calculate t
@@ -209,7 +214,7 @@ void sl_animator_update( sl_animator *animator )
 		t = ( float )( ( double )now_relative / ( double )total );
 
 		// Grab the quad
-		quad = sl_scene_get_volitile_quad( animator->scene, ita->quad_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a transform!
+		quad = sl_scene_get_volitile_quad( s, ita->quad_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a transform!
 
 		// Set the new matrix, a linear interpolation at t. @TODO: Might want to quaternion it up at some point; slerp for the orientation here!
 		sl_mlerp4( &quad->world_matrix, &ita->start_world_mat, &ita->end_world_mat, t );
@@ -223,7 +228,7 @@ void sl_animator_update( sl_animator *animator )
 			// Advance the animation
 			its->time_since_current_frame -= its->time_per_frame_in_ms;
 
-			quad = sl_scene_get_volitile_quad( animator->scene, its->quad_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a sprite!
+			quad = sl_scene_get_volitile_quad( s, its->quad_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a sprite!
 			if( its->period_rising ) {
 				state = ( sl_animation_sprite_state* )vul_vector_get( its->frames, ++its->current_frame );
 			} else {

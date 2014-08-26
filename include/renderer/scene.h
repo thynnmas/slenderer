@@ -38,9 +38,9 @@ typedef struct {
 	vul_vector_t *layers[ MAX_LAYERS ]; // Vector of sl_quad. MAX_LAYERS arrays of quads, one for each layer.
 	unsigned short layer_dirty; // Each bit indicates whether a layer must be re-sorted
 	unsigned int next_quad_id; // ID of the next added quad.
-	sl_window *window;
+	ui32_t window_id;
 	unsigned int scene_id;
-	sl_program *post_program; // Post processing program; by default the normal shader!
+	ui32_t post_program_id; // Post processing program; by default the normal shader!
 	void (*post_program_callback)( sl_program *post_program ); // Called last second before tendering the post process quad; use to set parameters for the program.
 	sl_renderable post_renderable;
 	sl_vec camera_pos;
@@ -49,7 +49,7 @@ typedef struct {
 /**
  * Create a scene.
  */
-void sl_scene_create( sl_scene *scene, sl_window *parent_window, unsigned int scene_id, sl_program *post_program );
+void sl_scene_create( sl_scene *scene, ui32_t parent_window_id, unsigned int scene_id, ui32_t post_program_id );
 /**
  * Destroy a scene.
  */

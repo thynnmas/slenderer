@@ -140,7 +140,7 @@ void sl_renderer_close_window( sl_window *win )
 	vul_vector_remove_swap( sl_renderer_global->windows, win->window_id );
 }
 
-sl_scene *sl_renderer_add_scene( sl_window *win, sl_program *post_program )
+sl_scene *sl_renderer_add_scene( ui32_t win_id, ui32_t post_program_id )
 {
 	sl_scene *s;
 	sl_animator *a;
@@ -149,7 +149,7 @@ sl_scene *sl_renderer_add_scene( sl_window *win, sl_program *post_program )
 
 	// Create the scnee
 	s = ( sl_scene* )vul_vector_add_empty( sl_renderer_global->scenes );
-	sl_scene_create( s, win, sl_renderer_global->next_scene_id++, post_program );
+	sl_scene_create( s, win_id, sl_renderer_global->next_scene_id++, post_program_id );
 
 	// Also add the corrisponding animator and the simulator
 	a = ( sl_animator* )vul_vector_add_empty( sl_renderer_global->animators );
@@ -190,7 +190,7 @@ void sl_renderer_finalize_scene( unsigned int scene_id )
 	i = 0;
 	vul_foreach( sl_animator, ai, ail, sl_renderer_global->animators )
 	{
-		if( ai->scene->scene_id == scene_id ) {
+		if( ai->scene_id == scene_id ) {
 			sl_animator_destroy( ai );
 			vul_vector_remove_cascade( sl_renderer_global->animators, i );
 			break;
@@ -210,7 +210,7 @@ void sl_renderer_finalize_scene( unsigned int scene_id )
 	i = 0;
 	vul_foreach( sl_simulator, smi, smil, sl_renderer_global->simulators )
 	{
-		if( smi->scene->scene_id == scene_id ) {
+		if( smi->scene_id == scene_id ) {
 			sl_simulator_destroy( smi );
 			vul_vector_remove_cascade( sl_renderer_global->simulators, i );
 			break;
@@ -224,7 +224,7 @@ sl_animator *sl_renderer_get_animator_for_scene( unsigned int scene_id )
 	sl_animator *ai, *lai;
 	
 	vul_foreach( sl_animator, ai, lai, sl_renderer_global->animators ) {
-		if( ai->scene->scene_id == scene_id ) {
+		if( ai->scene_id == scene_id ) {
 			return ai;
 		}
 	}
@@ -248,7 +248,7 @@ sl_simulator *sl_renderer_get_simulator_for_scene( unsigned int scene_id )
 	sl_simulator *si, *lsi;
 	
 	vul_foreach( sl_simulator, si, lsi, sl_renderer_global->simulators ) {
-		if( si->scene->scene_id == scene_id ) {
+		if( si->scene_id == scene_id ) {
 			return si;
 		}
 	}
@@ -385,23 +385,24 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	sl_window_bind_framebuffer_post( win );
 	{
 		// Bind the program
-		sl_program_bind( scene->post_program );
+		cp = sl_renderer_get_program_by_id( scene->post_program_id );
+		sl_program_bind( cp );
 		// Bind the FBO as the texture
 		glActiveTexture( GL_TEXTURE0 );
 		glBindTexture( GL_TEXTURE_2D, win->fbo_texture );
-		glUniform1i( glGetUniformLocation( scene->post_program->gl_prog_id, "texture" ), 0 );
+		glUniform1i( glGetUniformLocation( cp->gl_prog_id, "texture" ), 0 );
 		// Bind the renderable
 		sl_renderable_bind( &scene->post_renderable );
 		// Bind program parameters
 		if( scene->post_program_callback ) {
-			scene->post_program_callback( scene->post_program );
+			scene->post_program_callback( cp );
 		}
 		// And draw the instance
 		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );
 		// And unbind things
 		sl_renderable_unbind( &scene->post_renderable );
 		glBindTexture( GL_TEXTURE_2D, 0 );
-		sl_program_unbind( scene->post_program );
+		sl_program_unbind( cp );
 	}
 
 	// Swap buffers
@@ -463,7 +464,7 @@ void sl_renderer_get_scenes_by_window_handle( vul_vector_t *vec, GLFWwindow *win
 
 	vul_foreach( sl_scene, it, last_it, sl_renderer_global->scenes )
 	{
-		if( it->window == win ) {
+		if( it->window_id == win->window_id ) {
 			vul_vector_add( vec, &it );
 		}
 	}
@@ -490,6 +491,32 @@ sl_texture *sl_renderer_get_texture_by_id( unsigned int id )
 	{
 		if( ti->texture_id == id ) {
 			return ti;
+		}
+	}
+	return NULL;
+}
+
+sl_program *sl_renderer_get_program_by_id( unsigned int id )
+{
+	sl_program *pi, *pil;
+
+	vul_foreach( sl_program, pi, pil, sl_renderer_global->programs )
+	{
+		if( pi->program_id == id ) {
+			return pi;
+		}
+	}
+	return NULL;
+}
+
+sl_window *sl_renderer_get_window_by_id( unsigned int id )
+{
+	sl_window *wi, *wil;
+
+	vul_foreach( sl_window, wi, wil, sl_renderer_global->windows )
+	{
+		if( wi->window_id == id ) {
+			return wi;
 		}
 	}
 	return NULL;

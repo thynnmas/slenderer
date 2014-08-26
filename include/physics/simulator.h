@@ -48,7 +48,7 @@ typedef struct {
 	vul_vector_t *quads; // Vector of sl_simulator_quads
 	vul_hash_map_t *collision_callbacks; // Hashmap of < sl_simulator_collider_pair, sl_simulator_collider_pair_callback >.
 	vul_list_element_t *collission_callback_keys; // List if sl_simulator_collider_pair
-	sl_scene *scene;
+	ui32_t scene_id;
 	vul_timer_t *clock;
 	unsigned long long last_time;
 } sl_simulator;

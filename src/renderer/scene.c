@@ -15,7 +15,7 @@
 #define VUL_DEFINE
 #include "renderer/scene.h"
 
-void sl_scene_create( sl_scene *scene, sl_window *parent_window, unsigned int scene_id, sl_program *post_program  )
+void sl_scene_create( sl_scene *scene, ui32_t parent_window_id, unsigned int scene_id, ui32_t post_program_id )
 {
 	unsigned int i;
 	sl_box uvs;
@@ -25,11 +25,11 @@ void sl_scene_create( sl_scene *scene, sl_window *parent_window, unsigned int sc
 	}
 	scene->layer_dirty = 0;
 	scene->next_quad_id = 0;
-	scene->window = parent_window;
+	scene->window_id = parent_window_id;
 	scene->scene_id = scene_id;
 
 	/* Create the default post processing program */
-	scene->post_program = post_program;
+	scene->post_program_id = post_program_id;
 	scene->post_program_callback = NULL;
 
 	/* Create renderable and quad for post rendering */
@@ -65,7 +65,7 @@ void sl_scene_sort( sl_scene *scene )
 
 void sl_scene_set_post( sl_scene *scene, sl_program *prog, void (*post_program_callback)( sl_program *post_program ) )
 {
-	scene->post_program = prog;
+	scene->post_program_id = prog->program_id;
 	scene->post_program_callback = post_program_callback;
 }
 

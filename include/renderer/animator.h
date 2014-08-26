@@ -83,7 +83,7 @@ typedef struct {
 								  // between frames because of interpolation
 								  // of transforms.
 
-	sl_scene *scene;
+	ui32_t scene_id;
 } sl_animator;
 
 /** 

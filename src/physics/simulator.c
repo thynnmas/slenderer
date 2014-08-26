@@ -13,13 +13,14 @@
  * THE SOFTWARE.
  */
 #include "physics/simulator.h"
+#include "slenderer.h"
 
 void sl_simulator_create( sl_simulator *sim, sl_scene *scene )
 {
 	sim->quads = vul_vector_create( sizeof( sl_simulator_quad ), 0 );
 	sim->collision_callbacks = vul_map_create( SL_SIMULATOR_CALLBACK_BUCKETS, sl_simulator_callback_hash, sl_simulator_callback_comp );
 	sim->collission_callback_keys = NULL;
-	sim->scene = scene;
+	sim->scene_id = scene->scene_id;
 	sim->clock = vul_timer_create( );
 	sim->last_time = 0;
 }
@@ -41,6 +42,7 @@ void sl_simulator_destroy( sl_simulator *sim )
 sl_simulator_quad *sl_simulator_add_quad( sl_simulator *sim, unsigned int quad_id, sl_vec *start_velocity )
 {
 	sl_simulator_quad *q, *it, *last_it;
+	sl_scene *s;
 		
 	vul_foreach( sl_simulator_quad, it, last_it, sim->quads )
 	{
@@ -52,9 +54,10 @@ sl_simulator_quad *sl_simulator_add_quad( sl_simulator *sim, unsigned int quad_i
 	}
 
 	// Otherwise, add it.
+	s = sl_renderer_get_scene_by_id( sim->scene_id );
 	q = ( sl_simulator_quad* )vul_vector_add_empty( sim->quads );
 	q->forces = vul_vector_create( sizeof( sl_vec ), 0 );
-	q->quad = sl_scene_get_const_quad( sim->scene, quad_id, 0xffffffff );
+	q->quad = sl_scene_get_const_quad( s, quad_id, 0xffffffff );
 	q->velocity = *start_velocity;
 	sl_vset( &q->pos,
 			 sl_mget4( &q->quad->world_matrix, 3, 0 ),
@@ -134,6 +137,7 @@ void sl_simulator_add_callback( sl_simulator *sim, unsigned int quad_id_a, unsig
 void sl_simulator_update( sl_simulator *sim )
 {
 	sl_simulator_quad *it, *lit, *it2, *lit2;
+	sl_scene *s;
 	sl_vec *vit, *lvit, tmp;
 	sl_box aabb, aabb2;
 	const vul_hash_map_element_t *el;
@@ -161,9 +165,10 @@ void sl_simulator_update( sl_simulator *sim )
 	}
 
 	// Update the rendering quads (if this simulation quad has one
+	s = sl_renderer_get_scene_by_id( sim->scene_id );
 	vul_foreach( sl_simulator_quad, it, lit, sim->quads )
 	{
-		q = sl_scene_get_volitile_quad( sim->scene, it->quad->quad_id, 0xffffffff );
+		q = sl_scene_get_volitile_quad( s, it->quad->quad_id, 0xffffffff );
 		sl_mseti4( &q->world_matrix, 3, 0, it->pos.x );
 		sl_mseti4( &q->world_matrix, 3, 1, it->pos.y );
 	}
@@ -185,7 +190,7 @@ void sl_simulator_update( sl_simulator *sim )
 				pair.quad_id_b = max( it->quad->quad_id, it2->quad->quad_id );
 				el = vul_map_get_const( sim->collision_callbacks, ( ui8_t* )&pair, sizeof( pair ) );
 				if( el != NULL ) {
-					( ( sl_simulator_collider_pair_callback )el->data )( sim->scene, it, it2, time_delta_in_s );
+					( ( sl_simulator_collider_pair_callback )el->data )( s, it, it2, time_delta_in_s );
 				}
 			}
 		}
