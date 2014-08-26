@@ -226,7 +226,7 @@ void sl_scene_get_quads_at_pos( vul_vector_t *vec, sl_scene *scene, sl_vec *pos 
 		vul_foreach( sl_quad, it, last_it, scene->layers[ i ] )
 		{
 			sl_quad_aabb( &aabb, it );
-			if( sl_binside( &aabb, pos ) ) {
+			if( sl_binside( &aabb, pos ) && !it->hidden ) {
 				vul_vector_add( vec, &it->quad_id );
 			}
 		}
