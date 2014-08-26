@@ -24,7 +24,8 @@
  * In addittion the renderer depends on GLFW 3 (and naturally its dependancies).
  *
  * @FUTURE:
- * -Audio, somehow...
+ * -Font rendering (stb_truetype)
+ * -Proper audio mixing; atm we're being very, very lazy (and plain wrong)
  * -OpenGL ES support/mobile if possible with glfw; useful for ARM support.
  * 
  * ¹ If public domain is not legally valid in your legal jurisdiction
