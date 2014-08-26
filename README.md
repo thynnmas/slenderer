@@ -4,6 +4,7 @@ Slenderer
 Slenderer is a tiny 2D rendering library written in C. The goal is to have as small a dependancy-list as possible. At time of writing, that list is:
 
 * GLFW 3
+* Portaudio
 * The header-only libraries included in the dependancies-folder.
 
 See the Dependancies section below for more on these.
@@ -53,7 +54,8 @@ to the internal one to ease your work.
 # Dependancies
 
 * [GLFW](http://www.glfw.org/) is available from their sire or their [github repository](https://github.com/glfw/glfw).
-* stb_image.c is a single-file image handling library by Sean Barrett. All hail the [stb libraries](https://github.com/nothings/stb)!
+* [Portaudio](http://portaudio.com/) is available from their site. It was the slimmest audio stream library I found. If anyone know of an even slimmer one, let me know and I might swap it around.
+* stb_image.h and stb_vorbis.h are a single-file image and ogg vorbis handling libraries by Sean Barrett. All hail the [stb libraries](https://github.com/nothings/stb)!
 * vul_* are a subset of my own header-only libraries. These are previously unrealesed because they have not
   seen the required years of service to make sure they actually work. Using them in this renderer will probably
   help that. In this case they contain a timer, some typedefs, a hash map using a linked list for collissions and a
