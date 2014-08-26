@@ -49,6 +49,8 @@ void sl_renderer_create(  )
 	sl_renderer_global->aurators = vul_vector_create( sizeof( sl_aurator), 0 );
 	
 	sl_controller_create( );
+
+	sl_renderer_global->next_scene_id = 0;
 }
 
 void sl_renderer_destroy( )
@@ -147,7 +149,7 @@ sl_scene *sl_renderer_add_scene( sl_window *win, sl_program *post_program )
 
 	// Create the scnee
 	s = ( sl_scene* )vul_vector_add_empty( sl_renderer_global->scenes );
-	sl_scene_create( s, win, vul_vector_size( sl_renderer_global->scenes ) - 1, post_program );
+	sl_scene_create( s, win, sl_renderer_global->next_scene_id++, post_program );
 
 	// Also add the corrisponding animator and the simulator
 	a = ( sl_animator* )vul_vector_add_empty( sl_renderer_global->animators );
@@ -158,7 +160,7 @@ sl_scene *sl_renderer_add_scene( sl_window *win, sl_program *post_program )
 	
 	// If we have sound, create the aurator
 	ar = ( sl_aurator* )vul_vector_add_empty( sl_renderer_global->aurators );
-	sl_aurator_create( ar, SL_AUDIO_CHANNEL_COUNT, SL_AUDIO_SAMPLE_RATE, SL_AUDIO_FRAME_RATE_GUARANTEE );
+	sl_aurator_create( ar, s->scene_id, SL_AUDIO_CHANNEL_COUNT, SL_AUDIO_SAMPLE_RATE, SL_AUDIO_FRAME_RATE_GUARANTEE );
 
 	// Return the scene
 	return s;
@@ -168,9 +170,9 @@ void sl_renderer_finalize_scene( unsigned int scene_id )
 {
 	// @TODO: This doesn't seem to quite work...
 	sl_scene *si, *sil;
-	sl_animator *a;
-	sl_simulator *s;
-	sl_aurator *ar;
+	sl_animator *ai, *ail;
+	sl_simulator *smi, *smil;
+	sl_aurator *ari, *aril;
 	ui32_t i;
 
 	i = 0;
@@ -184,36 +186,73 @@ void sl_renderer_finalize_scene( unsigned int scene_id )
 		++i;
 	}
 
-	a = sl_renderer_get_animator_for_scene( scene_id );
-	sl_animator_destroy( a );
-	s = sl_renderer_get_simulator_for_scene( scene_id );
-	sl_simulator_destroy( s );
-	ar = sl_renderer_get_aurator_for_scene( scene_id );
-	sl_aurator_destroy( ar );
+	
+	i = 0;
+	vul_foreach( sl_animator, ai, ail, sl_renderer_global->animators )
+	{
+		if( ai->scene->scene_id == scene_id ) {
+			sl_animator_destroy( ai );
+			vul_vector_remove_cascade( sl_renderer_global->animators, i );
+			break;
+		}
+		++i;
+	}
+	i = 0;
+	vul_foreach( sl_aurator, ari, aril, sl_renderer_global->aurators )
+	{
+		if( ari->scene_id == scene_id ) {
+			sl_aurator_destroy( ari );
+			vul_vector_remove_cascade( sl_renderer_global->aurators, i );
+			break;
+		}
+		++i;
+	}
+	i = 0;
+	vul_foreach( sl_simulator, smi, smil, sl_renderer_global->simulators )
+	{
+		if( smi->scene->scene_id == scene_id ) {
+			sl_simulator_destroy( smi );
+			vul_vector_remove_cascade( sl_renderer_global->simulators, i );
+			break;
+		}
+		++i;
+	}
 }
 
 sl_animator *sl_renderer_get_animator_for_scene( unsigned int scene_id )
 {
-#ifdef SL_DEBUG
-	assert( scene_id < vul_vector_size( sl_renderer_global->animators ) );
-#endif
-	return ( sl_animator* )vul_vector_get( sl_renderer_global->animators, scene_id );
+	sl_animator *ai, *lai;
+	
+	vul_foreach( sl_animator, ai, lai, sl_renderer_global->animators ) {
+		if( ai->scene->scene_id == scene_id ) {
+			return ai;
+		}
+	}
+	return NULL;
 }
 
 sl_aurator *sl_renderer_get_aurator_for_scene( unsigned int scene_id )
 {
-#ifdef SL_DEBUG
-	assert( scene_id < vul_vector_size( sl_renderer_global->aurators ) );
-#endif
-	return ( sl_aurator* )vul_vector_get( sl_renderer_global->aurators, scene_id );
+	sl_aurator *ai, *lai;
+	
+	vul_foreach( sl_aurator, ai, lai, sl_renderer_global->aurators ) {
+		if( ai->scene_id == scene_id ) {
+			return ai;
+		}
+	}
+	return NULL;
 }
 
 sl_simulator *sl_renderer_get_simulator_for_scene( unsigned int scene_id )
 {
-#ifdef SL_DEBUG
-	assert( scene_id < vul_vector_size( sl_renderer_global->simulators ) );
-#endif
-	return ( sl_simulator* )vul_vector_get( sl_renderer_global->simulators, scene_id );
+	sl_simulator *si, *lsi;
+	
+	vul_foreach( sl_simulator, si, lsi, sl_renderer_global->simulators ) {
+		if( si->scene->scene_id == scene_id ) {
+			return si;
+		}
+	}
+	return NULL;
 }
 
 sl_texture *sl_renderer_allocate_texture( )
@@ -281,19 +320,19 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	sl_window_bind_framebuffer_fbo( win );
 	
 	// Update the corresponding animator
-	anim = ( sl_animator* )vul_vector_get( sl_renderer_global->animators, scene_index );
+	anim = sl_renderer_get_animator_for_scene( scene_index );
 	sl_animator_update( anim );
 
 	// Update the corresponding simulator
-	sim = ( sl_simulator* )vul_vector_get( sl_renderer_global->simulators, scene_index );
+	sim = sl_renderer_get_simulator_for_scene( scene_index );
 	sl_simulator_update( sim );
 
 	// Update the corresponding audio manager
-	aur = ( sl_aurator* )vul_vector_get( sl_renderer_global->aurators, scene_index );
+	aur = sl_renderer_get_aurator_for_scene( scene_index );
 	sl_aurator_update( aur );
 
 	// Grab the scene and sort it
-	scene = ( sl_scene* )vul_vector_get( sl_renderer_global->scenes, scene_index );
+	scene = sl_renderer_get_scene_by_id( scene_index );
 	sl_scene_sort( scene );
 	
 	// Set GL state

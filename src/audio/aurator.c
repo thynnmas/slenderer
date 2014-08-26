@@ -17,7 +17,7 @@
 
 SL_BOOL sl_aurator_pa_intialized = SL_FALSE;
 
-void sl_aurator_create( sl_aurator *ret, ui32_t channel_count, ui32_t sample_rate, ui32_t updates_per_second_guaranteed )
+void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_count, ui32_t sample_rate, ui32_t updates_per_second_guaranteed )
 {
 	PaError err;
 
@@ -37,6 +37,7 @@ void sl_aurator_create( sl_aurator *ret, ui32_t channel_count, ui32_t sample_rat
 	// Create the clip array
 	ret->clips = vul_vector_create( sizeof( sl_aurator_clip ), 0 );
 	// State
+	ret->scene_id = parent_scene;
 	ret->next_id = 0;
 	ret->frames_per_buffer = sample_rate / updates_per_second_guaranteed; // @TODO: Move to next power of 2 or something
 	ret->volume = 0.5f;

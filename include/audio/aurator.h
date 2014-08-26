@@ -72,6 +72,8 @@ typedef struct sl_aurator_steam_data {
 } sl_aurator_steam_data;
 
 typedef struct sl_aurator {
+	// Need a reference to the parent scene
+	ui32_t scene_id;
 	// Contains all the clips currently playing.
 	vul_vector_t *clips; 
 	// Unique id to give the next added clip
@@ -101,7 +103,7 @@ static SL_BOOL sl_aurator_pa_intialized;
  * We sceify the nubmer of time per second we GUARANTEE that
  * _update will be called; if we can't keep up we WILL have audio stutter!
  */
-void sl_aurator_create( sl_aurator *ret, ui32_t channel_count, ui32_t sample_rate, ui32_t updates_per_second_guaranteed );
+void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_count, ui32_t sample_rate, ui32_t updates_per_second_guaranteed );
 
 /*
  * Cleans up the aurator, @TODO: stopping all it's streams.

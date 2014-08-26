@@ -81,6 +81,7 @@ typedef struct {
 	vul_vector_t *renderables; // Vector of sl_renderable. Ones that are not sprite-animated
 							   // should use the same one. Ohters should have their own.
 	vul_vector_t *aurators; // Vector of sl_aurator.
+	ui32_t next_scene_id;
 } sl_renderer;
 
 sl_renderer *sl_renderer_global;
