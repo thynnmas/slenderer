@@ -521,3 +521,16 @@ sl_window *sl_renderer_get_window_by_id( unsigned int id )
 	}
 	return NULL;
 }
+
+sl_window *sl_renderer_get_window_by_handle( GLFWwindow *win_handle )
+{
+	sl_window *wi, *wil;
+
+	vul_foreach( sl_window, wi, wil, sl_renderer_global->windows )
+	{
+		if( wi->handle == win_handle ) {
+			return wi;
+		}
+	}
+	return NULL;
+}

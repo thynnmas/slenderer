@@ -13,6 +13,7 @@
  * THE SOFTWARE.
  */
 #include "renderer/window.h"
+#include "slenderer.h"
 
 void sl_window_create( sl_window* win, unsigned int width, unsigned int height, const char *title, int fullscreen, int vsync, sl_window *context_share )
 {
@@ -41,12 +42,14 @@ void sl_window_create( sl_window* win, unsigned int width, unsigned int height, 
 		glfwMakeContextCurrent( win->handle );
 		glfwSwapInterval( 0 );
 	}
+
+	glfwSetWindowSizeCallback( win->handle, sl_window_size_callback );
 }
 
 void sl_window_create_fbo( sl_window *win, unsigned int width, unsigned int height )
 {
 	GLenum status;
-
+	
 	/* Create the framebufferobject we render to before post */
 	glActiveTexture( GL_TEXTURE0 );
 	glGenTextures( 1, &win->fbo_texture );
@@ -74,11 +77,16 @@ void sl_window_create_fbo( sl_window *win, unsigned int width, unsigned int heig
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
 
-void sl_window_destroy( sl_window* win )
+void sl_window_destroy_fbo( sl_window *win )
 {
 	glDeleteRenderbuffers( 1, &win->rbo_depth );
 	glDeleteTextures( 1, &win->fbo_texture);
 	glDeleteFramebuffers( 1, &win->fbo );
+}
+
+void sl_window_destroy( sl_window* win )
+{
+	sl_window_destroy_fbo( win );
 
 	glfwDestroyWindow( win->handle );
 }
@@ -128,4 +136,21 @@ void sl_window_swap_buffers( sl_window *win )
 
 	// Poll events before we hand over the spotlight.
 	glfwPollEvents( );
+}
+
+
+void sl_window_size_callback( GLFWwindow* window, int width, int height )
+{
+	sl_window *win;
+	// Change the size of the FBO
+	// @TODO: Make this less "tear down the world"-y; less slow & horrible.
+	// although resizing the window should be punished...
+
+	win = sl_renderer_get_window_by_handle( window );
+
+	// Tear it down
+	sl_window_destroy_fbo( win );
+
+	// Recreate it
+	sl_window_create_fbo( win, width, height );
 }

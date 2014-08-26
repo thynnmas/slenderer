@@ -187,4 +187,10 @@ sl_program *sl_renderer_get_program_by_id( unsigned int id );
  * Retrieve a window by id.
  */
 sl_window *sl_renderer_get_window_by_id( unsigned int id );
+
+/**
+ * Retrieve a window by the GLFW window handle.
+ */
+sl_window *sl_renderer_get_window_by_handle( GLFWwindow *win_handle );
+
 #endif

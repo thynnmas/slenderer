@@ -55,6 +55,11 @@ void sl_window_destroy( sl_window *win );
 void sl_window_create_fbo( sl_window *win, unsigned int width, unsigned int height );
 
 /**
+ * Destroys the window's FBO.
+ */
+void sl_window_destroy_fbo( sl_window *win );
+
+/**
  * Binds a window's FBO for rendering.
  */
 void sl_window_bind_framebuffer_fbo( sl_window *win );
@@ -69,5 +74,11 @@ void sl_window_bind_framebuffer_post( sl_window *win );
  */
 void sl_window_swap_buffers( sl_window *win );
 
+/**
+ * Window size change callback.
+ * Recreates the FBO in the new size.
+ * This is SLOW!
+ */
+void sl_window_size_callback( GLFWwindow* window, int width, int height );
 
 #endif
