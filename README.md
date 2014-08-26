@@ -97,4 +97,4 @@ build you might want to define VUL\_DEBUG to take advantage of additional checks
 As is noted in the source, Slenderer is released into the public domain in legal jurisdiction where such a thing exists
 Where there is no such thing, it is released under the MIT License, as seen in the LICENSE file.
 
-The stb\_-files in dependancies src/dependancies are linceced independantly. See these files for their licensing (public domain).
+The stb\_-libraries are lincensed independently. See the files themselves for their licensing (public domain).
