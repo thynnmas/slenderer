@@ -15,6 +15,47 @@
 
 #include "renderer/program.h"
 
+#ifdef SL_LEGACY_OPENGL
+const char *sl_program_default_vp_src =  "#version 120\n"
+										 "uniform mat4 mvp;\n"
+										 "uniform vec4 color;\n"
+										 "uniform vec4 texcoord_offset_scale;\n"
+										 "attribute vec2 position;\n"
+										 "attribute vec2 texcoord_in;\n"
+										 "varying vec2 texcoord_out;\n"
+										 "varying vec4 color_out;\n"
+										 "void main()	{\n"
+										 "	vec2 texscale = texcoord_offset_scale.zw - texcoord_offset_scale.xy;\n"
+										 "	texcoord_out.xy = texcoord_in.xy * texscale.xy + texcoord_offset_scale.xy;\n"
+										 "	color_out = color;\n"
+										 "	gl_Position = mvp * vec4(position, 0.0, 1.0);\n"
+										 "}";
+
+const char *sl_program_default_fp_src =	"#version 120\n"
+										"varying vec2 texcoord_out;\n"
+										"varying vec4 color_out;\n"
+										"uniform sampler2D texture;\n"
+										"void main() {\n"
+										"	gl_FragColor = clamp( color_out * texture2D( texture, texcoord_out.xy ).rgba, 0.0, 1.0 );\n"
+										"}";
+
+const char *sl_program_default_post_vp_src =  "#version 120\n"
+											  "attribute vec2 position;\n"
+											  "attribute vec2 texcoord_in;\n"
+											  "varying vec2 texcoord_out;\n"
+											  "varying vec4 color_out;\n"
+											  "void main()	{\n"
+											  "    texcoord_out.xy = texcoord_in.xy;\n"
+											  "    gl_Position = vec4(position, 0.0, 1.0);\n"
+											  "}";
+
+const char *sl_program_default_post_fp_src =	"#version 120\n"
+												"uniform sampler2D texture;\n"
+												"varying vec2 texcoord_out;\n"
+												"void main() {\n"
+												"    gl_FragColor = texture2D( texture, texcoord_out.xy ).rgba;\n"
+												"}";
+#else 
 const char *sl_program_default_vp_src =  "#version 400 core\n"
 										 "uniform mat4 mvp;\n"
 										 "uniform vec4 color;\n"
@@ -56,6 +97,8 @@ const char *sl_program_default_post_fp_src =	"#version 400 core\n"
 												"void main() {\n"
 												"    oColor = texture2D( texture, texcoord_out.xy ).rgba;\n"
 												"}";
+#endif
+
 
 void sl_program_create( sl_program* prog )
 {

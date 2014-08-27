@@ -52,6 +52,10 @@
 #define SL_TRUE 1
 #define SL_FALSE 0
 
+// Define this in your build if you want legacy GL support
+// This will disable post-processing entirely
+// #define SL_LEGACY_OPENGL
+
 // @IMPORTANT: Define VUL_DEFINE in your main .c file.
 #include <vul_resizable_array.h>
 

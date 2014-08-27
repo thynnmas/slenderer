@@ -41,6 +41,10 @@ void sl_window_create( sl_window* win, unsigned int width, unsigned int height, 
 	}
 
 	glfwSetWindowSizeCallback( win->handle, sl_window_size_callback );
+
+#ifndef SL_LEGACY_OPENGL
+	sl_window_create_fbo( win, width, height );
+#endif
 }
 
 void sl_window_create_fbo( sl_window *win, unsigned int width, unsigned int height )
@@ -83,7 +87,9 @@ void sl_window_destroy_fbo( sl_window *win )
 
 void sl_window_destroy( sl_window* win )
 {
+#ifndef SL_LEGACY_OPENGL
 	sl_window_destroy_fbo( win );
+#endif
 
 	glfwDestroyWindow( win->handle );
 }
@@ -143,6 +149,7 @@ void sl_window_size_callback( GLFWwindow* window, int width, int height )
 	// @TODO: Make this less "tear down the world"-y; less slow & horrible.
 	// although resizing the window should be punished...
 
+#ifndef SL_LEGACY_OPENGL
 	win = sl_renderer_get_window_by_handle( window );
 
 	// Tear it down
@@ -150,4 +157,5 @@ void sl_window_size_callback( GLFWwindow* window, int width, int height )
 
 	// Recreate it
 	sl_window_create_fbo( win, width, height );
+#endif
 }

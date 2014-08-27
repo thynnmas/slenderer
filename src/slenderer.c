@@ -32,9 +32,11 @@ void sl_renderer_create(  )
 	glfwSetErrorCallback( sl_renderer_glfw_error_callback );
 	
 	// Hint at GL version
+#ifndef SL_LEGACY_OPENGL
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 2 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+#endif
 	
 	// Initialize our context.
 	sl_renderer_global = ( sl_renderer* )malloc( sizeof( sl_renderer ) );
@@ -316,7 +318,11 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 		return;
 	}
 #endif
+#ifdef SL_LEGACY_OPENGL
+	sl_window_bind_framebuffer_post( win );
+#else
 	sl_window_bind_framebuffer_fbo( win );
+#endif
 	
 	// Update the corresponding animator
 	anim = sl_renderer_get_animator_for_scene( scene_index );
@@ -383,6 +389,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	}
 
 	// Render post
+#ifndef SL_LEGACY_OPENGL
 	sl_window_bind_framebuffer_post( win );
 	{
 		// Bind the program
@@ -405,6 +412,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 		glBindTexture( GL_TEXTURE_2D, 0 );
 		sl_program_unbind( cp );
 	}
+#endif
 
 	// Swap buffers
 	if( swap_buffers ) {
