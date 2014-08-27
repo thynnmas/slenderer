@@ -264,8 +264,7 @@ void sl_aurator_update( sl_aurator *aurator )
 						  aurator->data.samples,
 						  aurator->frames_per_buffer );
 	if( err != paNoError ) {
-		assert( SL_FALSE); // We couldn't write to stream
-						   // Definitely shouldn't be an assert!
+		printf("sl_aurator_update: Unable to write to audio stream.\n");
 	}
 }
 
