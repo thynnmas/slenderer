@@ -131,6 +131,11 @@ sl_window *sl_renderer_open_window( unsigned int width, unsigned int height, con
 	if( win->window_id == 0 ) {
 		glewExperimental = GL_TRUE;
 		glewInit( );
+		
+		// And create the FBO
+#ifndef SL_LEGACY_OPENGL
+		sl_window_create_fbo( win, width, height );
+#endif
 	}
 
 	return win;

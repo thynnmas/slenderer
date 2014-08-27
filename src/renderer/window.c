@@ -41,10 +41,6 @@ void sl_window_create( sl_window* win, unsigned int width, unsigned int height, 
 	}
 
 	glfwSetWindowSizeCallback( win->handle, sl_window_size_callback );
-
-#ifndef SL_LEGACY_OPENGL
-	sl_window_create_fbo( win, width, height );
-#endif
 }
 
 void sl_window_create_fbo( sl_window *win, unsigned int width, unsigned int height )
