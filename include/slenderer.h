@@ -27,6 +27,7 @@
  * -Font rendering (stb_truetype)
  * -Proper audio mixing; atm we're being very, very lazy (and plain wrong)
  * -OpenGL ES support/mobile if possible with glfw; useful for ARM support.
+ * -Legacy GL (ffp) & no-audio mode to reduce dependancies and make it work on toasters.
  * 
  * ¹ If public domain is not legally valid in your legal jurisdiction
  *   the MIT licence applies (see the LICENCE file)
