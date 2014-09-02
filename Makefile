@@ -6,7 +6,7 @@ BIN_PTH = ./bin
 LIB_PTH = ./lib
 LIB_NAME = slenderer
 BIN_NAME = example
-CFLAGS = -std=gnu99 -Wall -Wno-unused-function -Wno-unused-variable -fno-strict-aliasing -g -DVUL_LINUX -DVUL_VECTOR_C89_ITERATORS $(INC_PTH)
+CFLAGS = -std=gnu99 -Wall -Wno-unused-function -Wno-unused-variable -fno-strict-aliasing -g -DVUL_LINUX -DVUL_VECTOR_C89_ITERATORS -D SL_LEGACY_OPENGL $(INC_PTH)
 LDFLAGS =  -L$(LIB_PTH) -l$(LIB_NAME) -lportaudio -lglfw3 -lGLEW -lGL -lm -lGLU -lX11 -lXrandr -lXi -lXxf86vm -lXcursor -lrt -lpthread
 SHELL = /bin/bash
 
