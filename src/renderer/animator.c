@@ -126,7 +126,7 @@ void sl_animator_update( sl_animator *animator )
 	elapsed = now - animator->last_time;
 	animator->last_time = now;
 
-	// @TODO: For stopped animations; add elapes to all times!
+	// @TODO: For stopped animations; add elapsed to all times!
 
 	// First, remove any animations that are done. @NOTE: This is slow, since
 	// we may have resizes in vul_vector at any time, so any deletion leads to a restart
@@ -212,6 +212,11 @@ void sl_animator_update( sl_animator *animator )
 		total = ita->end_time - ita->start_time;
 		now_relative = now - ita->start_time;
 		t = ( float )( ( double )now_relative / ( double )total );
+		if( t < 0.f ) {
+			t = 0.f;
+		} else if ( t > 1.f ) {
+			t = 1.f;
+		}
 
 		// Grab the quad
 		quad = sl_scene_get_volitile_quad( s, ita->quad_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a transform!

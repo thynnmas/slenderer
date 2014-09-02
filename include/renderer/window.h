@@ -18,6 +18,9 @@
 #define SLENDERER_WINDOW_H
 
 #include <GL/glew.h>
+#ifdef SL_OPENGL_ES
+#define GLFW_INCLUDE_ES2
+#endif
 #include <GLFW/glfw3.h>
 
 #define SL_DEBUG

@@ -57,6 +57,7 @@ typedef struct {
 	sl_mat4 start_world_mat;
 	sl_mat4 end_world_mat;
 	sl_animation_state state;
+	// @TODO: Add interpolation-type enum, "linear", "quadratic_Accel", "quadratic_decel" etc.
 } sl_animation_transform;
 
 typedef struct {
