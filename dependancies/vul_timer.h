@@ -39,6 +39,7 @@
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 #elif defined( VUL_LINUX )
+	#include <time.h>
 	#include <unistd.h>
 	#include <sys/resource.h>
 	#include <sys/times.h>
@@ -104,7 +105,7 @@ void vul_timer_reset( vul_timer_t *c )
 	c->zero = clock( );
 #elif defined( VUL_LINUX )
 	c->zero = clock( );
-	clock_gettime( CLOCK_MONOTONIC, &c->start );
+	clock_gettime( CLOCK_REALTIME, &c->start );
 #elif defined( VUL_OSX )
 	c->start = mach_absolute_time( );
 	mach_timebase_info( &c->timebase_info );
@@ -185,9 +186,9 @@ unsigned long long vul_timer_get_millis( vul_timer_t *c )
 	return ( ui64_t )new_ticks;
 #elif defined( VUL_LINUX )
 	struct timespec now;
-	clock_gettime( CLOCK_MONOTONIC, &now );
+	clock_gettime( CLOCK_REALTIME, &now );
 	return ( ( now.tv_sec - c->start.tv_sec ) * 1000 )
-	      +( ( now.tv_nsec - c->start.tv_nsec ) / 1000 );
+	      +( ( now.tv_nsec - c->start.tv_nsec ) / 1000000 );
 #elif defined( VUL_OSX )
 	uint64_t end = mach_absolute_time( );
 	uint64_t elapsed = end - c->start;
@@ -239,9 +240,9 @@ unsigned long long vul_timer_get_micros( vul_timer_t *c )
 	return new_micro;
 #elif defined( VUL_LINUX )	
 	struct timespec now;
-	clock_gettime( CLOCK_MONOTONIC, &now );
+	clock_gettime( CLOCK_REALTIME, &now );
 	return ( ( now.tv_sec - c->start.tv_sec ) * 1000000 )
-	      +( now.tv_nsec - c->start.tv_nsec );
+	      +( now.tv_nsec - c->start.tv_nsec ) / 1000;
 #elif defined( VUL_OSX )
 	uint64_t end = mach_absolute_time( );
 	uint64_t elapsed = end - c->start;
@@ -279,7 +280,17 @@ unsigned int vul_sleep( unsigned int milliseconds )
 	Sleep( ms );
 	return 0;
 #elif defined( VUL_LINUX ) || defined( VUL_OSX )
-	return sleep( milliseconds );
+	struct timespec rem, req;
+	int err;
+	long tmp;
+
+	req.tv_sec = ( time_t )milliseconds / 1000;
+	req.tv_nsec = ( long )( milliseconds % 1000l ) * 1000000l;
+	err = clock_nanosleep( CLOCK_REALTIME, 0, &req, &rem );
+	if( err ) {
+		return ( int )( rem.tv_sec * 1000 ) + ( int )( rem.tv_nsec / 1000000l );
+	}
+	return 0;
 #else
 	assert( 0 && "vul_timer.h: OS not supported. Did you forget to specify an OS define?" );
 #endif
