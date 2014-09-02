@@ -540,17 +540,28 @@ void sl_mul_post( sl_vec *result, const sl_mat2 *m, const sl_vec *v )
 
 void sl_mul3_pre( sl_vec *result, const sl_vec *v, const sl_mat3 *m )
 {
-	result->x = m->data[ 0 ] * v->x + m->data[ 3 ] * v->y + m->data[ 6 ]/* * 1->f */;
-	result->y = m->data[ 1 ] * v->x + m->data[ 4 ] * v->y + m->data[ 7 ]/* * 1->f */;
+	result->x = m->data[ 0 ] * v->x + m->data[ 3 ] * v->y + m->data[ 2 ]/* * 1.f */;
+	result->y = m->data[ 1 ] * v->x + m->data[ 4 ] * v->y + m->data[ 7 ]/* * 1.f */;
 	/* and z is irrelevant */
 }
 void sl_mul3_post( sl_vec *result, const sl_mat3 *m, const sl_vec *v )
 {
-	result->x = m->data[ 0 ] * v->x + m->data[ 1 ] * v->y + m->data[ 2 ]/* * 1->f */;
-	result->y = m->data[ 3 ] * v->x + m->data[ 4 ] * v->y + m->data[ 5 ]/* * 1->f */;
+	result->x = m->data[ 0 ] * v->x + m->data[ 1 ] * v->y + m->data[ 2 ]/* * 1.f */;
+	result->y = m->data[ 3 ] * v->x + m->data[ 4 ] * v->y + m->data[ 5 ]/* * 1.f */;
 	/* and z is irrelevant */
 }
-
+void sl_mul4_pre( sl_vec *result, const sl_vec *v, const sl_mat4 *m )
+{
+	result->x = m->data[ 0 ] * v->x + m->data[ 3 ] * v->y + m->data[ 9 ]/* * 1.f */;
+	result->y = m->data[ 1 ] * v->x + m->data[ 4 ] * v->y + m->data[ 10 ]/* * 1.f */;
+	/* and z is irrelevant */
+}
+void sl_mul4_post( sl_vec *result, const sl_mat4 *m, const sl_vec *v )
+{
+	result->x = m->data[ 0 ] * v->x + m->data[ 1 ] * v->y + m->data[ 9 ]/* * 1.f */;
+	result->y = m->data[ 3 ] * v->x + m->data[ 4 ] * v->y + m->data[ 10 ]/* * 1.f */;
+	/* and z is irrelevant */
+}
 void sl_minverse2( sl_mat2 *result, const sl_mat2 *m )
 {
 	const float inv_det = 1.0f / sl_mdeterminant2( m );

@@ -265,6 +265,19 @@ void sl_mul3_pre( sl_vec *result, const sl_vec *v, const sl_mat3 *m );
  * Fill result with the first two dimensions of the result.
  */
 void sl_mul3_post( sl_vec *result, const sl_mat3 *m, const sl_vec *v );
+/**
+ * Premultiply a 4D matrix by a 4D elevation of a 2D vector at z = 0, w = 1: v * M.
+ * Fill result with the first two dimensions of the result.
+ */
+void sl_mul4_pre( sl_vec *result, const sl_vec *v, const sl_mat4 *m );
+/**
+ * Postmultiply a 4D matrix by a 4D elevation of a 2D vector at z = 0, w = 1: M * v.
+ * Fill result with the first two dimensions of the result.
+ */
+void sl_mul4_post( sl_vec *result, const sl_mat4 *m, const sl_vec *v );
+
+
+
 
 /**
  * Create the inverse of a 2D matrix.
