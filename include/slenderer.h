@@ -154,10 +154,17 @@ sl_renderable *sl_renderer_allocate_renderable( );
  */
 sl_program *sl_renderer_allocate_program( );
 
+#ifdef SL_LEGACY_OPENGL
+/**
+ * Renders a single quad using leagcy GL
+ */
+void sl_renderer_draw_legacy_quad( sl_vec *camera_offset, sl_renderable *rend, sl_quad *quad );
+#else
 /**
  * Renders a single quad instance. Binds the world matrix uniform, then draws.
  */
 void sl_renderer_draw_instance( sl_vec *camera_offset, sl_program *prog, sl_quad *quad );
+#endif
 
 /**
  * A callback function that handles errors in GLFW. We assert false in debug mode,

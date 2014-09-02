@@ -389,7 +389,11 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 				sl_renderable_bind( cr );
 			}
 			// Render the quad
+#ifdef SL_LEGACY_OPENGL
+			sl_renderer_draw_legacy_quad( &scene->camera_pos, cr, it );
+#else
 			sl_renderer_draw_instance( &scene->camera_pos, cp, it );
+#endif
 		}
 	}
 
@@ -425,11 +429,53 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	}
 }
 
+#ifdef SL_LEGACY_OPENGL
+void sl_renderer_draw_legacy_quad( sl_vec *camera_offset, sl_renderable *rend, sl_quad *quad )
+{
+	sl_mat4 mat;
+	sl_box uvs;
+	f32_t tmp;
+	ui32_t i;
+	sl_vec vert, texc;
+
+	// Calculate offset into matrix
+	sl_mcopy4( &mat, &quad->world_matrix );
+	mat.data[ 12 ] -= camera_offset->x;
+	mat.data[ 13 ] -= camera_offset->y;
+
+	// Calculate the uvs; they may be flipped
+	sl_bset( &uvs, &quad->uvs );
+	if( quad->flip_uvs.x ) {
+		tmp = uvs.min_p.x;
+		uvs.min_p.x = uvs.max_p.x;
+		uvs.max_p.x = tmp;
+	}
+	if( quad->flip_uvs.y ) {
+		tmp = uvs.min_p.y;
+		uvs.min_p.y = uvs.max_p.y;
+		uvs.max_p.y = tmp;
+	}
+
+	// Start the draw
+	glBegin( GL_TRIANGLES );
+	for( i = 0u; i < 4u; ++i ) {
+		sl_mul4_post( &vert, &mat, &rend->vertices[ i ].position );
+		glVertex2f( vert.x, vert.y );
+		glColor4f( quad->color[ 0 ], quad->color[ 1 ], quad->color[ 2 ], quad->color[ 3 ] );
+		sl_vsub( &texc, &uvs.max_p, &uvs.min_p );
+		sl_vmul( &texc, &texc, &rend->vertices[ i ].texcoords );
+		sl_vadd( &texc, &texc, &uvs.min_p );
+		glTexCoord2f( texc.x, texc.y  );
+	}	
+	glEnd( );	
+}
+#else
 void sl_renderer_draw_instance( sl_vec *camera_offset, sl_program *prog, sl_quad *quad )
 {
 	sl_mat4 mat;
 	sl_box uvs;
 	f32_t tmp;
+	sl_vec vert;
 
 	// Calculate offset into matrix
 	sl_mcopy4( &mat, &quad->world_matrix );
@@ -456,8 +502,8 @@ void sl_renderer_draw_instance( sl_vec *camera_offset, sl_program *prog, sl_quad
 	
 	// Draw the quad
 	glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );
-
 }
+#endif
 
 void sl_renderer_get_scenes_by_window_handle( vul_vector_t *vec, GLFWwindow *win_handle )
 {

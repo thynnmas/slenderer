@@ -16,6 +16,19 @@
 
 void sl_renderable_create( sl_renderable *ren, sl_box *uvs )
 {
+#ifdef SL_LEGACY_OPENGL
+	sl_vset( &ren->vertices[ 0 ].position,  -1.0f, -1.0f );
+	sl_vset( &ren->vertices[ 0 ].texcoords,  uvs->min_p.x,  uvs->min_p.y );
+
+	sl_vset( &ren->vertices[ 1 ].position,   1.0f, -1.0f );
+	sl_vset( &ren->vertices[ 1 ].texcoords,  uvs->max_p.x,  uvs->min_p.y );
+
+	sl_vset( &ren->vertices[ 2 ].position,   1.0f,  1.0f );
+	sl_vset( &ren->vertices[ 2 ].texcoords,  uvs->max_p.x,  uvs->max_p.y );
+
+	sl_vset( &ren->vertices[ 3 ].position,  -1.0f,  1.0f );
+	sl_vset( &ren->vertices[ 3 ].texcoords,  uvs->min_p.x,  uvs->max_p.y );
+#else
 	sl_vertex vertices[ 4 ];
 	unsigned short triangles[ 6 ];
 
@@ -67,32 +80,39 @@ void sl_renderable_create( sl_renderable *ren, sl_box *uvs )
 
 	// Unbind the Index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#endif
 }
 
 void sl_renderable_destroy( sl_renderable *ren )
 {
+#ifndef SL_LEGACY_OPENGL
 	// Destroy our buffers
 	glDeleteBuffers( 1, &ren->indexBufferObjectIndex );
 	glDeleteBuffers( 1, &ren->vertBufferObjectIndex );
 	glDeleteVertexArrays( 1, &ren->arrayBufferIndex );
+#endif
 }
 
 void sl_renderable_bind( sl_renderable *ren )
 {
+#ifndef SL_LEGACY_OPENGL
 	glBindVertexArray( ren->arrayBufferIndex );
 	glBindBuffer( GL_ARRAY_BUFFER, ren->vertBufferObjectIndex );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ren->indexBufferObjectIndex );
 	glEnableVertexAttribArray( 0 );
 	glEnableVertexAttribArray( 1 );
+#endif
 }
 
 void sl_renderable_unbind( )
 {
+#ifndef SL_LEGACY_OPENGL
 	glDisableVertexAttribArray( 0 );
 	glDisableVertexAttribArray( 1 );
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
+#endif
 }
 
 

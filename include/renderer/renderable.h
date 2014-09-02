@@ -27,9 +27,13 @@ typedef struct {
 } sl_vertex;
 
 typedef struct sl_renderable {
+#ifdef SL_LEGACY_OPENGL
+	sl_vertex vertices[ 4 ];
+#else
 	GLuint arrayBufferIndex;
 	GLuint vertBufferObjectIndex;
 	GLuint indexBufferObjectIndex;
+#endif
 	unsigned int renderable_id;
 } sl_renderable;
 
