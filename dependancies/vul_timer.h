@@ -61,7 +61,7 @@ typedef struct {
 
 	DWORD_PTR clock_mask;
 #elif defined( VUL_LINUX )
-	struct timeval start;
+	struct timespec start;
 #elif defined( VUL_OSX )
 	uint64_t start;
 	mach_timebase_info_data_t timebase_info;
@@ -104,7 +104,7 @@ void vul_timer_reset( vul_timer_t *c )
 	c->zero = clock( );
 #elif defined( VUL_LINUX )
 	c->zero = clock( );
-	gettimeofday(&c->start, NULL);
+	clock_gettime( CLOCK_MONOTONIC, &c->start );
 #elif defined( VUL_OSX )
 	c->start = mach_absolute_time( );
 	mach_timebase_info( &c->timebase_info );
@@ -184,10 +184,10 @@ unsigned long long vul_timer_get_millis( vul_timer_t *c )
 
 	return ( ui64_t )new_ticks;
 #elif defined( VUL_LINUX )
-	struct timeval now;
-	gettimeofday(&now, NULL);
+	struct timespec now;
+	clock_gettime( CLOCK_MONOTONIC, &now );
 	return ( ( now.tv_sec - c->start.tv_sec ) * 1000 )
-	      +( ( now.tv_usec - c->start.tv_usec ) / 1000 );
+	      +( ( now.tv_nsec - c->start.tv_nsec ) / 1000 );
 #elif defined( VUL_OSX )
 	uint64_t end = mach_absolute_time( );
 	uint64_t elapsed = end - c->start;
@@ -238,10 +238,10 @@ unsigned long long vul_timer_get_micros( vul_timer_t *c )
 
 	return new_micro;
 #elif defined( VUL_LINUX )	
-	struct timeval now;
-	gettimeofday(&now, NULL);
+	struct timespec now;
+	clock_gettime( CLOCK_MONOTONIC, &now );
 	return ( ( now.tv_sec - c->start.tv_sec ) * 1000000 )
-	      +( now.tv_usec - c->start.tv_usec );
+	      +( now.tv_nsec - c->start.tv_nsec );
 #elif defined( VUL_OSX )
 	uint64_t end = mach_absolute_time( );
 	uint64_t elapsed = end - c->start;
