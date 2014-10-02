@@ -45,10 +45,10 @@ void sl_quad_create_world_matrix( sl_quad *result, const sl_vec *center, const s
 	sinr = ( float )sin( rotation );
 
 	result->world_matrix.data[ 0 ] = scale->x * cosr;
-	result->world_matrix.data[ 1 ] = sinr;
+	result->world_matrix.data[ 1 ] = scale->x * -sinr;
 	result->world_matrix.data[ 2 ] = result->world_matrix.data[ 3 ] = 0.0f;
 	
-	result->world_matrix.data[ 4 ] = -sinr;
+	result->world_matrix.data[ 4 ] = -scale->y * sinr;
 	result->world_matrix.data[ 5 ] = -scale->y * cosr; // Y is flipped in OpenGL
 	result->world_matrix.data[ 6 ] = result->world_matrix.data[ 7 ] = 0.0f;
 

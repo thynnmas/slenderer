@@ -105,7 +105,7 @@ void sl_window_bind_framebuffer_fbo( sl_window* win )
 	glBindFramebuffer( GL_FRAMEBUFFER, win->fbo );
 
 	// Clear the famebuffer
-	glClearColor( 0.f, 0.f, 0.f, 1.f ); // @TODO: Make this black again I guess..
+	glClearColor( 0.f, 0.f, 0.f, 1.f );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
