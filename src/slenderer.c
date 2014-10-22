@@ -32,7 +32,10 @@ void sl_renderer_create(  )
 	glfwSetErrorCallback( sl_renderer_glfw_error_callback );
 	
 	// Hint at GL version
-#ifndef SL_LEGACY_OPENGL
+#ifdef SL_OPENGL_ES
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2 );
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0 );
+#else
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 2 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
@@ -48,7 +51,9 @@ void sl_renderer_create(  )
 	sl_renderer_global->textures = vul_vector_create( sizeof( sl_texture ), 0 );
 	sl_renderer_global->programs = vul_vector_create( sizeof( sl_program ), 0 );
 	sl_renderer_global->renderables = vul_vector_create( sizeof( sl_renderable ), 0 );
+#ifndef SL_NO_AUDIO
 	sl_renderer_global->aurators = vul_vector_create( sizeof( sl_aurator), 0 );
+#endif
 	
 	sl_controller_create( );
 
@@ -64,7 +69,9 @@ void sl_renderer_destroy( )
 	sl_scene *its, *lasts;
 	sl_window *itw, *lastw;
 	sl_renderable *itr, *lastr;
+#ifndef SL_NO_AUDIO
 	sl_aurator *itar, *lastar;
+#endif
 
 	// Clean up
 	vul_foreach( sl_renderable, itr, lastr, sl_renderer_global->renderables ) {
@@ -101,7 +108,8 @@ void sl_renderer_destroy( )
 		sl_window_destroy( itw );
 	}
 	vul_vector_destroy( sl_renderer_global->windows );
-		
+
+#ifndef SL_NO_AUDIO		
 	vul_foreach( sl_aurator, itar, lastar, sl_renderer_global->aurators ) {
 		sl_aurator_destroy( itar );
 	}
@@ -109,6 +117,7 @@ void sl_renderer_destroy( )
 
 	// Destroy portaudio system
 	sl_aurator_finalize_system( );
+#endif
 
 	// Destroy the controller
 	sl_controller_destroy( );
@@ -155,7 +164,9 @@ sl_scene *sl_renderer_add_scene( ui32_t win_id, ui32_t post_program_id )
 	sl_scene *s;
 	sl_animator *a;
 	sl_simulator *sim;
+#ifndef SL_NO_AUDIO
 	sl_aurator *ar;
+#endif
 
 	// Create the scnee
 	s = ( sl_scene* )vul_vector_add_empty( sl_renderer_global->scenes );
@@ -167,10 +178,12 @@ sl_scene *sl_renderer_add_scene( ui32_t win_id, ui32_t post_program_id )
 
 	sim = ( sl_simulator* )vul_vector_add_empty( sl_renderer_global->simulators );
 	sl_simulator_create( sim, s );
-	
+
+#ifndef SL_NO_AUDIO	
 	// If we have sound, create the aurator
 	ar = ( sl_aurator* )vul_vector_add_empty( sl_renderer_global->aurators );
 	sl_aurator_create( ar, s->scene_id, SL_AUDIO_CHANNEL_COUNT, SL_AUDIO_SAMPLE_RATE, SL_AUDIO_FRAME_RATE_GUARANTEE );
+#endif
 
 	// Return the scene
 	return s;
@@ -182,7 +195,9 @@ void sl_renderer_finalize_scene( unsigned int scene_id )
 	sl_scene *si, *sil;
 	sl_animator *ai, *ail;
 	sl_simulator *smi, *smil;
+#ifndef SL_NO_AUDIO
 	sl_aurator *ari, *aril;
+#endif
 	ui32_t i;
 
 	i = 0;
@@ -207,6 +222,7 @@ void sl_renderer_finalize_scene( unsigned int scene_id )
 		}
 		++i;
 	}
+#ifndef SL_NO_AUDIO
 	i = 0;
 	vul_foreach( sl_aurator, ari, aril, sl_renderer_global->aurators )
 	{
@@ -217,6 +233,7 @@ void sl_renderer_finalize_scene( unsigned int scene_id )
 		}
 		++i;
 	}
+#endif
 	i = 0;
 	vul_foreach( sl_simulator, smi, smil, sl_renderer_global->simulators )
 	{
@@ -241,6 +258,7 @@ sl_animator *sl_renderer_get_animator_for_scene( unsigned int scene_id )
 	return NULL;
 }
 
+#ifndef SL_NO_AUDIO
 sl_aurator *sl_renderer_get_aurator_for_scene( unsigned int scene_id )
 {
 	sl_aurator *ai, *lai;
@@ -252,6 +270,7 @@ sl_aurator *sl_renderer_get_aurator_for_scene( unsigned int scene_id )
 	}
 	return NULL;
 }
+#endif
 
 sl_simulator *sl_renderer_get_simulator_for_scene( unsigned int scene_id )
 {
@@ -304,7 +323,9 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 {
 	sl_scene *scene;
 	sl_animator *anim;
+#ifndef SL_NO_AUDIO
 	sl_aurator *aur;
+#endif
 	sl_simulator *sim;
 	sl_window *win;
 	sl_quad *it, *last_it; // iterator
@@ -337,9 +358,11 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	sim = sl_renderer_get_simulator_for_scene( scene_index );
 	sl_simulator_update( sim );
 
+#ifndef SL_NO_AUDIO
 	// Update the corresponding audio manager
 	aur = sl_renderer_get_aurator_for_scene( scene_index );
 	sl_aurator_update( aur );
+#endif
 
 	// Grab the scene and sort it
 	scene = sl_renderer_get_scene_by_id( scene_index );
