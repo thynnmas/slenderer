@@ -86,9 +86,7 @@ void vul_list_remove( vul_list_element_t *e );
 #else
 void vul_list_remove( vul_list_element_t *e )
 {
-	if( e == NULL ) {
-		return;
-	}
+	assert( e != NULL );
 
 	if ( e->prev != NULL )
 	{
@@ -98,9 +96,11 @@ void vul_list_remove( vul_list_element_t *e )
 	{
 		e->next->prev = e->prev;
 	}
-	free( e->data );
-	free( e );
 	// By setting to null we are much more likely to trigger asserts if used after free.
+	free( e->data );
+	e->data = NULL;
+
+	free( e );
 	e = NULL;
 }
 #endif
@@ -117,7 +117,10 @@ vul_list_element_t *vul_list_find( vul_list_element_t *head, void *data, int (*c
 #else
 vul_list_element_t *vul_list_find( vul_list_element_t *head, void *data, int (*comparator)( void *a, void *b ) )
 {
-	assert( head != NULL );
+	// If the list is empty, we can't find anything
+	if( head == NULL ) {
+		return NULL;
+	}
 	
 	// If the first element is bigger then what we want the spot we wish to return
 	// is before the actual list, so we return null.
@@ -126,7 +129,7 @@ vul_list_element_t *vul_list_find( vul_list_element_t *head, void *data, int (*c
 	}
 
 	while( head->next != NULL // Return last element of the list if data is bigger than all elements, not null
-		   && comparator( head->next->data, data ) <= 0 )	// And keep moving while data is bigger than or equal to the next element.
+		   && comparator( data, head->next->data ) >= 0 )	// And keep moving while data is bigger than or equal to the next element.
 	{
 		head = head->next;
 	}
