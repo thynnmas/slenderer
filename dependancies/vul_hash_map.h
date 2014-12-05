@@ -141,6 +141,10 @@ void vul_map_remove( vul_hash_map_t *map, const vul_hash_map_element_t *ref )
 	// all elements in the list and the biggest smaller element if no match is found, so check it matches.
 	if( e != NULL && map->comparator( e->data, ( void* )ref ) == 0 )
 	{
+		// If we are removing the head of the list, set the new head (may be null )
+		if( e->prev == NULL ) {
+			map->buckets[ bucket ] = ( e->next ? e->next->prev : NULL );
+		}
 		vul_list_remove( e );
 	}
 }
