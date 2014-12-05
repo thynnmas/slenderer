@@ -138,17 +138,6 @@ void vul_timer_destroy( vul_timer_t *c )
 #endif
 
 #ifndef VUL_DEFINE
-unsigned long long vul_timer_get_millis_cpu( vul_timer_t *c );
-#else
-unsigned long long vul_timer_get_millis_cpu( vul_timer_t *c )
-{
-        clock_t new_clock = clock( );
-        return ( unsigned long long ) ( ( double )( new_clock - c->zero ) /
-		 ( ( double )CLOCKS_PER_SEC / 1000.0 ) );
-}
-#endif
-
-#ifndef VUL_DEFINE
 unsigned long long vul_timer_get_millis( vul_timer_t *c );
 #else
 unsigned long long vul_timer_get_millis( vul_timer_t *c )
@@ -249,16 +238,6 @@ unsigned long long vul_timer_get_micros( vul_timer_t *c )
 	uint64_t nsec = elapsed * c->timebase_info.numer / timebase_info.denom;
 	return nsec / 1000;
 #endif
-}
-#endif
-
-#ifndef VUL_DEFINE
-unsigned long long vul_timer_get_micros_cpu( vul_timer_t *c );
-#else
-unsigned long long vul_timer_get_micros_cpu( vul_timer_t *c )
-{
-	clock_t new_clock = clock( );
-	return ( unsigned long long ) ( ( double )( new_clock - c->zero ) / ( ( double )CLOCKS_PER_SEC / 1000000.0 ) );
 }
 #endif
 
