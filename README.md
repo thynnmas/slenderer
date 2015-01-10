@@ -1,7 +1,7 @@
 Slenderer
 =========
 
-Slenderer is a tiny 2D rendering library written in C. The goal is to have as small a dependancy-list as possible. At time of writing, that list is:
+Slenderer is a small 2D rendering library written in C. The goal is to have as small a dependancy-list as possible. At time of writing, that list is:
 
 * GLFW 3
 * glew
@@ -9,9 +9,6 @@ Slenderer is a tiny 2D rendering library written in C. The goal is to have as sm
 * The header-only libraries included in the dependancies-folder.
 
 See the Dependancies section below for more on these.
-
-# Warning
-While this is released at this point, and has been used for the extension of the Ludum Dare 30 weekend, it is still not too stable. If you want to try it out, find me (f.ex. on twitter: @thynnmas) and let me know and I might be able to help you out with issues (or not, depending on time constraints elsewhere).
 
 # Renderer
 
@@ -77,19 +74,20 @@ Depending on your platform, define VUL\_LINUX, VUL\_WINDOWS or VUL\_OSX in the c
 defines VUL_LINUX). If compiling with a C89 toolchain (so, MSVC), define VUL\_VECTOR\_C89\_ITERATORS. In your debug
 build you might want to define VUL\_DEBUG to take advantage of additional checks in vector iterators.
 
+## GLES
+Define SL\_OPENGL\_ES to build for an OpenGL ES 2.0 target instead of the stock OpenGL 3.2 Core.
+
+## No audio
+If no audio is needed, define SL\_NO\_AUDIO. The dependancy on portaudio neatly goes away if this is defined, and makes this useful for when no audio is needed (non-game applications).
+
 # Notes
 
-* The code is not well commented; for the most part header-files contain comments descriping in somtimes way too obious
-  ways what the functions do, but the meat of things are not guaranteed to be well commented.
-* There WILL BE bugs. If anyone uses this, let me know if you find any and they will be looked at when I have time.
 * The example gives a good idea of how the engine is used, but has not been tested since the *massive* changes during Ludum Dare, so you're probably better off looking at the code for that if you really want to dive in. Source+binary of that is found [here](http://www.schmidx2.com/Code/LD30.zip).
 
 # Future plans
 
-* Rewrite the hash map and/or linked list so they take the same comparator funcions; atm. they don't.
 * Proper audio mixing, integrate stb\_audio\_mixer.
 * Font rendering component, probably use stb\_truetype
-* OpenGL ES support; I have an ARM-based laptop, so this will happen at some point.
 * Extend the audio component with a synth; pass tracks of "notes" to it with a wave, frequency and duration and mix it.
 
 # License
