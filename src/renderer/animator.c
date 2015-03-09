@@ -126,6 +126,8 @@ void sl_animator_update( sl_animator *animator )
 	elapsed = now - animator->last_time;
 	animator->last_time = now;
 
+	s = sl_renderer_get_scene_by_id( animator->scene_id );
+	
 	// @TODO: For stopped animations; add elapsed to all times!
 
 	// First, remove any animations that are done. @NOTE: This is slow, since
@@ -157,6 +159,9 @@ void sl_animator_update( sl_animator *animator )
 					// @TODO: Add callbacks that are called at loop reset/periodic reset
 					// to f.ex. add an effect there.
 				} else {
+					// Move to final matrix when done
+					quad = sl_scene_get_volitile_quad( s, ita->quad_id, 0xffffffff );
+					sl_mcopy4( &quad->world_matrix, &ita->end_world_mat );
 					ita->state = SL_ANIMATION_FINISHED;
 				}
 				if( ita->state == SL_ANIMATION_FINISHED ) {
@@ -205,7 +210,6 @@ void sl_animator_update( sl_animator *animator )
 	}
 
 	// Iterate over the transforms and update them
-	s = sl_renderer_get_scene_by_id( animator->scene_id );
 	vul_foreach( sl_animation_transform, ita, last_ita, animator->transforms )
 	{		
 		// Calculate t
