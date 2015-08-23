@@ -149,6 +149,16 @@ sl_aurator_clip *sl_aurator_get_clip( sl_aurator *aurator, ui32_t id );
 void sl_aurator_update( sl_aurator *aurator );
 
 /*
+ * Uploads the sl_aurator_stream_data buffer to the actual sound buffer.
+ * Is called from the portaudio thread.
+ */
+int sl_aurator_upload( const void *input, void *output,
+					   unsigned long frame_count,
+					   const PaStreamCallbackTimeInfo *time_info,
+					   PaStreamCallbackFlags status_flags,
+					   void *user_data );
+
+/*
  * Volume controls. Valid values are in trange [0, 1]
  */
 void sl_aurator_set_volume( sl_aurator *aurator, f32_t vol );

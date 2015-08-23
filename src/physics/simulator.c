@@ -17,8 +17,8 @@
 
 void sl_simulator_create( sl_simulator *sim, sl_scene *scene )
 {
-	sim->quads = vul_vector_create( sizeof( sl_simulator_quad ), 0 );
-	sim->collision_callbacks = vul_map_create( SL_SIMULATOR_CALLBACK_BUCKETS, sl_simulator_callback_hash, sl_simulator_callback_comp );
+	sim->entities = vul_vector_create( sizeof( sl_simulator_entity ), 0 );
+	sim->collision_callbacks = vul_map_create( SL_SIMULATOR_CALLBACK_BUCKETS, sl_simulator_callback_hash, sl_simulator_callback_comp, malloc, free );
 	sim->collission_callback_keys = NULL;
 	sim->scene_id = scene->scene_id;
 	sim->clock = vul_timer_create( );
@@ -27,27 +27,27 @@ void sl_simulator_create( sl_simulator *sim, sl_scene *scene )
 
 void sl_simulator_destroy( sl_simulator *sim )
 {
-	sl_simulator_quad *it, *lit;
+	sl_simulator_entity *it, *lit;
 
-	vul_foreach( sl_simulator_quad, it, lit, sim->quads )
+	vul_foreach( sl_simulator_entity, it, lit, sim->entities )
 	{
 		vul_vector_destroy( it->forces );
 	}
-	vul_vector_destroy( sim->quads );
+	vul_vector_destroy( sim->entities );
 	vul_map_destroy( sim->collision_callbacks );
-	vul_list_destroy( sim->collission_callback_keys );
+	vul_list_destroy( sim->collission_callback_keys, free );
 	vul_timer_destroy( sim->clock );
 }
 
-sl_simulator_quad *sl_simulator_add_quad( sl_simulator *sim, unsigned int quad_id, sl_vec *start_velocity )
+sl_simulator_entity *sl_simulator_add_entity( sl_simulator *sim, unsigned int entity_id, sl_vec *start_velocity )
 {
-	sl_simulator_quad *q, *it, *last_it;
+	sl_simulator_entity *q, *it, *last_it;
 	sl_scene *s;
 		
-	vul_foreach( sl_simulator_quad, it, last_it, sim->quads )
+	vul_foreach( sl_simulator_entity, it, last_it, sim->entities )
 	{
 		// If it already exists in our vector, update and return
-		if( it->quad->quad_id == quad_id ) {
+		if( it->entity->entity_id == entity_id ) {
 			it->velocity = *start_velocity;
 			return it;
 		}
@@ -55,26 +55,26 @@ sl_simulator_quad *sl_simulator_add_quad( sl_simulator *sim, unsigned int quad_i
 
 	// Otherwise, add it.
 	s = sl_renderer_get_scene_by_id( sim->scene_id );
-	q = ( sl_simulator_quad* )vul_vector_add_empty( sim->quads );
+	q = ( sl_simulator_entity* )vul_vector_add_empty( sim->entities );
 	q->forces = vul_vector_create( sizeof( sl_vec ), 0 );
-	q->quad = sl_scene_get_const_quad( s, quad_id, 0xffffffff );
+	q->entity = sl_scene_get_const_entity( s, entity_id, 0xffffffff );
 	q->velocity = *start_velocity;
 	sl_vset( &q->pos,
-			 sl_mget4( &q->quad->world_matrix, 3, 0 ),
-			 sl_mget4( &q->quad->world_matrix, 3, 1 ) );
+			 sl_mget4( &q->entity->world_matrix, 3, 0 ),
+			 sl_mget4( &q->entity->world_matrix, 3, 1 ) );
 		
 
 	return q;
 }
 
-sl_vec *sl_simulator_add_force( sl_simulator *sim, unsigned int quad_id, sl_vec *force )
+sl_vec *sl_simulator_add_force( sl_simulator *sim, unsigned int entity_id, sl_vec *force )
 {
-	sl_simulator_quad *it, *last_it;
+	sl_simulator_entity *it, *last_it;
 	sl_vec *ret;
 
-	vul_foreach( sl_simulator_quad, it, last_it, sim->quads )
+	vul_foreach( sl_simulator_entity, it, last_it, sim->entities )
 	{
-		if( it->quad->quad_id == quad_id ) {
+		if( it->entity->entity_id == entity_id ) {
 			ret = ( sl_vec* )vul_vector_add_empty( it->forces );			
 			sl_vcopy( ret, force );
 			return ret;
@@ -84,18 +84,18 @@ sl_vec *sl_simulator_add_force( sl_simulator *sim, unsigned int quad_id, sl_vec 
 #ifdef SL_DEBUG
 	assert( 0 );
 #else
-	fprintf( stderr, "Attempted to add force to an unknown quad %d.\n", quad_id );
+	sl_print( 256, "Attempted to add force to an unknown entity %d.\n", entity_id );
 #endif
 	return 0;
 }
 
-void sl_simulator_add_impulse( sl_simulator *sim, unsigned int quad_id, sl_vec *impulse )
+void sl_simulator_add_impulse( sl_simulator *sim, unsigned int entity_id, sl_vec *impulse )
 {
-	sl_simulator_quad *it, *last_it;
+	sl_simulator_entity *it, *last_it;
 
-	vul_foreach( sl_simulator_quad, it, last_it, sim->quads )
+	vul_foreach( sl_simulator_entity, it, last_it, sim->entities )
 	{
-		if( it->quad->quad_id == quad_id ) {
+		if( it->entity->entity_id == entity_id ) {
 			sl_vadd( &it->velocity, &it->velocity, impulse );
 			return;
 		}
@@ -104,18 +104,18 @@ void sl_simulator_add_impulse( sl_simulator *sim, unsigned int quad_id, sl_vec *
 #ifdef SL_DEBUG
 	assert( 0 );
 #else
-	fprintf( stderr, "Attempted to add impulse to an unknown quad %d.\n", quad_id );
+	sl_print( 256, "Attempted to add impulse to an unknown entity %d.\n", entity_id );
 #endif
 }
 
-void sl_simulator_add_callback( sl_simulator *sim, unsigned int quad_id_a, unsigned int quad_id_b, sl_simulator_collider_pair_callback callback )
+void sl_simulator_add_callback( sl_simulator *sim, unsigned int entity_id_a, unsigned int entity_id_b, sl_simulator_collider_pair_callback callback )
 {
 	sl_simulator_collider_pair pair;
 	vul_hash_map_element_t *element, el;
 	vul_list_element_t *le;
 
-	pair.quad_id_a = SL_MIN( quad_id_a, quad_id_b );
-	pair.quad_id_b = SL_MAX( quad_id_a, quad_id_b );
+	pair.entity_id_a = SL_MIN( entity_id_a, entity_id_b );
+	pair.entity_id_b = SL_MAX( entity_id_a, entity_id_b );
 
 	element = vul_map_get( sim->collision_callbacks, ( ui8_t* )&pair, sizeof( pair ) );
 	if( element != NULL ) {
@@ -123,7 +123,7 @@ void sl_simulator_add_callback( sl_simulator *sim, unsigned int quad_id_a, unsig
 		element->data = callback;
 	} else {
 		// Store our key
-		le = vul_list_insert( sim->collission_callback_keys, &pair, sizeof( sl_simulator_collider_pair ), sl_simulator_callback_comp );
+		le = vul_list_insert( sim->collission_callback_keys, &pair, sizeof( sl_simulator_collider_pair ), sl_simulator_callback_comp, malloc );
 
 		// Create a new element
 		el.data = callback;
@@ -136,13 +136,13 @@ void sl_simulator_add_callback( sl_simulator *sim, unsigned int quad_id_a, unsig
 
 void sl_simulator_update( sl_simulator *sim )
 {
-	sl_simulator_quad *it, *lit, *it2, *lit2;
+	sl_simulator_entity *it, *lit, *it2, *lit2;
 	sl_scene *s;
 	sl_vec *vit, *lvit, tmp;
 	sl_box aabb, aabb2;
 	const vul_hash_map_element_t *el;
 	sl_simulator_collider_pair pair;
-	sl_quad *q;
+	sl_entity *q;
 	float time_delta_in_s;
 	unsigned long long time_now;
 
@@ -151,7 +151,7 @@ void sl_simulator_update( sl_simulator *sim )
 	time_delta_in_s = ( float )( ( double )( time_now - sim->last_time ) / 1000000.0 );
 	sim->last_time = time_now;
 
-	vul_foreach( sl_simulator_quad, it, lit, sim->quads )
+	vul_foreach( sl_simulator_entity, it, lit, sim->entities )
 	{
 		// Aplly all forces
 		vul_foreach( sl_vec, vit, lvit, it->forces )
@@ -166,28 +166,28 @@ void sl_simulator_update( sl_simulator *sim )
 
 	// Update the rendering quads (if this simulation quad has one
 	s = sl_renderer_get_scene_by_id( sim->scene_id );
-	vul_foreach( sl_simulator_quad, it, lit, sim->quads )
+	vul_foreach( sl_simulator_entity, it, lit, sim->entities )
 	{
-		q = sl_scene_get_volitile_quad( s, it->quad->quad_id, 0xffffffff );
+		q = sl_scene_get_volitile_entity( s, it->entity->entity_id, 0xffffffff );
 		sl_mseti4( &q->world_matrix, 3, 0, it->pos.x );
 		sl_mseti4( &q->world_matrix, 3, 1, it->pos.y );
 	}
 
 	// With the new positions, calculate collissions
-	vul_foreach( sl_simulator_quad, it, lit, sim->quads )
+	vul_foreach( sl_simulator_entity, it, lit, sim->entities )
 	{
-		vul_foreach( sl_simulator_quad, it2, lit2, sim->quads )
+		vul_foreach( sl_simulator_entity, it2, lit2, sim->entities )
 		{
 			if( it == it2 ) {
 				continue; // Skip self-collissions
 			}
-			sl_quad_aabb( &aabb, it->quad );
-			sl_quad_aabb( &aabb2, it2->quad );
+			sl_entity_aabb( &aabb, it->entity );
+			sl_entity_aabb( &aabb2, it2->entity );
 			if( sl_bintersect( &aabb, &aabb2 ) ) {
 				// Call callback if there is one (if not, the collission isn't handled!)
 				// @NOTE: If this adjusts positions, you need to update the rendering quads from the callback!
-				pair.quad_id_a = SL_MIN( it->quad->quad_id, it2->quad->quad_id );
-				pair.quad_id_b = SL_MAX( it->quad->quad_id, it2->quad->quad_id );
+				pair.entity_id_a = SL_MIN( it->entity->entity_id, it2->entity->entity_id );
+				pair.entity_id_b = SL_MAX( it->entity->entity_id, it2->entity->entity_id );
 				el = vul_map_get_const( sim->collision_callbacks, ( ui8_t* )&pair, sizeof( pair ) );
 				if( el != NULL ) {
 					( ( sl_simulator_collider_pair_callback )el->data )( s, it, it2, time_delta_in_s );
@@ -207,7 +207,7 @@ ui32_t sl_simulator_callback_hash( const ui8_t *key, ui32_t keylen )
 	assert( keylen == sizeof( sl_simulator_collider_pair ) );
 #else
 	if( keylen !=  sizeof( sl_simulator_collider_pair ) ) {
-		fprintf( stderr, "Key length in simulator callback hash function is not %d, but %d.\n", sizeof( sl_simulator_collider_pair ), keylen );
+		sl_print( 256, "Key length in simulator callback hash function is not %d, but %d.\n", sizeof( sl_simulator_collider_pair ), keylen );
 		return 0;
 	}
 #endif
@@ -226,10 +226,10 @@ int sl_simulator_callback_comp( void *a, void *b )
 	ea = ( vul_hash_map_element_t* )a;
 	eb = ( vul_hash_map_element_t* )b;
 
-	qaa = ( ( sl_simulator_collider_pair* )ea->key )->quad_id_a;
-	qab = ( ( sl_simulator_collider_pair* )ea->key )->quad_id_b;
-	qba = ( ( sl_simulator_collider_pair* )eb->key )->quad_id_a;
-	qbb = ( ( sl_simulator_collider_pair* )eb->key )->quad_id_b;
+	qaa = ( ( sl_simulator_collider_pair* )ea->key )->entity_id_a;
+	qab = ( ( sl_simulator_collider_pair* )ea->key )->entity_id_b;
+	qba = ( ( sl_simulator_collider_pair* )eb->key )->entity_id_a;
+	qbb = ( ( sl_simulator_collider_pair* )eb->key )->entity_id_b;
 
 	if( qaa != qba ) {
 		return ( int )( ( i32_t )qaa - ( i32_t )qba ); // Compare a with a first
@@ -238,7 +238,7 @@ int sl_simulator_callback_comp( void *a, void *b )
 	}
 }
 
-void sl_simulator_callback_quad_quad( sl_scene *scene, sl_simulator_quad *a, sl_simulator_quad *b, double time_frame_delta )
+void sl_simulator_callback_quad_quad( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta )
 {
 	sl_vec inv_vel_a, inv_vel_b;				// Inverse velocities to find intersection
 	sl_vec offset_a, offset_b;					// The offset to backtrack
@@ -248,8 +248,8 @@ void sl_simulator_callback_quad_quad( sl_scene *scene, sl_simulator_quad *a, sl_
 	sl_vec corner_a, corner_b;					// AABB corner closest to intersection point
 
 	// Get the aabbs @TODO: Pass these in for less recalculations?
-	sl_quad_aabb( &aabb_a, a->quad );
-	sl_quad_aabb( &aabb_b, b->quad );
+	sl_entity_aabb( &aabb_a, a->entity );
+	sl_entity_aabb( &aabb_b, b->entity );
 
 	// Get corner of AABB closest to intersection
 	if( a->velocity.x > 0.0f ){
@@ -315,17 +315,17 @@ void sl_simulator_callback_quad_quad( sl_scene *scene, sl_simulator_quad *a, sl_
 	sl_vcopy( &b->velocity, &inv_vel_b );
 
 	// @NOTE: We don't care about rotation here...
-	sl_mseti4( &sl_scene_get_volitile_quad( scene, a->quad->quad_id, 0xffffffff )->world_matrix, 
+	sl_mseti4( &sl_scene_get_volitile_entity( scene, a->entity->entity_id, 0xffffffff )->world_matrix,
 			   3, 0, a->pos.x );
-	sl_mseti4( &sl_scene_get_volitile_quad( scene, a->quad->quad_id, 0xffffffff )->world_matrix, 
+	sl_mseti4( &sl_scene_get_volitile_entity( scene, a->entity->entity_id, 0xffffffff )->world_matrix,
 			   3, 1, a->pos.y );
-	sl_mseti4( &sl_scene_get_volitile_quad( scene, b->quad->quad_id, 0xffffffff )->world_matrix,
+	sl_mseti4( &sl_scene_get_volitile_entity( scene, b->entity->entity_id, 0xffffffff )->world_matrix,
 			   3, 0, b->pos.x );
-	sl_mseti4( &sl_scene_get_volitile_quad( scene, b->quad->quad_id, 0xffffffff )->world_matrix,
+	sl_mseti4( &sl_scene_get_volitile_entity( scene, b->entity->entity_id, 0xffffffff )->world_matrix,
 			   3, 1, b->pos.y );
 }
 
-void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_quad *quad, sl_simulator_quad *sphere, double time_frame_delta )
+void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_entity *quad, sl_simulator_entity *sphere, double time_frame_delta )
 {
 	sl_vec quad_closest;					// Closest point to the center of the sphere on the quad.
 	sl_vec sphere_center, sphere_radius;	// Shpere properties
@@ -340,15 +340,15 @@ void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_quad *quad
 	sl_vec old_vel_q, old_vel_s;			// Store old velocities
 	
 	// Get aabbs
-	sl_quad_aabb( &quad_aabb, quad->quad );
-	sl_quad_aabb( &sphere_aabb, sphere->quad );
+	sl_entity_aabb( &quad_aabb, quad->entity );
+	sl_entity_aabb( &sphere_aabb, sphere->entity );
 
 	// Get sphere radius
-	angle = ( float )asin( sphere->quad->world_matrix.data[ 1 ] );
+	angle = ( float )asin( sphere->entity->world_matrix.data[ 1 ] );
 	half_inv_cos_a = 1.0f / ( ( float )cos( angle ) * 2.0f );
 	sl_vset( &sphere_radius,
-		sphere->quad->world_matrix.data[ 0 ] * half_inv_cos_a,
-		sphere->quad->world_matrix.data[ 5 ] * half_inv_cos_a );
+			 sphere->entity->world_matrix.data[ 0 ] * half_inv_cos_a,
+			 sphere->entity->world_matrix.data[ 5 ] * half_inv_cos_a );
 	// Get sphere center
 	sl_bcenter( &sphere_center, &sphere_aabb );
 
@@ -411,7 +411,7 @@ void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_quad *quad
 	}
 }
 
-void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_quad *a, sl_simulator_quad *b, double time_frame_delta )
+void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta )
 {
 	sl_vec center_a, radius_a, center_b, radius_b;	// Shpere properties
 	sl_box aabb_a, aabb_b;							// AABBs
@@ -426,20 +426,20 @@ void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_quad *a,
 	sl_vec old_vel_a, old_vel_b;					// Store old velocities
 	
 	// Get aabbs
-	sl_quad_aabb( &aabb_a, a->quad );
-	sl_quad_aabb( &aabb_b, b->quad );
+	sl_entity_aabb( &aabb_a, a->entity );
+	sl_entity_aabb( &aabb_b, b->entity );
 
 	// Get sphere radius
-	angle_a = ( float )asin( a->quad->world_matrix.data[ 1 ] );
+	angle_a = ( float )asin( a->entity->world_matrix.data[ 1 ] );
 	half_inv_cos_a = 1.0f / ( ( float )cos( angle_a ) * 2.0f );
 	sl_vset( &radius_a,
-		a->quad->world_matrix.data[ 0 ] * half_inv_cos_a,
-		a->quad->world_matrix.data[ 5 ] * half_inv_cos_a );
-	angle_b = ( float )asin( b->quad->world_matrix.data[ 1 ] );
+			 a->entity->world_matrix.data[ 0 ] * half_inv_cos_a,
+			 a->entity->world_matrix.data[ 5 ] * half_inv_cos_a );
+	angle_b = ( float )asin( b->entity->world_matrix.data[ 1 ] );
 	half_inv_cos_b = 1.0f / ( ( float )cos( angle_b ) * 2.0f );
 	sl_vset( &radius_b,
-		b->quad->world_matrix.data[ 0 ] * half_inv_cos_b,
-		b->quad->world_matrix.data[ 5 ] * half_inv_cos_b );
+			 b->entity->world_matrix.data[ 0 ] * half_inv_cos_b,
+			 b->entity->world_matrix.data[ 5 ] * half_inv_cos_b );
 	// Get sphere center
 	sl_bcenter( &center_b, &aabb_b );
 	sl_bcenter( &center_b, &aabb_b );

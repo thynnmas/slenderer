@@ -24,7 +24,7 @@ void sl_renderer_create(  )
 	assert( glfwInit( ) );
 #else
 	if( !glfwInit( ) ) {
-		printf( "Could not intialize GLFW. Terminating.\n" );
+		sl_print( 256, "Could not intialize GLFW. Terminating.\n" );
 		exit( EXIT_FAILURE );
 	}
 #endif
@@ -296,7 +296,7 @@ sl_texture *sl_renderer_allocate_texture( )
 
 void sl_renderer_glfw_error_callback( int error, const char *desc )
 {
-	fprintf( stderr, "GLFW error encountered:\n%s\n", desc );
+	sl_print( 2048, "GLFW error encountered:\n%s\n", desc );
 }
 
 sl_renderable *sl_renderer_allocate_renderable( )
@@ -328,11 +328,18 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 #endif
 	sl_simulator *sim;
 	sl_window *win;
-	sl_quad *it, *last_it; // iterator
+	sl_entity *it, *last_it; // iterator
 	int i, cpi, cti, cri;
 	sl_program *cp; // Current program
 	sl_texture *ct; // Current texture
 	sl_renderable *cr; // Current renderable
+#ifdef SL_DEBUG
+	vul_timer_t *timer;
+	ui64_t last, now, elapsed, first, time_layers[ SL_MAX_LAYERS ];
+	timer = vul_timer_create( );
+	last = vul_timer_get_micros( timer );
+	first = last;
+#endif
 
 	// Check that the window is still open, and make it current
 	win = ( sl_window* )vul_vector_get( sl_renderer_global->windows, window_index );
@@ -340,7 +347,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	assert( !glfwWindowShouldClose( win->handle ) );
 #else
 	if ( glfwWindowShouldClose( win->handle ) ) {
-		printf( "GLFW has been asked to close a window. Doing so, render failed.\n" );
+		sl_print( 256, "GLFW has been asked to close a window. Doing so, render failed.\n" );
 		return;
 	}
 #endif
@@ -349,24 +356,54 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 #else
 	sl_window_bind_framebuffer_fbo( win );
 #endif
-	
+#ifdef SL_DEBUG
+	now = vul_timer_get_micros( timer );
+	elapsed = now - last;
+	sl_print( 64, "Frame time (setup): %llu micros\n", elapsed );
+	last = now;
+#endif
+
 	// Update the corresponding animator
 	anim = sl_renderer_get_animator_for_scene( scene_index );
 	sl_animator_update( anim );
+#ifdef SL_DEBUG
+	now = vul_timer_get_micros( timer );
+	elapsed = now - last;
+	sl_print( 64, "Frame time (animation): %llu micros\n", elapsed );
+	last = now;
+#endif
 
 	// Update the corresponding simulator
 	sim = sl_renderer_get_simulator_for_scene( scene_index );
 	sl_simulator_update( sim );
+#ifdef SL_DEBUG
+	now = vul_timer_get_micros( timer );
+	elapsed = now - last;
+	sl_print( 64, "Frame time (simulation): %llu micros\n", elapsed );
+	last = now;
+#endif
 
 #ifndef SL_NO_AUDIO
 	// Update the corresponding audio manager
 	aur = sl_renderer_get_aurator_for_scene( scene_index );
 	sl_aurator_update( aur );
+#ifdef SL_DEBUG
+	now = vul_timer_get_micros( timer );
+	elapsed = now - last;
+	sl_print( 64, "Frame time (audio): %llu micros\n", elapsed );
+	last = now;
+#endif
 #endif
 
 	// Grab the scene and sort it
 	scene = sl_renderer_get_scene_by_id( scene_index );
 	sl_scene_sort( scene );
+#ifdef SL_DEBUG
+	now = vul_timer_get_micros( timer );
+	elapsed = now - last;
+	sl_print( 64, "Frame time (sort): %llu micros\n", elapsed );
+	last = now;
+#endif
 	
 	// Set GL state
 	glDisable( GL_DEPTH_TEST );
@@ -382,7 +419,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	cri = -1;
 	for( i = 0; i < SL_MAX_LAYERS; ++i )
 	{
-		vul_foreach( sl_quad, it, last_it, scene->layers[ i ] )
+		vul_foreach( sl_entity, it, last_it, scene->layers[ i ] )
 		{
 			// If the quad is invisible, don't render it
 			if( it->hidden ) {
@@ -411,14 +448,29 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 				cr = ( sl_renderable* )vul_vector_get( sl_renderer_global->renderables, cri );
 				sl_renderable_bind( cr );
 			}
+			// Bind the quad
+			sl_entity_bind( it, &scene->camera_pos, cp );
 			// Render the quad
 #ifdef SL_LEGACY_OPENGL
-			sl_renderer_draw_legacy_quad( &scene->camera_pos, cr, it );
+			sl_renderer_draw_legacy_instance( cr );
 #else
-			sl_renderer_draw_instance( &scene->camera_pos, cp, it );
+			sl_renderer_draw_instance( cr );
 #endif
 		}
+#ifdef SL_DEBUG
+		now = vul_timer_get_micros( timer );
+		time_layers[ i ] = now - last;
+		last = now;
+#endif
 	}
+#ifdef SL_DEBUG
+	elapsed = 0;
+	for( i = 0; i < SL_MAX_LAYERS; ++i ) {
+		elapsed += time_layers[ i ];
+	}
+	sl_print( 64, "Frame time (render): %llu micros\n", elapsed );
+	last = now;
+#endif
 
 	// Render post
 #ifndef SL_LEGACY_OPENGL
@@ -444,16 +496,31 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 		glBindTexture( GL_TEXTURE_2D, 0 );
 		sl_program_unbind( cp );
 	}
+#ifdef SL_DEBUG
+	now = vul_timer_get_micros( timer );
+	elapsed = now - last;
+	sl_print( 64, "Frame time (render post): %llu micros\n", elapsed );
+	last = now;
+#endif
 #endif
 
 	// Swap buffers
 	if( swap_buffers ) {
 		sl_window_swap_buffers( win );
 	}
+
+#ifdef SL_DEBUG
+	now = vul_timer_get_micros( timer );
+	elapsed = now - last;
+	sl_print( 64, "Frame time (swap): %llu micros\n", elapsed );
+	elapsed = now - first;
+	sl_print( 64, "Frame time (TOTAL): %llu micros\n", elapsed );
+	last = now;
+#endif
 }
 
 #ifdef SL_LEGACY_OPENGL
-void sl_renderer_draw_legacy_quad( sl_vec *camera_offset, sl_renderable *rend, sl_quad *quad )
+void sl_renderer_draw_legacy_quad( sl_vec *camera_offset, sl_renderable *rend, sl_entity *quad )
 {
 	sl_mat4 mat;
 	sl_box uvs;
@@ -493,38 +560,10 @@ void sl_renderer_draw_legacy_quad( sl_vec *camera_offset, sl_renderable *rend, s
 	glEnd( );	
 }
 #else
-void sl_renderer_draw_instance( sl_vec *camera_offset, sl_program *prog, sl_quad *quad )
-{
-	sl_mat4 mat;
-	sl_box uvs;
-	f32_t tmp;
-	sl_vec vert;
-
-	// Calculate offset into matrix
-	sl_mcopy4( &mat, &quad->world_matrix );
-	mat.data[ 12 ] -= camera_offset->x;
-	mat.data[ 13 ] -= camera_offset->y;
-
-	// Calculate the uvs; they may be flipped
-	sl_bset( &uvs, &quad->uvs );
-	if( quad->flip_uvs.x ) {
-		tmp = uvs.min_p.x;
-		uvs.min_p.x = uvs.max_p.x;
-		uvs.max_p.x = tmp;
-	}
-	if( quad->flip_uvs.y ) {
-		tmp = uvs.min_p.y;
-		uvs.min_p.y = uvs.max_p.y;
-		uvs.max_p.y = tmp;
-	}
-
-	// Set world matrix
-	glUniformMatrix4fv( glGetUniformLocation( prog->gl_prog_id, "mvp" ), 1, GL_FALSE, ( ( GLfloat* )&mat.data[ 0 ] ) );
-	glUniform4fv( glGetUniformLocation( prog->gl_prog_id, "color" ), 1, ( ( GLfloat* )&quad->color ) );
-	glUniform4fv( glGetUniformLocation( prog->gl_prog_id, "texcoord_offset_scale" ), 1, ( ( GLfloat* )&uvs ) );
-	
+void sl_renderer_draw_instance( sl_renderable *ren )
+{	
 	// Draw the quad
-	glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0 );
+	glDrawElements( GL_TRIANGLES, ren->index_count, GL_UNSIGNED_SHORT, 0 );
 }
 #endif
 
@@ -616,4 +655,31 @@ sl_window *sl_renderer_get_window_by_handle( GLFWwindow *win_handle )
 		}
 	}
 	return NULL;
+}
+
+void sl_print( ui32_t max_length, const char *fmt, ... )
+{
+	char *out;
+	va_list args;
+
+	out = malloc( max_length + 1 );
+	va_start( args, fmt );
+	vsnprintf( out, max_length, fmt, args );
+	out[ max_length ] = 0;
+	
+	/* Print to console */
+#ifdef VUL_WINDOWS
+	if( GetConsoleWindow( ) != NULL )  {
+		printf( out );
+	} else {
+		OutputDebugStringA( out );
+	}
+#else
+	sl_print( out );
+#endif
+
+	/* @TODO(thynn): Logging! */
+
+	va_end( args );
+	free( out );
 }

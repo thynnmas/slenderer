@@ -21,10 +21,10 @@ void sl_scene_create( sl_scene *scene, ui32_t parent_window_id, unsigned int sce
 	sl_box uvs;
 
 	for( i = 0; i < SL_MAX_LAYERS; ++i ) {
-		scene->layers[ i ] = vul_vector_create( sizeof( sl_quad ), 0 );
+		scene->layers[ i ] = vul_vector_create( sizeof( sl_entity ), 0 );
 	}
 	scene->layer_dirty = 0;
-	scene->next_quad_id = 0;
+	scene->next_entity_id = 0;
 	scene->window_id = parent_window_id;
 	scene->scene_id = scene_id;
 
@@ -34,7 +34,7 @@ void sl_scene_create( sl_scene *scene, ui32_t parent_window_id, unsigned int sce
 
 	/* Create renderable and quad for post rendering */
 	sl_bset_scalar( &uvs, 0.f, 0.f, 1.f, 1.f );
-	sl_renderable_create( &scene->post_renderable, &uvs );
+	sl_renderable_create_quad( &scene->post_renderable, &uvs );
 
 	sl_vset( &scene->camera_pos, 0.0f, 0.f );
 }
@@ -47,7 +47,7 @@ void sl_scene_destroy( sl_scene *scene )
 		vul_vector_destroy( scene->layers[ i ] );
 	}
 	scene->layer_dirty = 0;
-	scene->next_quad_id = 0;
+	scene->next_entity_id = 0;
 }
 
 void sl_scene_sort( sl_scene *scene )
@@ -58,7 +58,7 @@ void sl_scene_sort( sl_scene *scene )
 		if( ( scene->layer_dirty & ( 1 << i ) ) == 0 ) {
 			continue;
 		}
-		vul_sort_vector( scene->layers[ i ], &sl_quad_sort, 0, vul_vector_size( scene->layers[ i ] ) - 1 );
+		vul_sort_vector( scene->layers[ i ], &sl_entity_sort, 0, vul_vector_size( scene->layers[ i ] ) - 1 );
 	}
 	scene->layer_dirty = 0;
 }
@@ -76,21 +76,21 @@ unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer,
 								  const sl_box *uvs, const sl_bvec *flip_uvs,
 								  const float color[ 4 ], unsigned char is_hidden )
 {
-	sl_quad *q;
+	sl_entity *q;
 
 #ifdef SL_DEBUG
 	assert( layer < SL_MAX_LAYERS );
 #endif
 
-	q = ( sl_quad* )vul_vector_add_empty( scene->layers[ layer ] );
+	q = ( sl_entity* )vul_vector_add_empty( scene->layers[ layer ] );
 	q->hidden = is_hidden;
-	q->quad_id = scene->next_quad_id++;
+	q->entity_id = scene->next_entity_id++;
 	q->texture_id = texture_id;
 	q->program_id = program_id;
 	q->renderable_id = renderable_id;
 	q->uvs = *uvs;
 	q->flip_uvs = *flip_uvs;
-	sl_quad_create_world_matrix( q, center, scale, rotation );
+	sl_entity_create_world_matrix( q, center, scale, rotation );
 
 	if( color == NULL ) {
 		q->color[ 0 ] = q->color[ 1 ] = q->color[ 2 ] = q->color[ 3 ] = 1.f;
@@ -101,19 +101,19 @@ unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer,
 		q->color[ 3 ] = color[ 3 ];
 	}
 
-	return q->quad_id;
+	return q->entity_id;
 }
 void sl_scene_remove_sprite( sl_scene *scene, const unsigned int id, const unsigned int layer )
 {
 	unsigned int i, j;
-	sl_quad *it, *last_it;
+	sl_entity *it, *last_it;
 
 	if( layer == 0xffffffff ) {
 		for( i = 0; i < SL_MAX_LAYERS; ++i ) {
 			if( scene->layers[ i ] ) {
 				j = 0;
-				vul_foreach( sl_quad, it, last_it, scene->layers[ i ] ) {
-					if( it->quad_id == id ) {
+				vul_foreach( sl_entity, it, last_it, scene->layers[ i ] ) {
+					if( it->entity_id == id ) {
 						vul_vector_remove_cascade( scene->layers[ i ], j ); 
 						// After this operation, it is no longer stable, but we don't care, since
 						// we return anyway!
@@ -129,8 +129,8 @@ void sl_scene_remove_sprite( sl_scene *scene, const unsigned int id, const unsig
 #endif
 		if( scene->layers[ layer ] ) {
 			j = 0;
-			vul_foreach( sl_quad, it, last_it, scene->layers[ layer ] ) {
-				if( it->quad_id == id ) {
+			vul_foreach( sl_entity, it, last_it, scene->layers[ layer ] ) {
+				if( it->entity_id == id ) {
 					vul_vector_remove_cascade( scene->layers[ layer ], j ); 
 					// After this operation, it is no longer stable, but we don't care, since
 					// we return anyway!
@@ -141,18 +141,18 @@ void sl_scene_remove_sprite( sl_scene *scene, const unsigned int id, const unsig
 	}
 }
 
-sl_quad *sl_scene_get_volitile_quad( sl_scene *scene, const unsigned int id, const unsigned int layer )
+sl_entity *sl_scene_get_volitile_entity( sl_scene *scene, const unsigned int id, const unsigned int layer )
 {
 	unsigned int i, lret;
-	sl_quad *ret;
-	sl_quad *it, *last_it;
+	sl_entity *ret;
+	sl_entity *it, *last_it;
 
 	ret = NULL;
 	if( layer == 0xffffffff ) {
 		for( i = 0; i < SL_MAX_LAYERS; ++i ) {
 			if( scene->layers[ i ] ) {
-				vul_foreach( sl_quad, it, last_it, scene->layers[ i ] ) {
-					if( it->quad_id == id ) {
+				vul_foreach( sl_entity, it, last_it, scene->layers[ i ] ) {
+					if( it->entity_id == id ) {
 						ret = it;
 						lret = i;
 					}
@@ -165,8 +165,8 @@ sl_quad *sl_scene_get_volitile_quad( sl_scene *scene, const unsigned int id, con
 #endif
 		lret = layer;
 		if( scene->layers[ layer ] ) {
-			vul_foreach( sl_quad, it, last_it, scene->layers[ layer ] ) {
-				if( it->quad_id == id ) {
+			vul_foreach( sl_entity, it, last_it, scene->layers[ layer ] ) {
+				if( it->entity_id == id ) {
 					ret = it;
 				}
 			}
@@ -180,16 +180,16 @@ sl_quad *sl_scene_get_volitile_quad( sl_scene *scene, const unsigned int id, con
 	return ret;
 }
 
-const sl_quad *sl_scene_get_const_quad( sl_scene *scene, const unsigned int id, const unsigned int layer )
+const sl_entity *sl_scene_get_const_entity( sl_scene *scene, const unsigned int id, const unsigned int layer )
 {
 	unsigned int i, lret;
-	sl_quad *it, *last_it;
+	sl_entity *it, *last_it;
 	
 	if( layer == 0xffffffff ) {
 		for( i = 0; i < SL_MAX_LAYERS; ++i ) {
 			if( scene->layers[ i ] ) {
-				vul_foreach( sl_quad, it, last_it, scene->layers[ i ] ) {
-					if( it->quad_id == id ) {
+				vul_foreach( sl_entity, it, last_it, scene->layers[ i ] ) {
+					if( it->entity_id == id ) {
 						return it;
 					}
 				}
@@ -201,8 +201,8 @@ const sl_quad *sl_scene_get_const_quad( sl_scene *scene, const unsigned int id, 
 #endif
 		lret = layer;
 		if( scene->layers[ layer ] ) {
-			vul_foreach( sl_quad, it, last_it, scene->layers[ layer ] ) {
-				if( it->quad_id == id ) {
+			vul_foreach( sl_entity, it, last_it, scene->layers[ layer ] ) {
+				if( it->entity_id == id ) {
 					return it;
 				}
 			}
@@ -213,9 +213,9 @@ const sl_quad *sl_scene_get_const_quad( sl_scene *scene, const unsigned int id, 
 	return NULL;
 }
 
-void sl_scene_get_quads_at_pos( vul_vector_t *vec, sl_scene *scene, sl_vec *pos )
+void sl_scene_get_entities_at_pos( vul_vector_t *vec, sl_scene *scene, sl_vec *pos )
 {
-	sl_quad *it, *last_it;
+	sl_entity *it, *last_it;
 	int i;
 	sl_box aabb;
 
@@ -223,11 +223,11 @@ void sl_scene_get_quads_at_pos( vul_vector_t *vec, sl_scene *scene, sl_vec *pos 
 		if( scene->layers[ i ] == NULL ) {
 			continue;
 		}
-		vul_foreach( sl_quad, it, last_it, scene->layers[ i ] )
+		vul_foreach( sl_entity, it, last_it, scene->layers[ i ] )
 		{
-			sl_quad_aabb( &aabb, it );
+			sl_entity_aabb( &aabb, it );
 			if( sl_binside( &aabb, pos ) && !it->hidden ) {
-				vul_vector_add( vec, &it->quad_id );
+				vul_vector_add( vec, &it->entity_id );
 			}
 		}
 	}

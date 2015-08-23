@@ -18,8 +18,12 @@
 #define SLENDERER_RENDERABLE_H
 
 #include "math/vec.h"
-#include "renderer/quad.h"
+#include "renderer/entity.h"
 #include "renderer/window.h"
+
+#ifndef M_PI
+	#define M_PI ( f32_t )3.1415926535897932384626433832795
+#endif
 
 typedef struct {
 	sl_vec position;
@@ -28,19 +32,36 @@ typedef struct {
 
 typedef struct sl_renderable {
 #ifdef SL_LEGACY_OPENGL
-	sl_vertex vertices[ 4 ];
+	sl_vertex *vertices;
+	unsigned short *indices;
 #else
 	GLuint arrayBufferIndex;
 	GLuint vertBufferObjectIndex;
 	GLuint indexBufferObjectIndex;
 #endif
+	unsigned int vertex_count;
+	unsigned int index_count;
 	unsigned int renderable_id;
 } sl_renderable;
 
 /**
  * Creates a renderable quad with the given uvs at min and max corners.
  */
-void sl_renderable_create( sl_renderable *ren, sl_box *uvs );
+void sl_renderable_create_quad( sl_renderable *ren, sl_box *uvs );
+
+/**
+ * Creates a renderable pointy topped hex with the given UV aabb.
+ * @NOTE(thynn): This is inefficient use of the texture, but it's simple
+ * for animation, so until I really, really need a better solution, this works.
+ */
+void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb );
+
+/**
+* Creates a renderable flat topped hex with the given UV aabb.
+* @NOTE(thynn): This is inefficient use of the texture, but it's simple
+* for animation, so until I really, really need a better solution, this works.
+*/
+void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb );
 
 /**
  * Destroys a renderable quad.

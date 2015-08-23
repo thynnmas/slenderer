@@ -26,7 +26,7 @@
 
 #include "math/box.h"
 #include "math/mat.h"
-#include "renderer/quad.h"
+#include "renderer/entity.h"
 #include "renderer/renderable.h"
 #include "renderer/texture.h"
 #include "renderer/window.h"
@@ -37,9 +37,9 @@
 #define SL_INVISIBLE_TEXTURE 0xffffffff
 
 typedef struct {
-	vul_vector_t *layers[ SL_MAX_LAYERS ]; // Vector of sl_quad. MAX_LAYERS arrays of quads, one for each layer.
+	vul_vector_t *layers[ SL_MAX_LAYERS ]; // Vector of sl_entity. MAX_LAYERS arrays of entities, one for each layer.
 	unsigned short layer_dirty; // Each bit indicates whether a layer must be re-sorted
-	unsigned int next_quad_id; // ID of the next added quad.
+	unsigned int next_entity_id; // ID of the next added entity.
 	ui32_t window_id;
 	unsigned int scene_id;
 	ui32_t post_program_id; // Post processing program; by default the normal shader!
@@ -88,18 +88,18 @@ void sl_scene_remove_sprite( sl_scene *scene, const unsigned int id, const unsig
  * If a layer == 0xffffffff, all layers are searched.
  * The layer of the quad is marked as dirty.
  */
-sl_quad *sl_scene_get_volitile_quad( sl_scene *scene, const unsigned int id, const unsigned int layer );
+sl_entity *sl_scene_get_volitile_entity( sl_scene *scene, const unsigned int id, const unsigned int layer );
 
 /**
  * Returns a const reference to the quad with the given id.
  * If a layer == 0xffffffff, all layers are searched.
  */
-const sl_quad *sl_scene_get_const_quad( sl_scene *scene, const unsigned int id, const unsigned int layer );
+const sl_entity *sl_scene_get_const_entity( sl_scene *scene, const unsigned int id, const unsigned int layer );
 
 /**
  * Populates a vector of all quad ids that intersect a ray into the scene at the given position.
  * It searches top down, so the first hit is the topmost intersected quad.
  */
-void sl_scene_get_quads_at_pos( vul_vector_t *vec, sl_scene *scene, sl_vec *pos );
+void sl_scene_get_entities_at_pos( vul_vector_t *vec, sl_scene *scene, sl_vec *pos );
 
 #endif

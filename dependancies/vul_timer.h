@@ -1,10 +1,11 @@
 /*
- * Villains' Utility Library - Thomas Martin Schmid, 2014. Public domain¹
+ * Villains' Utility Library - Thomas Martin Schmid, 2015. Public domain?
  *
  * This file contains a high performace timer that works on windows, linux
  * and OS X. Possibly works on other *nix systems as well.
+ * It also contains an OS agnostic sleep function.
  * 
- * ¹ If public domain is not legally valid in your legal jurisdiction
+ * ? If public domain is not legally valid in your legal jurisdiction
  *   the MIT licence applies (see the LICENCE file)
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -15,7 +16,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 #ifndef VUL_TIMER_H
 #define VUL_TIMER_H
 
@@ -51,9 +51,8 @@
 	vul needs an operating system defined.
 #endif
 #include "vul_types.h"
-
-typedef struct {
-	clock_t zero;
+		
+typedef struct  {
 #if defined( VUL_WINDOWS )
 	DWORD start_tick;
 	LONGLONG last_time;
@@ -68,6 +67,8 @@ typedef struct {
 	mach_timebase_info_data_t timebase_info;
 #endif
 } vul_timer_t;
+
+#endif
 
 #ifndef VUL_DEFINE
 void vul_timer_reset( vul_timer_t *c );
@@ -102,9 +103,7 @@ void vul_timer_reset( vul_timer_t *c )
 	c->start_tick = GetTickCount( );
 	SetThreadAffinityMask( thread, old_mask );
 	c->last_time = 0;
-	c->zero = clock( );
 #elif defined( VUL_LINUX )
-	c->zero = clock( );
 	clock_gettime( CLOCK_REALTIME, &c->start );
 #elif defined( VUL_OSX )
 	c->start = mach_absolute_time( );
@@ -138,36 +137,36 @@ void vul_timer_destroy( vul_timer_t *c )
 #endif
 
 #ifndef VUL_DEFINE
-unsigned long long vul_timer_get_millis( vul_timer_t *c );
+ui64_t vul_timer_get_millis( vul_timer_t *c );
 #else
-unsigned long long vul_timer_get_millis( vul_timer_t *c )
+ui64_t vul_timer_get_millis( vul_timer_t *c )
 {
 #if defined( VUL_WINDOWS )
 	LARGE_INTEGER current_time;
 	HANDLE thread;
 	DWORD_PTR old_mask;
 	LONGLONG new_time;
-	unsigned long new_ticks;
-	unsigned long check;
-	signed long ms_off;
+	ui32_t new_ticks;
+	ui32_t check;
+	i32_t ms_off;
 	LONGLONG adjust;
 
 	thread = GetCurrentThread( );
 	old_mask = SetThreadAffinityMask( thread, c->clock_mask );
 	QueryPerformanceCounter( &current_time );
 	SetThreadAffinityMask( thread, old_mask );
-	new_time = current_time.QuadPart - current_time.QuadPart;
-	new_ticks = (unsigned long) (1000 * new_time / c->frequency.QuadPart);
+	new_time = current_time.QuadPart - c->start_time.QuadPart;
+	new_ticks = ( ui32_t )( 1000 * new_time / c->frequency.QuadPart );
 
 	// Microsoft KB: Q274323
 	check = GetTickCount() - c->start_tick;
-	ms_off = (signed long)(new_ticks - check);
+	ms_off = ( i32_t )( new_ticks - check );
 	if (ms_off < -100 || ms_off > 100)
 	{
 		adjust = VUL_MIN( ms_off * c->frequency.QuadPart / 1000, new_time - c->last_time );
 		c->start_time.QuadPart += adjust;
 		new_time -= adjust;
-		new_ticks = (unsigned long) (1000 * new_time / c->frequency.QuadPart);
+		new_ticks = ( ui32_t )( 1000 * new_time / c->frequency.QuadPart );
 	}
 
 	c->last_time = new_time;
@@ -188,31 +187,31 @@ unsigned long long vul_timer_get_millis( vul_timer_t *c )
 #endif
 
 #ifndef VUL_DEFINE
-unsigned long long vul_timer_get_micros( vul_timer_t *c );
+ui64_t vul_timer_get_micros( vul_timer_t *c );
 #else
-unsigned long long vul_timer_get_micros( vul_timer_t *c )
+ui64_t vul_timer_get_micros( vul_timer_t *c )
 {
 #if defined( VUL_WINDOWS )
 	LARGE_INTEGER current_time;
 	HANDLE thread;
 	DWORD_PTR old_mask;
 	LONGLONG new_time;
-	unsigned long new_ticks;
-	unsigned long check;
-	signed long ms_off;
+	ui32_t new_ticks;
+	ui32_t check;
+	i32_t ms_off;
 	LONGLONG adjust;
-	unsigned long long new_micro;
+	ui64_t new_micro;
 
 	thread = GetCurrentThread( );
 	old_mask = SetThreadAffinityMask( thread, c->clock_mask );
 	QueryPerformanceCounter( &current_time );
 	SetThreadAffinityMask( thread, old_mask );
-	new_time = current_time.QuadPart - current_time.QuadPart;
-	new_ticks = (unsigned long) (1000 * new_time / c->frequency.QuadPart);
+	new_time = current_time.QuadPart - c->start_time.QuadPart;
+	new_ticks = (ui32_t) (1000 * new_time / c->frequency.QuadPart);
 
 	// Microsoft KB: Q274323
 	check = GetTickCount() - c->start_tick;
-	ms_off = (signed long)(new_ticks - check);
+	ms_off = (i32_t)(new_ticks - check);
 	if (ms_off < -100 || ms_off > 100)
 	{
 		adjust = VUL_MIN( ms_off * c->frequency.QuadPart / 1000, new_time - c->last_time );
@@ -223,7 +222,7 @@ unsigned long long vul_timer_get_micros( vul_timer_t *c )
 	c->last_time = new_time;
 	
 	// scale by 1000000 for microseconds
-	new_micro = (unsigned long) (1000000 * new_time / c->frequency.QuadPart);
+	new_micro = (ui32_t) (1000000 * new_time / c->frequency.QuadPart);
 
 
 	return new_micro;
@@ -274,7 +273,4 @@ unsigned int vul_sleep( unsigned int milliseconds )
 	assert( 0 && "vul_timer.h: OS not supported. Did you forget to specify an OS define?" );
 #endif
 }
-#endif
-
-
 #endif

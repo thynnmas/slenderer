@@ -49,6 +49,7 @@ void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_cou
 
 	// Internal buffer state
 	ret->data.sample_count = channel_count * ret->frames_per_buffer;
+	ret->data.sample_rate = sample_rate;
 	ret->data.channel_count = channel_count;
 	ret->data.samples = ( i32_t* )malloc( sizeof( i32_t ) * ret->data.sample_count * channel_count );
 	memset( ret->data.samples, ( i32_t )0, sizeof( i32_t ) * ret->data.sample_count * channel_count );
@@ -70,7 +71,7 @@ void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_cou
 						 &ret->portaudio_params,
 						 sample_rate, ret->frames_per_buffer,
 						 paNoFlag, /* Clip by default, we don't trust our users! */
-						 NULL, NULL ); /* No callback and userdata */
+						 sl_aurator_upload, ret ); /* No callback and userdata */
 	if( err != paNoError ) {
 		assert( SL_FALSE ); // Couldn't create the audio stream
 							// @DEBUG: Shouldn't be an assert
@@ -258,23 +259,35 @@ void sl_aurator_update( sl_aurator *aurator )
 			aurator->data.samples[ i * aurator->data.channel_count + c ] = ( i32_t )( ( f64_t )expanded * ( f64_t )aurator->volume );
 		}
 	}
+}
 
-	// And finally, write to the stream	
-	err = Pa_WriteStream( aurator->portaudio_stream,
-						  aurator->data.samples,
-						  aurator->frames_per_buffer );
-	if( err != paNoError ) {
-		printf("sl_aurator_update: Unable to write to audio stream.\n");
-	}
+int sl_aurator_upload( const void *input, void *output,
+					   unsigned long frame_count,
+					   const PaStreamCallbackTimeInfo *time_info,
+					   PaStreamCallbackFlags status_flags,
+					   void *user_data )
+{
+	ui32_t i;
+	sl_aurator *aurator;
+
+	( void )input; // Avoid unused variable warnings
+	aurator = ( sl_aurator* )user_data;
+
+	// Write to the buffer
+	memcpy( output, aurator->data.samples, aurator->data.channel_count * frame_count );
 }
 
 void sl_aurator_load_ogg( sl_aurator *aurator, sl_aurator_clip **clip, char *path )
 {
 	i32_t channel_count;
+	i32_t sample_rate;
 	i16_t *str;
 	ui32_t i, c;
 
-	( *clip )->sample_count = stb_vorbis_decode_filename( path, &channel_count, &( *clip )->stream );
+	( *clip )->sample_count = stb_vorbis_decode_filename( path, &channel_count, &sample_rate, &( *clip )->stream );
+	if( aurator->data.sample_rate != sample_rate ) {
+		assert( SL_FALSE ); // Sample rates don't match, we don't support live resampling
+	}
 	if( ( ui32_t )channel_count > aurator->data.channel_count ) {
 		assert( SL_FALSE ); // We have too many channels
 	} else if( ( ui32_t )channel_count < aurator->data.channel_count ) {
@@ -291,7 +304,6 @@ void sl_aurator_load_ogg( sl_aurator *aurator, sl_aurator_clip **clip, char *pat
 		}
 	}
 }
-
 
 void sl_aurator_set_volume( sl_aurator *aurator, f32_t vol )
 {

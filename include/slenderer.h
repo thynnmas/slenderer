@@ -43,10 +43,10 @@
 #ifndef SLENDERER_H
 #define SLENDERER_H
 
-#define SL_DEBUG
-#ifdef SL_DEBUG
-	#include <assert.h>
+#ifdef _DEBUG
+	#define SL_DEBUG
 #endif
+#include <assert.h>
 #include <stdio.h>
 
 #define SL_BOOL int
@@ -59,6 +59,12 @@
 
 // @IMPORTANT: Define VUL_DEFINE in your main .c file.
 #include <vul_resizable_array.h>
+
+/**
+* Print a formatted string to either stderr or debug console + logfile,
+* depending on environment.
+*/
+void sl_print( ui32_t max_length, const char *fmt, ... );
 
 #include "renderer/window.h"
 #include "renderer/scene.h"
@@ -73,7 +79,7 @@
 #include "audio/aurator.h"
 #define SL_AUDIO_CHANNEL_COUNT 2
 #define SL_AUDIO_SAMPLE_RATE 44100
-#define SL_AUDIO_FRAME_RATE_GUARANTEE 30
+#define SL_AUDIO_FRAME_RATE_GUARANTEE 60
 #endif
 
 typedef struct {
@@ -165,12 +171,12 @@ sl_program *sl_renderer_allocate_program( );
 /**
  * Renders a single quad using leagcy GL
  */
-void sl_renderer_draw_legacy_quad( sl_vec *camera_offset, sl_renderable *rend, sl_quad *quad );
+void sl_renderer_draw_legacy_instance( sl_vec *camera_offset, sl_renderable *rend, sl_entity *entity );
 #else
 /**
  * Renders a single quad instance. Binds the world matrix uniform, then draws.
  */
-void sl_renderer_draw_instance( sl_vec *camera_offset, sl_program *prog, sl_quad *quad );
+void sl_renderer_draw_instance( sl_renderable *ren );
 #endif
 
 /**

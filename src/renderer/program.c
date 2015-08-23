@@ -189,7 +189,7 @@ int sl_program_check_shader_compile( GLuint prog_id, const char *src )
 		glGetShaderInfoLog( prog_id, length, &result, clog );
 
 		// Print error
-		fprintf( stderr, "Failed to compile shader. Output:\n%s\n\nSource:\n%s\n\n", src, clog );
+		sl_print( "Failed to compile shader. Output:\n%s\n\nSource:\n%s\n\n", src, clog );
 
 		// Clean up
 		free( clog );
@@ -213,7 +213,7 @@ int sl_program_check_link( GLuint prog_id )
 		glGetShaderInfoLog( prog_id, length, &result, clog );
 
 		// Print error
-		fprintf( stderr, "Program failed to link. Output: %s\n", clog );
+		sl_print( "Program failed to link. Output: %s\n", clog );
 		
 		// Clean up
 		free( clog );

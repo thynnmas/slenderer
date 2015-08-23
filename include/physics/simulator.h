@@ -24,7 +24,7 @@
 
 #include "math/vec.h"
 #include "math/box.h"
-#include "renderer/quad.h"
+#include "renderer/entity.h"
 #include "renderer/scene.h"
 
 #define SL_SIMULATOR_CALLBACK_BUCKETS 16
@@ -32,23 +32,23 @@
 #define SL_MIN( a, b ) ( ( a ) <= ( b ) ? ( a ) : ( b ) )
 #define SL_MAX( a, b ) ( ( a ) >= ( b ) ? ( a ) : ( b ) )
 
-typedef struct sl_simulator_quad {
-	const sl_quad *quad;
+typedef struct sl_simulator_entity {
+	const sl_entity *entity;
 	sl_vec pos;
 	sl_vec velocity;
 	// @TODO: Mass!
 	vul_vector_t *forces; // Vector of sl_vecs
-} sl_simulator_quad;
+} sl_simulator_entity;
 
-typedef void ( *sl_simulator_collider_pair_callback )( sl_scene* s, sl_simulator_quad* a, sl_simulator_quad *b, double time_frame_delta );
+typedef void( *sl_simulator_collider_pair_callback )( sl_scene* s, sl_simulator_entity* a, sl_simulator_entity *b, double time_frame_delta );
 
 typedef struct {
-	unsigned int quad_id_a;
-	unsigned int quad_id_b;
+	unsigned int entity_id_a;
+	unsigned int entity_id_b;
 } sl_simulator_collider_pair;
 
 typedef struct {
-	vul_vector_t *quads; // Vector of sl_simulator_quads
+	vul_vector_t *entities; // Vector of sl_simulator_quads
 	vul_hash_map_t *collision_callbacks; // Hashmap of < sl_simulator_collider_pair, sl_simulator_collider_pair_callback >.
 	vul_list_element_t *collission_callback_keys; // List if sl_simulator_collider_pair
 	ui32_t scene_id;
@@ -69,26 +69,26 @@ void sl_simulator_destroy( sl_simulator *sim );
 /**
  * Adds a quad with the given start velocity to the simulation.
  */
-sl_simulator_quad *sl_simulator_add_quad( sl_simulator *sim, unsigned int quad_id, sl_vec *start_velocity );
+sl_simulator_entity *sl_simulator_add_entity( sl_simulator *sim, unsigned int entity_id, sl_vec *start_velocity );
 
 /**
  * Adds a force on the given quad. The force is in "normalized screen coords per second per second".
  * Returns a pointer to the force vector so it can be changed. We don't support removal atm,
  * so just set it to (0,0) to "remove" it.
  */
-sl_vec *sl_simulator_add_force( sl_simulator *sim, unsigned int quad_id, sl_vec *force );
+sl_vec *sl_simulator_add_force( sl_simulator *sim, unsigned int entity_id, sl_vec *force );
 
 /**
  * Adds an impulse to the given quad. The impulse is given as a raw change in velocity.
  */
-void sl_simulator_add_impulse( sl_simulator *sim, unsigned int quad_id, sl_vec *impulse );
+void sl_simulator_add_impulse( sl_simulator *sim, unsigned int entity_id, sl_vec *impulse );
 
 /**
  * Adds a collission callback for a pair of quads.
  * @NOTE: Order of quad ids is irrelevant; they are stored as a = min(a,b) 
  * and b = max(a,b) internally.
  */
-void sl_simulator_add_callback( sl_simulator *sim, unsigned int quad_id_a, unsigned int quad_id_b, sl_simulator_collider_pair_callback callback );
+void sl_simulator_add_callback( sl_simulator *sim, unsigned int entity_id_a, unsigned int entity_id_b, sl_simulator_collider_pair_callback callback );
 
 /**
  * Updates the physics simulation:
@@ -117,20 +117,22 @@ int sl_simulator_callback_comp( void *a, void *b );
  * Find the point of intersection in time, reflects the velocity
  * and advances by the distance of intersection in the new direction.
  */
-void sl_simulator_callback_quad_quad( sl_scene *scene, sl_simulator_quad *a, sl_simulator_quad *b, double time_frame_delta );
+void sl_simulator_callback_quad_quad( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta );
 
 /**
  * Simple callback for quad vs. sphere collissions.
  * Find the point of intersection in time, reflects the velocity
  * and advances by the distance of intersection in the new direction.
  */
-void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_quad *quad, sl_simulator_quad *sphere, double time_frame_delta );
+void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_entity *quad, sl_simulator_entity *sphere, double time_frame_delta );
 
 /**
  * Simple callback for sphere vs. sphere collissions.
  * Find the point of intersection in time, reflects the velocity
  * and advances by the distance of intersection in the new direction.
  */
-void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_quad *quad, sl_simulator_quad *sphere, double time_frame_delta );
+void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta );
+
+// @TODO(thynn): Hexes!
 
 #endif

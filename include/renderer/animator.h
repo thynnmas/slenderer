@@ -21,7 +21,7 @@
 #include "math/mat.h"
 #include "math/vec.h"
 #include "renderer/scene.h"
-#include "renderer/quad.h"
+#include "renderer/entity.h"
 
 #ifndef SL_BOOL
 	#define SL_BOOL int
@@ -51,7 +51,7 @@ typedef struct {
 
 typedef struct {
 	unsigned int animation_id;
-	unsigned int quad_id;
+	unsigned int entity_id;
 	unsigned long long start_time;
 	unsigned long long end_time;
 	sl_mat4 start_world_mat;
@@ -62,7 +62,7 @@ typedef struct {
 
 typedef struct {
 	unsigned int animation_id;
-	unsigned int quad_id;
+	unsigned int entity_id;
 	unsigned long long time_per_frame_in_ms;
 	vul_vector_t *frames; // Vector of sl_animation_sprite_state
 	sl_animation_state state;
@@ -101,7 +101,7 @@ void sl_animator_destroy( sl_animator *animator );
  * State must be either SL_ANIMATION_RUNNING, SL_ANIMATION_RUNNING_LOOPED or 
  * SL_ANIMATION_RUNNING_PERIODIC.
  */
-unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state );
+unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int entity_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state );
 
 /**
  * Adds a new sprite animation. Returns the unique animation id.
@@ -110,7 +110,7 @@ unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad
  * State must be either SL_ANIMATION_RUNNING, SL_ANIMATION_RUNNING_LOOPED or 
  * SL_ANIMATION_RUNNING_PERIODIC.
  */
-unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int quad_id, vul_vector_t *frames, unsigned long long ms_per_frame, sl_animation_state state );
+unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int entity_id, vul_vector_t *frames, unsigned long long ms_per_frame, sl_animation_state state );
 
 /** 
  * Removes the animation of the given id.

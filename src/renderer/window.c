@@ -25,7 +25,7 @@ void sl_window_create( sl_window* win, unsigned int width, unsigned int height, 
 
 	if ( !win->handle )
 	{
-		printf("Failed to create a GLFW window\n");
+		assert( SL_FALSE ); //Failed to create a GLFW window
 		return;
 	}
 
@@ -44,9 +44,9 @@ void sl_window_create( sl_window* win, unsigned int width, unsigned int height, 
 }
 
 void sl_window_create_fbo( sl_window *win, unsigned int width, unsigned int height )
-{
+{	
 	GLenum status;
-	
+
 	/* Create the framebufferobject we render to before post */
 	glActiveTexture( GL_TEXTURE0 );
 	glGenTextures( 1, &win->fbo_texture );

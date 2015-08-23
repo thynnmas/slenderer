@@ -23,11 +23,7 @@
 #include <string.h>
 
 #include "vec.h"
-/* If debug, assert */
-#define SL_DEBUG
-#ifdef SL_DEBUG
-	#include <assert.h>
-#endif
+#include <assert.h>
 
 typedef struct {
 	float data[ 4 ];

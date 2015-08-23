@@ -23,7 +23,6 @@
 #endif
 #include <GLFW/glfw3.h>
 
-#define SL_DEBUG
 #ifdef SL_DEBUG
 	#include <assert.h>
 #else

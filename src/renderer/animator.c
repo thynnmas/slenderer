@@ -36,7 +36,7 @@ void sl_animator_destroy( sl_animator *animator )
 	vul_timer_destroy( animator->clock );
 }
 
-unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state )
+unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int entity_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state )
 {
 	sl_animation_transform* t;
 	sl_scene *s;
@@ -44,10 +44,10 @@ unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad
 	s = sl_renderer_get_scene_by_id( animator->scene_id );
 	t = ( sl_animation_transform* )vul_vector_add_empty( animator->transforms );
 	t->animation_id = animator->next_animation_id++;
-	t->quad_id = quad_id;
+	t->entity_id = entity_id;
 	t->start_time = vul_timer_get_millis( animator->clock );
 	t->end_time = t->start_time + length_in_ms;
-	t->start_world_mat = sl_scene_get_const_quad( s, quad_id, 0xffffffff )->world_matrix;
+	t->start_world_mat = sl_scene_get_const_entity( s, entity_id, 0xffffffff )->world_matrix;
 	t->end_world_mat = *end_world_matrix;
 	assert( state == SL_ANIMATION_RUNNING || SL_ANIMATION_RUNNING_LOOPED || SL_ANIMATION_RUNNING_PERIODIC );
 	t->state = state;
@@ -55,13 +55,13 @@ unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int quad
 	return t->animation_id;
 }
 
-unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int quad_id, vul_vector_t *frames, unsigned long long ms_per_frame, sl_animation_state state )
+unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int entity_id, vul_vector_t *frames, unsigned long long ms_per_frame, sl_animation_state state )
 {
 	sl_animation_sprite* t;
 
 	t = ( sl_animation_sprite* )vul_vector_add_empty( animator->sprites );
 	t->animation_id = animator->next_animation_id++;
-	t->quad_id = quad_id;
+	t->entity_id = entity_id;
 	t->time_per_frame_in_ms = ms_per_frame;
 	t->time_since_current_frame = 0ull;
 	t->frames = frames;
@@ -115,7 +115,7 @@ void sl_animator_update( sl_animator *animator )
 	float t;
 	sl_animation_transform *ita, *last_ita;
 	sl_animation_sprite *its, *last_its;
-	sl_quad *quad;
+	sl_entity *entity;
 	sl_animation_sprite_state *state;
 	sl_scene *s;
 	int deleted;
@@ -160,8 +160,8 @@ void sl_animator_update( sl_animator *animator )
 					// to f.ex. add an effect there.
 				} else {
 					// Move to final matrix when done
-					quad = sl_scene_get_volitile_quad( s, ita->quad_id, 0xffffffff );
-					sl_mcopy4( &quad->world_matrix, &ita->end_world_mat );
+					entity = sl_scene_get_volitile_entity( s, ita->entity_id, 0xffffffff );
+					sl_mcopy4( &entity->world_matrix, &ita->end_world_mat );
 					ita->state = SL_ANIMATION_FINISHED;
 				}
 				if( ita->state == SL_ANIMATION_FINISHED ) {
@@ -222,11 +222,11 @@ void sl_animator_update( sl_animator *animator )
 			t = 1.f;
 		}
 
-		// Grab the quad
-		quad = sl_scene_get_volitile_quad( s, ita->quad_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a transform!
+		// Grab the entity
+		entity = sl_scene_get_volitile_entity( s, ita->entity_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a transform!
 
 		// Set the new matrix, a linear interpolation at t. @TODO: Might want to quaternion it up at some point; slerp for the orientation here!
-		sl_mlerp4( &quad->world_matrix, &ita->start_world_mat, &ita->end_world_mat, t );
+		sl_mlerp4( &entity->world_matrix, &ita->start_world_mat, &ita->end_world_mat, t );
 	}
 
 	// Iterate over the sprites and update them.
@@ -237,15 +237,15 @@ void sl_animator_update( sl_animator *animator )
 			// Advance the animation
 			its->time_since_current_frame -= its->time_per_frame_in_ms;
 
-			quad = sl_scene_get_volitile_quad( s, its->quad_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a sprite!
+			entity = sl_scene_get_volitile_entity( s, its->entity_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a sprite!
 			if( its->period_rising ) {
 				state = ( sl_animation_sprite_state* )vul_vector_get( its->frames, ++its->current_frame );
 			} else {
 				state = ( sl_animation_sprite_state* )vul_vector_get( its->frames, --its->current_frame );
 			}
 
-			quad->uvs = state->uvs;
-			quad->texture_id = state->texture_id;
+			entity->uvs = state->uvs;
+			entity->texture_id = state->texture_id;
 		}
 	}
 }
