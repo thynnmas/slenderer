@@ -625,9 +625,16 @@ void vul_vector_tighten( vul_vector_t *vec )
 // Macros
 //
 
+// Undefine them if we're redefining them, so we don't get complaining compilers...
+#ifdef vul_foreachptr
 #undef vul_foreachptr
+#endif
+#ifdef vul_foreachval
 #undef vul_foreachval
+#endif
+#ifdef vul_foreach
 #undef vul_foreach
+#endif
 #ifdef VUL_DEBUG
 	// @Note: Debug versions attempt to spot if you alter the list in the middle of a loop. That might cause a resize and in turn mayhem.
 	// Normal iterator
