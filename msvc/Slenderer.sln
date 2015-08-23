@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Slenderer", "Slenderer\Slenderer.vcxproj", "{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Emscripten = Debug|Emscripten
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Emscripten = Release|Emscripten
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Debug|Emscripten.ActiveCfg = Debug|Emscripten
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Debug|Emscripten.Build.0 = Debug|Emscripten
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Debug|Win32.ActiveCfg = Debug|Win32
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Debug|Win32.Build.0 = Debug|Win32
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Debug|x64.ActiveCfg = Debug|x64
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Debug|x64.Build.0 = Debug|x64
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Release|Emscripten.ActiveCfg = Release|Emscripten
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Release|Emscripten.Build.0 = Release|Emscripten
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Release|Win32.ActiveCfg = Release|Win32
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Release|Win32.Build.0 = Release|Win32
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Release|x64.ActiveCfg = Release|x64
+		{59FF1FAD-8D56-4F10-8C6A-8C1DE9AAD089}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
