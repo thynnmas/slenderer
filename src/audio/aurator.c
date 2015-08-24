@@ -15,6 +15,8 @@
 
 #include "audio/aurator.h"
 
+#include "slenderer.h"
+
 static SL_BOOL sl_aurator_pa_intialized = SL_FALSE;
 
 void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_count, ui32_t sample_rate, ui32_t updates_per_second_guaranteed )
@@ -51,7 +53,7 @@ void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_cou
 	ret->data.sample_count = channel_count * ret->frames_per_buffer;
 	ret->data.sample_rate = sample_rate;
 	ret->data.channel_count = channel_count;
-	ret->data.samples = ( i32_t* )malloc( sizeof( i32_t ) * ret->data.sample_count * channel_count );
+	ret->data.samples = ( i32_t* )SL_ALLOC( sizeof( i32_t ) * ret->data.sample_count * channel_count );
 	memset( ret->data.samples, ( i32_t )0, sizeof( i32_t ) * ret->data.sample_count * channel_count );
 
 	// Finally create the portaudio stream
@@ -111,12 +113,12 @@ void sl_aurator_destroy( sl_aurator *aurator )
 	// Free the clips
 	vul_foreach( sl_aurator_clip, ci, cil, aurator->clips )
 	{
-		free( ci->stream );
+		SL_DEALLOC( ci->stream );
 	}
 	vul_vector_destroy( aurator->clips );
 
 	// Free the stream data
-	free( aurator->data.samples );
+	SL_DEALLOC( aurator->data.samples );
 }
 
 void sl_aurator_finalize_system( )
@@ -183,7 +185,6 @@ void sl_aurator_update( sl_aurator *aurator )
 	ui32_t count, i, c;
 	i32_t expanded;
 	SL_BOOL deleted;
-	PaError err;
 	ui64_t now;
 
 	assert( aurator );
@@ -267,7 +268,6 @@ int sl_aurator_upload( const void *input, void *output,
 					   PaStreamCallbackFlags status_flags,
 					   void *user_data )
 {
-	ui32_t i;
 	sl_aurator *aurator;
 
 	( void )input; // Avoid unused variable warnings
@@ -275,6 +275,8 @@ int sl_aurator_upload( const void *input, void *output,
 
 	// Write to the buffer
 	memcpy( output, aurator->data.samples, aurator->data.channel_count * frame_count );
+
+	return 0;
 }
 
 void sl_aurator_load_ogg( sl_aurator *aurator, sl_aurator_clip **clip, char *path )
@@ -292,7 +294,7 @@ void sl_aurator_load_ogg( sl_aurator *aurator, sl_aurator_clip **clip, char *pat
 		assert( SL_FALSE ); // We have too many channels
 	} else if( ( ui32_t )channel_count < aurator->data.channel_count ) {
 		// Expand it by repeating the last channel
-		str = ( i16_t* )malloc( sizeof( i16_t ) * ( *clip )->sample_count * aurator->data.channel_count );
+		str = ( i16_t* )SL_ALLOC( sizeof( i16_t ) * ( *clip )->sample_count * aurator->data.channel_count );
 		for( i = 0; i < ( *clip )->sample_count; i += aurator->data.channel_count ) {
 			for( c = 0; c < aurator->data.channel_count; ++c ) {
 				if( c < ( ui32_t )channel_count ) {

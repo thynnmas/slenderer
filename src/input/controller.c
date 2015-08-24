@@ -21,7 +21,7 @@ sl_controller *sl_controller_global = NULL;
 
 void sl_controller_create( )
 {
-	sl_controller_global = ( sl_controller* )malloc( sizeof( sl_controller ) );
+	sl_controller_global = ( sl_controller* )SL_ALLOC( sizeof( sl_controller ) );
 
 	sl_controller_global->mouse_enter_exit_callbacks = vul_map_create( SL_WINDOW_BUCKET_COUNT, sl_controller_hash_ptr_func, sl_controller_compare_ptr_func, malloc, free );
 	sl_controller_global->mouse_down_callbacks = vul_map_create( SL_MOUSE_BUCKET_COUNT, sl_controller_hash_func_pair, sl_controller_compare_func_pair, malloc, free );
@@ -60,7 +60,7 @@ void sl_controller_destroy( )
 
 	vul_vector_destroy( sl_controller_global->mouse_overs );
 
-	free( sl_controller_global );
+	SL_DEALLOC( sl_controller_global );
 }
 
 void sl_controller_add_mouse_enter_exit_callback( GLFWwindow* win_handle, SL_MOUSE_ENTER_EXIT_CALLBACK( callback ) )

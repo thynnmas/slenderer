@@ -15,6 +15,8 @@
 
 #include "renderer/program.h"
 
+#include "slenderer.h"
+
 #if defined( SL_LEGACY_OPENGL )
 const char *sl_program_default_vp_src =  "#version 120\n"
 										 "varying vec2 texcoord_out;\n"
@@ -185,14 +187,14 @@ int sl_program_check_shader_compile( GLuint prog_id, const char *src )
 	if ( result == GL_FALSE ) {
 		// Get shader compile output
 		glGetShaderiv( prog_id, GL_INFO_LOG_LENGTH, &length );
-		clog = ( char* )malloc( sizeof( char ) * length );
+		clog = ( char* )SL_ALLOC( sizeof( char ) * length );
 		glGetShaderInfoLog( prog_id, length, &result, clog );
 
 		// Print error
-		sl_print( "Failed to compile shader. Output:\n%s\n\nSource:\n%s\n\n", src, clog );
+		sl_print( 2048, "Failed to compile shader. Output:\n%s\n\nSource:\n%s\n\n", src, clog );
 
 		// Clean up
-		free( clog );
+		SL_DEALLOC( clog );
 
 		return SL_FALSE;
 	}
@@ -209,14 +211,14 @@ int sl_program_check_link( GLuint prog_id )
 	if ( result == GL_FALSE ) {
 		// Get shader compile output
 		glGetProgramiv( prog_id, GL_INFO_LOG_LENGTH, &length );
-		clog = ( char* )malloc( sizeof( char ) * length );
+		clog = ( char* )SL_ALLOC( sizeof( char ) * length );
 		glGetShaderInfoLog( prog_id, length, &result, clog );
 
 		// Print error
-		sl_print( "Program failed to link. Output: %s\n", clog );
+		sl_print( 2048, "Program failed to link. Output: %s\n", clog );
 		
 		// Clean up
-		free( clog );
+		SL_DEALLOC( clog );
 
 		return SL_FALSE;
 	}

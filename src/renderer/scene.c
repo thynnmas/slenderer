@@ -14,6 +14,9 @@
  */
 #define VUL_DEFINE
 #include "renderer/scene.h"
+#undef VUL_DEFINE
+
+#include "slenderer.h"
 
 void sl_scene_create( sl_scene *scene, ui32_t parent_window_id, unsigned int scene_id, ui32_t post_program_id )
 {

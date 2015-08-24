@@ -17,7 +17,7 @@
 void sl_renderable_create_quad( sl_renderable *ren, sl_box *uvs )
 {
 #ifdef SL_LEGACY_OPENGL
-	ren->vertices = malloc( sizeof( sl_vertex ) * 4 );
+	ren->vertices = SL_ALLOC( sizeof( sl_vertex ) * 4 );
 	sl_vset( &ren->vertices[ 0 ].position,  -1.0f, -1.0f );
 	sl_vset( &ren->vertices[ 0 ].texcoords,  uvs->min_p.x,  uvs->min_p.y );
 
@@ -30,7 +30,7 @@ void sl_renderable_create_quad( sl_renderable *ren, sl_box *uvs )
 	sl_vset( &ren->vertices[ 3 ].position,  -1.0f,  1.0f );
 	sl_vset( &ren->vertices[ 3 ].texcoords,  uvs->min_p.x,  uvs->max_p.y );
 
-	ren->indices = malloc( sizeof( unsigned short ) * 6 );
+	ren->indices = SL_ALLOC( sizeof( unsigned short ) * 6 );
 	ren->indices[ 0 ] = 0;
 	ren->indices[ 1 ] = 1;
 	ren->indices[ 2 ] = 2;
@@ -101,7 +101,7 @@ void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb )
 #ifdef SL_LEGACY_OPENGL
 	sl_bcenter( &center, uv_aabb );
 	sl_bextent( &extent, uv_aabb );
-	ren->vertices = malloc( sizeof( sl_vertex ) * 7 );
+	ren->vertices = SL_ALLOC( sizeof( sl_vertex ) * 7 );
 	sl_vset( &ren->vertices[ 0 ].position, 0.0f, 0.0f );
 	sl_vset( &ren->vertices[ 0 ].texcoords, center.x, center.y );
 
@@ -115,7 +115,7 @@ void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb )
 		sl_vset( &ren->vertices[ 1 + i ].texcoords, uvx, uvy );
 	}	
 
-	ren->indices = malloc( sizeof( unsigned short ) * 18 );
+	ren->indices = SL_ALLOC( sizeof( unsigned short ) * 18 );
 	for( int i = 0; i < 6; ++i ) {
 		ren->indices[ i * 3 ] = 0;
 		ren->indices[ i * 3 + 1 ] = 1 + i;
@@ -187,7 +187,7 @@ void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb )
 #ifdef SL_LEGACY_OPENGL
 	sl_bcenter( &center, uv_aabb );
 	sl_bextent( &extent, uv_aabb );
-	ren->vertices = malloc( sizeof( sl_vertex ) * 7 );
+	ren->vertices = SL_ALLOC( sizeof( sl_vertex ) * 7 );
 	sl_vset( &ren->vertices[ 0 ].position, 0.0f, 0.0f );
 	sl_vset( &ren->vertices[ 0 ].texcoords, center.x, center.y );
 
@@ -201,7 +201,7 @@ void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb )
 		sl_vset( &ren->vertices[ 1 + i ].texcoords, uvx, uvy );
 	}
 
-	ren->indices = malloc( sizeof( unsigned short ) * 18 );
+	ren->indices = SL_ALLOC( sizeof( unsigned short ) * 18 );
 	for( int i = 0; i < 6; ++i ) {
 		ren->indices[ i * 3 ] = 0;
 		ren->indices[ i * 3 + 1 ] = 1 + i;
@@ -270,8 +270,8 @@ void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb )
 void sl_renderable_destroy( sl_renderable *ren )
 {
 #ifdef SL_LEGACY_OPENGL
-	free( ren->vertices );
-	free( ren->indices );
+	SL_DEALLOC( ren->vertices );
+	SL_DEALLOC( ren->indices );
 #else
 	// Destroy our buffers
 	glDeleteBuffers( 1, &ren->indexBufferObjectIndex );

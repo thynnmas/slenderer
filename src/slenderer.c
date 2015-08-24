@@ -42,7 +42,7 @@ void sl_renderer_create(  )
 #endif
 	
 	// Initialize our context.
-	sl_renderer_global = ( sl_renderer* )malloc( sizeof( sl_renderer ) );
+	sl_renderer_global = ( sl_renderer* )SL_ALLOC( sizeof( sl_renderer ) );
 	
 	sl_renderer_global->windows = vul_vector_create( sizeof( sl_window ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 	sl_renderer_global->scenes = vul_vector_create( sizeof( sl_scene ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
@@ -122,7 +122,7 @@ void sl_renderer_destroy( )
 	// Destroy the controller
 	sl_controller_destroy( );
 
-	free( sl_renderer_global );
+	SL_DEALLOC( sl_renderer_global );
 
 	// And shut down glfw
 	glfwTerminate( );
@@ -662,7 +662,7 @@ void sl_print( ui32_t max_length, const char *fmt, ... )
 	char *out;
 	va_list args;
 
-	out = malloc( max_length + 1 );
+	out = SL_ALLOC( max_length + 1 );
 	va_start( args, fmt );
 	vsnprintf( out, max_length, fmt, args );
 	out[ max_length ] = 0;
@@ -681,5 +681,5 @@ void sl_print( ui32_t max_length, const char *fmt, ... )
 	/* @TODO(thynn): Logging! */
 
 	va_end( args );
-	free( out );
+	SL_DEALLOC( out );
 }
