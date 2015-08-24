@@ -38,7 +38,7 @@ void sl_controller_create( )
 
 	sl_vset( &sl_controller_global->mouse_pos, 0.0f, 0.0f );
 	sl_vset( &sl_controller_global->mouse_pos_prev, 0.0f, 0.0f );
-	sl_controller_global->mouse_overs = vul_vector_create( sizeof( unsigned int ), 0 );
+	sl_controller_global->mouse_overs = vul_vector_create( sizeof( unsigned int ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 }
 
 void sl_controller_destroy( )
@@ -484,7 +484,7 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 			-( ( float )y / ( float )wh ) * 2.f + 1.f );
 	
 	// Get the scene
-	scenes = vul_vector_create( sizeof( sl_scene* ), 0 );
+	scenes = vul_vector_create( sizeof( sl_scene* ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 	sl_renderer_get_scenes_by_window_handle( scenes, win_handle );
 
 	vul_foreach( sl_scene*, its, last_its, scenes )
@@ -492,7 +492,7 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 		// Calculate scene local position
 		sl_vadd( &scene_local_pos, &sl_controller_global->mouse_pos, &( *its )->camera_pos );
 		// Get all entities we are hovering over
-		over = vul_vector_create( sizeof( unsigned int ), 0 );
+		over = vul_vector_create( sizeof( unsigned int ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 		sl_scene_get_entities_at_pos( over, *its, &scene_local_pos );
 
 		// Prune out all entities we were over but aren't any more. Slow!
@@ -576,7 +576,7 @@ void sl_controller_glfw_mouse_button_callback( GLFWwindow *win_handle, int butto
 	assert( sl_controller_global != NULL );
 #endif
 
-	scenes = vul_vector_create( sizeof( sl_scene* ), 0 );
+	scenes = vul_vector_create( sizeof( sl_scene* ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 	sl_renderer_get_scenes_by_window_handle( scenes, win_handle );
 
 	vul_foreach( sl_scene*, its, last_its, scenes )
@@ -584,7 +584,7 @@ void sl_controller_glfw_mouse_button_callback( GLFWwindow *win_handle, int butto
 		// Calculate scene local position
 		sl_vadd( &scene_local_pos, &sl_controller_global->mouse_pos, &( *its )->camera_pos );
 		// Get entities we overlap
-		over = vul_vector_create( sizeof( unsigned int ), 0 );
+		over = vul_vector_create( sizeof( unsigned int ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 		sl_scene_get_entities_at_pos( over, *its, &scene_local_pos );
 		
 		vul_foreach( unsigned int, it, last_it, over )

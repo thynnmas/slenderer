@@ -44,15 +44,15 @@ void sl_renderer_create(  )
 	// Initialize our context.
 	sl_renderer_global = ( sl_renderer* )malloc( sizeof( sl_renderer ) );
 	
-	sl_renderer_global->windows = vul_vector_create( sizeof( sl_window ), 0 );
-	sl_renderer_global->scenes = vul_vector_create( sizeof( sl_scene ), 0 );
-	sl_renderer_global->animators = vul_vector_create( sizeof( sl_animator ), 0 );
-	sl_renderer_global->simulators = vul_vector_create( sizeof( sl_simulator ), 0 );
-	sl_renderer_global->textures = vul_vector_create( sizeof( sl_texture ), 0 );
-	sl_renderer_global->programs = vul_vector_create( sizeof( sl_program ), 0 );
-	sl_renderer_global->renderables = vul_vector_create( sizeof( sl_renderable ), 0 );
+	sl_renderer_global->windows = vul_vector_create( sizeof( sl_window ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
+	sl_renderer_global->scenes = vul_vector_create( sizeof( sl_scene ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
+	sl_renderer_global->animators = vul_vector_create( sizeof( sl_animator ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
+	sl_renderer_global->simulators = vul_vector_create( sizeof( sl_simulator ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
+	sl_renderer_global->textures = vul_vector_create( sizeof( sl_texture ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
+	sl_renderer_global->programs = vul_vector_create( sizeof( sl_program ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
+	sl_renderer_global->renderables = vul_vector_create( sizeof( sl_renderable ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 #ifndef SL_NO_AUDIO
-	sl_renderer_global->aurators = vul_vector_create( sizeof( sl_aurator), 0 );
+	sl_renderer_global->aurators = vul_vector_create( sizeof( sl_aurator ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 #endif
 	
 	sl_controller_create( );

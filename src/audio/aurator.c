@@ -35,7 +35,7 @@ void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_cou
 	}
 
 	// Create the clip array
-	ret->clips = vul_vector_create( sizeof( sl_aurator_clip ), 0 );
+	ret->clips = vul_vector_create( sizeof( sl_aurator_clip ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 	// State
 	ret->scene_id = parent_scene;
 	ret->next_id = 0;

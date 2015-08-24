@@ -21,7 +21,7 @@ void sl_scene_create( sl_scene *scene, ui32_t parent_window_id, unsigned int sce
 	sl_box uvs;
 
 	for( i = 0; i < SL_MAX_LAYERS; ++i ) {
-		scene->layers[ i ] = vul_vector_create( sizeof( sl_entity ), 0 );
+		scene->layers[ i ] = vul_vector_create( sizeof( sl_entity ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 	}
 	scene->layer_dirty = 0;
 	scene->next_entity_id = 0;

@@ -17,8 +17,8 @@
 
 void sl_simulator_create( sl_simulator *sim, sl_scene *scene )
 {
-	sim->entities = vul_vector_create( sizeof( sl_simulator_entity ), 0 );
-	sim->collision_callbacks = vul_map_create( SL_SIMULATOR_CALLBACK_BUCKETS, sl_simulator_callback_hash, sl_simulator_callback_comp, malloc, free );
+	sim->entities = vul_vector_create( sizeof( sl_simulator_entity ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
+	sim->collision_callbacks = vul_map_create( SL_SIMULATOR_CALLBACK_BUCKETS, sl_simulator_callback_hash, sl_simulator_callback_comp, SL_ALLOC, SL_DEALLOC );
 	sim->collission_callback_keys = NULL;
 	sim->scene_id = scene->scene_id;
 	sim->clock = vul_timer_create( );
@@ -56,7 +56,7 @@ sl_simulator_entity *sl_simulator_add_entity( sl_simulator *sim, unsigned int en
 	// Otherwise, add it.
 	s = sl_renderer_get_scene_by_id( sim->scene_id );
 	q = ( sl_simulator_entity* )vul_vector_add_empty( sim->entities );
-	q->forces = vul_vector_create( sizeof( sl_vec ), 0 );
+	q->forces = vul_vector_create( sizeof( sl_vec ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 	q->entity = sl_scene_get_const_entity( s, entity_id, 0xffffffff );
 	q->velocity = *start_velocity;
 	sl_vset( &q->pos,

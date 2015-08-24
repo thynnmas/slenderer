@@ -53,6 +53,16 @@
 #define SL_TRUE 1
 #define SL_FALSE 0
 
+/*
+* We support using your own allocators, just define these
+* three with the replacements and these won't overwrite them.
+*/
+#ifndef SL_ALLOC
+	#define SL_ALLOC malloc
+	#define SL_REALLOC realloc
+	#define SL_DEALLOC free
+#endif
+
 // Define this in your build if you want legacy GL support
 // This will disable post-processing entirely
 // #define SL_LEGACY_OPENGL

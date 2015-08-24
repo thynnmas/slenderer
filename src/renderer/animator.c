@@ -18,8 +18,8 @@
 
 void sl_animator_create( sl_animator *animator, sl_scene *scene )
 {
-	animator->transforms = vul_vector_create( sizeof( sl_animation_transform ), 0 );
-	animator->sprites = vul_vector_create( sizeof( sl_animation_sprite ), 0 );
+	animator->transforms = vul_vector_create( sizeof( sl_animation_transform ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
+	animator->sprites = vul_vector_create( sizeof( sl_animation_sprite ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 
 	animator->next_animation_id = 0;
 
