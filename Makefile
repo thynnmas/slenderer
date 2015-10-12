@@ -6,9 +6,18 @@ BIN_PTH = ./bin
 LIB_PTH = ./lib
 LIB_NAME = slenderer
 BIN_NAME = example
-CFLAGS = -std=gnu99 -Wall -Wno-unused-function -Wno-unused-variable -fno-strict-aliasing -g -DVUL_LINUX -DVUL_VECTOR_C89_ITERATORS $(INC_PTH)
-LDFLAGS =  -L$(LIB_PTH) -l$(LIB_NAME) -lglfw3 -lGLEW -lGL -lm -lGLU -lX11 -lXrandr -lXi -lXxf86vm -lXcursor -lrt -lpthread -lportaudio
+CFLAGS = -std=gnu99 -Wall -Wno-unused-function -Wno-unused-variable -fno-strict-aliasing -g -DVUL_VECTOR_C89_ITERATORS $(INC_PTH)
+LDFLAGS =  -L$(LIB_PTH) -l$(LIB_NAME) -lportaudio -lGLEW -lglfw3 -lm
 SHELL = /bin/bash
+
+OS := $(shell uname -s)
+ifeq ($(OS),Linux)
+CFLAGS += -DVUL_LINUX
+LFLAGS += -lrt -lGL -lGLU -lX11 -lXrandr -lXi -lXxf86vm -lXcursor
+else
+CFLAGS += -DVUL_OSX
+LDFLAGS += -lglfw3 -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
+endif
 
 SOURCES = $(shell find $(SRC_PTH)/ -name '*.c')
 OBJECTS = $(SOURCES:$(SRC_PTH)/%.c=%)

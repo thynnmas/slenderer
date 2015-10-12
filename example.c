@@ -23,7 +23,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 #define VUL_DEBUG
 
 #include <vul_timer.h>
@@ -61,7 +60,7 @@ const sl_vec SLE_BALL_START_POSITION_2 = { -0.65f, 0.25f };
 // Quad ids of the movable parts
 unsigned int sle_ball_id, sle_player1_id, sle_player2_id;
 // Physics objects
-sl_simulator_quad *sle_player1_pquad, *sle_player2_pquad, *sle_ball_pquad;
+sl_simulator_entity *sle_player1_pquad, *sle_player2_pquad, *sle_ball_pquad;
 // Scores
 unsigned int sle_player1_score, sle_player2_score;
 // Number of headers since other player headered.
@@ -156,7 +155,7 @@ void sle_stop_player2( GLFWwindow *win_handle, int key, int scancode, int modifi
 
 void sle_score( sl_scene *scene, int player )
 {
-	sl_quad *p1_quad, *p2_quad, *ball_quad;
+	sl_entity *p1_quad, *p2_quad, *ball_quad;
 
 	// Update scores
 	if( player == 1 ) {
@@ -167,7 +166,7 @@ void sle_score( sl_scene *scene, int player )
 #ifdef SL_DEBUG
 		assert( 0 );
 #else
-		sl_print( "Unknoiwn player just scored.\n" );
+		sl_print( 128, "Unknoiwn player just scored.\n" );
 		exit( EXIT_FAILURE );
 #endif
 	}
@@ -176,13 +175,13 @@ void sle_score( sl_scene *scene, int player )
 	p2_quad = sl_scene_get_volitile_entity( scene, sle_player2_id, SLE_LAYER_PLAYERS );
 	ball_quad = sl_scene_get_volitile_entity( scene, sle_ball_id, SLE_LAYER_BALL );
 
-	sl_quad_create_world_matrix( p1_quad, &SLE_PLAYER_1_START_POSITION, &SLE_PLAYER_SCALE, 0.0f );
-	sl_quad_create_world_matrix( p2_quad, &SLE_PLAYER_2_START_POSITION, &SLE_PLAYER_SCALE, 0.0f );
+	sl_entity_create_world_matrix( p1_quad, &SLE_PLAYER_1_START_POSITION, &SLE_PLAYER_SCALE, 0.0f );
+	sl_entity_create_world_matrix( p2_quad, &SLE_PLAYER_2_START_POSITION, &SLE_PLAYER_SCALE, 0.0f );
 	if( player == 1 ) {
-		sl_quad_create_world_matrix( ball_quad, &SLE_BALL_START_POSITION_2, &SLE_BALL_SCALE, 0.0f );
+		sl_entity_create_world_matrix( ball_quad, &SLE_BALL_START_POSITION_2, &SLE_BALL_SCALE, 0.0f );
 		sl_vset( &sle_ball_pquad->pos, SLE_BALL_START_POSITION_2.x, SLE_BALL_START_POSITION_2.y );
 	} else {
-		sl_quad_create_world_matrix( ball_quad, &SLE_BALL_START_POSITION_1, &SLE_BALL_SCALE, 0.0f );
+		sl_entity_create_world_matrix( ball_quad, &SLE_BALL_START_POSITION_1, &SLE_BALL_SCALE, 0.0f );
 		sl_vset( &sle_ball_pquad->pos, SLE_BALL_START_POSITION_1.x, SLE_BALL_START_POSITION_1.y );
 	}
 	
@@ -213,7 +212,7 @@ void sle_quit( GLFWwindow *win_handle, int key, int scancode, int modifiers )
 	glfwSetWindowShouldClose( win_handle, GL_TRUE );
 }
 
-void sle_ball_dropped( sl_scene *scene, sl_simulator_quad *quad, sl_simulator_quad *sphere, double time_frame_delta )
+void sle_ball_dropped( sl_scene *scene, sl_simulator_entity *quad, sl_simulator_entity *sphere, double time_frame_delta )
 {
 	(void)quad;
 	(void)time_frame_delta;
@@ -228,13 +227,13 @@ void sle_ball_dropped( sl_scene *scene, sl_simulator_quad *quad, sl_simulator_qu
 	}
 }
 
-void sle_header( sl_scene *scene, sl_simulator_quad *a, sl_simulator_quad *b, double time_frame_delta )
+void sle_header( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta )
 {
 	// Just call sphere, sphere callback.
 	sl_simulator_callback_sphere_sphere( scene, a, b, time_frame_delta );
 }
 
-void sle_player1_header( sl_scene *scene, sl_simulator_quad *player, sl_simulator_quad *ball, double time_frame_delta )
+void sle_player1_header( sl_scene *scene, sl_simulator_entity *player, sl_simulator_entity *ball, double time_frame_delta )
 {
 	sle_player2_header_count = 0;
 	if( ++sle_player1_header_count > 3 ) {
@@ -245,7 +244,7 @@ void sle_player1_header( sl_scene *scene, sl_simulator_quad *player, sl_simulato
 	sle_header( scene, player, ball, time_frame_delta );
 }
 
-void sle_player2_header( sl_scene *scene, sl_simulator_quad *player, sl_simulator_quad *ball, double time_frame_delta )
+void sle_player2_header( sl_scene *scene, sl_simulator_entity *player, sl_simulator_entity *ball, double time_frame_delta )
 {
 	sle_player1_header_count = 0;
 	if( ++sle_player2_header_count > 3 ) {
@@ -256,7 +255,7 @@ void sle_player2_header( sl_scene *scene, sl_simulator_quad *player, sl_simulato
 	sle_header( scene, player, ball, time_frame_delta );
 }
 
-void sle_player1_clamp_horizontal( sl_scene *scene, sl_simulator_quad *a, sl_simulator_quad *b, double time_frame_delta )
+void sle_player1_clamp_horizontal( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta )
 {
 	float minx, maxx;
 
@@ -273,11 +272,11 @@ void sle_player1_clamp_horizontal( sl_scene *scene, sl_simulator_quad *a, sl_sim
 		sle_player1_pquad->pos.x = maxx;
 	}
 	
-	sl_mseti4( &sl_scene_get_volitile_entity( scene, sle_player1_pquad->quad->quad_id, SLE_LAYER_PLAYERS )->world_matrix, 
+	sl_mseti4( &sl_scene_get_volitile_entity( scene, sle_player1_pquad->entity->entity_id, SLE_LAYER_PLAYERS )->world_matrix, 
 			   3, 0, sle_player1_pquad->pos.x );
 }
 
-void sle_player2_clamp_horizontal( sl_scene *scene, sl_simulator_quad *a, sl_simulator_quad *b, double time_frame_delta )
+void sle_player2_clamp_horizontal( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta )
 {
 	float minx, maxx;
 
@@ -294,11 +293,11 @@ void sle_player2_clamp_horizontal( sl_scene *scene, sl_simulator_quad *a, sl_sim
 		sle_player2_pquad->pos.x = maxx;
 	}
 	
-	sl_mseti4( &sl_scene_get_volitile_entity( scene, sle_player2_pquad->quad->quad_id, SLE_LAYER_PLAYERS )->world_matrix, 
+	sl_mseti4( &sl_scene_get_volitile_entity( scene, sle_player2_pquad->entity->entity_id, SLE_LAYER_PLAYERS )->world_matrix, 
 			   3, 0, sle_player2_pquad->pos.x );
 }
 
-void sle_player1_clamp_vertical( sl_scene *scene, sl_simulator_quad *a, sl_simulator_quad *b, double time_frame_delta )
+void sle_player1_clamp_vertical( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta )
 {
 	float miny;
 
@@ -313,11 +312,11 @@ void sle_player1_clamp_vertical( sl_scene *scene, sl_simulator_quad *a, sl_simul
 		sle_player1_pquad->pos.y = miny;
 	}
 	
-	sl_mseti4( &sl_scene_get_volitile_entity( scene, sle_player1_pquad->quad->quad_id, SLE_LAYER_PLAYERS )->world_matrix,
+	sl_mseti4( &sl_scene_get_volitile_entity( scene, sle_player1_pquad->entity->entity_id, SLE_LAYER_PLAYERS )->world_matrix,
 			   3, 1, sle_player1_pquad->pos.y );
 }
 
-void sle_player2_clamp_vertical( sl_scene *scene, sl_simulator_quad *a, sl_simulator_quad *b, double time_frame_delta )
+void sle_player2_clamp_vertical( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta )
 {
 	float miny;
 
@@ -331,7 +330,7 @@ void sle_player2_clamp_vertical( sl_scene *scene, sl_simulator_quad *a, sl_simul
 		sle_player2_pquad->pos.y = miny;
 	}
 	
-	sl_mseti4( &sl_scene_get_volitile_entity( scene, sle_player2_pquad->quad->quad_id, SLE_LAYER_PLAYERS )->world_matrix,
+	sl_mseti4( &sl_scene_get_volitile_entity( scene, sle_player2_pquad->entity->entity_id, SLE_LAYER_PLAYERS )->world_matrix,
 			   3, 1, sle_player2_pquad->pos.y );
 }
 
@@ -353,7 +352,7 @@ int main( int argc, char **argv )
 			   *player1_tex,
 			   *player2_tex;
 	sl_renderable *static_mesh;
-	sl_quad *q;
+	sl_entity *q;
 
 	sl_vec pos, scale, tmp;
 	sl_box uvs;
@@ -398,7 +397,7 @@ int main( int argc, char **argv )
 	// Create the default renderable
 	static_mesh = sl_renderer_allocate_renderable( );
 	sl_bset_scalar( &uvs, 0.0f, 0.0f, 1.0f, 1.0f );
-	sl_renderable_create( static_mesh, &uvs );
+	sl_renderable_create_quad( static_mesh, &uvs );
 
 	// Create the default program
 	program = sl_renderer_allocate_program( );
@@ -559,14 +558,14 @@ int main( int argc, char **argv )
 
 	// Physics
 	sl_vset( &tmp, 0.0f, 0.0f );
-	sle_player1_pquad = sl_simulator_add_quad( sim, sle_player1_id, &tmp );	 // Add players
-	sle_player2_pquad = sl_simulator_add_quad( sim, sle_player2_id, &tmp );
-	sle_ball_pquad	  = sl_simulator_add_quad( sim, sle_ball_id, &tmp );	 // Add ball
-	sl_simulator_add_quad( sim, world_bounds_left, &tmp ); // Add some quads outside the world as bounds for the ball
-	sl_simulator_add_quad( sim, world_bounds_right, &tmp );
-	sl_simulator_add_quad( sim, world_bounds_sky, &tmp );
-	sl_simulator_add_quad( sim, net_bounds_id, &tmp );	// Add the net
-	sl_simulator_add_quad( sim, world_bounds_ground, &tmp ); // Add the beach
+	sle_player1_pquad = sl_simulator_add_entity( sim, sle_player1_id, &tmp );	 // Add players
+	sle_player2_pquad = sl_simulator_add_entity( sim, sle_player2_id, &tmp );
+	sle_ball_pquad	  = sl_simulator_add_entity( sim, sle_ball_id, &tmp );	 // Add ball
+	sl_simulator_add_entity( sim, world_bounds_left, &tmp ); // Add some quads outside the world as bounds for the ball
+	sl_simulator_add_entity( sim, world_bounds_right, &tmp );
+	sl_simulator_add_entity( sim, world_bounds_sky, &tmp );
+	sl_simulator_add_entity( sim, net_bounds_id, &tmp );	// Add the net
+	sl_simulator_add_entity( sim, world_bounds_ground, &tmp ); // Add the beach
 	
 	sl_simulator_add_callback( sim, sle_ball_id, sle_player1_id, sle_player1_header ); // Player vs ball (sphere/elipsoid)
 	sl_simulator_add_callback( sim, sle_ball_id, sle_player2_id, sle_player2_header );
@@ -611,11 +610,11 @@ int main( int argc, char **argv )
 
 		// Move the actual quads
 		q = sl_scene_get_volitile_entity( scene, sle_player1_id, SLE_LAYER_PLAYERS );
-		sl_quad_create_world_matrix( q, &sle_player1_pquad->pos, &SLE_PLAYER_SCALE, 0.0f );
+		sl_entity_create_world_matrix( q, &sle_player1_pquad->pos, &SLE_PLAYER_SCALE, 0.0f );
 		q = sl_scene_get_volitile_entity( scene, sle_player2_id, SLE_LAYER_PLAYERS );
-		sl_quad_create_world_matrix( q, &sle_player2_pquad->pos, &SLE_PLAYER_SCALE, 0.0f );
+		sl_entity_create_world_matrix( q, &sle_player2_pquad->pos, &SLE_PLAYER_SCALE, 0.0f );
 		q = sl_scene_get_volitile_entity( scene, sle_ball_id, SLE_LAYER_BALL );
-		sl_quad_create_world_matrix( q, &sle_ball_pquad->pos, &SLE_BALL_SCALE, 0.0f );
+		sl_entity_create_world_matrix( q, &sle_ball_pquad->pos, &SLE_BALL_SCALE, 0.0f );
 		
 		// Update animator
 		sl_animator_update( animator );

@@ -18,7 +18,11 @@
  */
 #ifndef SLENDERER_SCENE_H
 #define SLENDERER_SCENE_H
+#ifdef VUL_OSX
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 
 #include <vul_resizable_array.h>
 #include <vul_timer.h>
