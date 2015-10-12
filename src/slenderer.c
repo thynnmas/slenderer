@@ -39,6 +39,7 @@ void sl_renderer_create(  )
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 2 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+	glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
 #endif
 	
 	// Initialize our context.
@@ -675,7 +676,7 @@ void sl_print( ui32_t max_length, const char *fmt, ... )
 		OutputDebugStringA( out );
 	}
 #else
-	sl_print( out );
+	puts( out );
 #endif
 
 	/* @TODO(thynn): Logging! */

@@ -28,9 +28,9 @@ const char *sl_program_default_vp_src =  "#version 120\n"
 										 "}";
 
 const char *sl_program_default_fp_src =	"#version 120\n"
-					"uniform sampler2D texture;\n"
+					"uniform sampler2D tex;\n"
 					"void main() {\n"
-					"	gl_FragColor = vec4( gl_TexCoord[0].xy, 0.f, 1.f);//clamp( color_out * texture2D( texture, texcoord_out.xy ).rgba, 0.0, 1.0 );\n"
+					"	gl_FragColor = vec4( gl_TexCoord[0].xy, 0.f, 1.f);//clamp( color_out * texture( tex, texcoord_out.xy ).rgba, 0.0, 1.0 );\n"
 					"}";
 #elif defined( SL_OPENGL_ES )
 const char *sl_program_default_vp_src =  "#version 110\n"
@@ -51,9 +51,9 @@ const char *sl_program_default_vp_src =  "#version 110\n"
 const char *sl_program_default_fp_src =	"#version 110\n"
 										"varying vec2 texcoord_out;\n"
 										"varying vec4 color_out;\n"
-										"uniform sampler2D texture;\n"
+										"uniform sampler2D tex;\n"
 										"void main() {\n"
-										"	gl_FragColor = clamp( color_out * texture2D( texture, texcoord_out.xy ).rgba, 0.0, 1.0 );\n"
+										"	gl_FragColor = clamp( color_out * texture( tex, texcoord_out.xy ).rgba, 0.0, 1.0 );\n"
 										"}";
 
 const char *sl_program_default_post_vp_src =  "#version 110\n"
@@ -68,9 +68,9 @@ const char *sl_program_default_post_vp_src =  "#version 110\n"
 
 const char *sl_program_default_post_fp_src =	"#version 110\n"
 												"varying vec2 texcoord_out;\n"
-												"uniform sampler2D texture;\n"
+												"uniform sampler2D tex;\n"
 												"void main() {\n"
-												"    gl_FragColor = texture2D( texture, texcoord_out.xy ).rgba;\n"
+												"    gl_FragColor = texture( tex, texcoord_out.xy ).rgba;\n"
 												"}";
 #else 
 const char *sl_program_default_vp_src =  "#version 150 core\n"
@@ -92,9 +92,9 @@ const char *sl_program_default_fp_src =	"#version 150 core\n"
 										"in vec2 texcoord_out;\n"
 										"in vec4 color_out;\n"
 										"out vec4 oColor;\n"
-										"uniform sampler2D texture;\n"
+										"uniform sampler2D tex;\n"
 										"void main() {\n"
-										"	oColor = clamp( color_out * texture2D( texture, texcoord_out.xy ).rgba, 0.0, 1.0 );\n"
+										"	oColor = clamp( color_out * texture( tex, texcoord_out.xy ).rgba, 0.0, 1.0 );\n"
 										"}";
 
 const char *sl_program_default_post_vp_src =  "#version 150 core\n"
@@ -110,9 +110,9 @@ const char *sl_program_default_post_vp_src =  "#version 150 core\n"
 const char *sl_program_default_post_fp_src =	"#version 150 core\n"
 												"in vec2 texcoord_out;\n"
 												"out vec4 oColor;\n"
-												"uniform sampler2D texture;\n"
+												"uniform sampler2D tex;\n"
 												"void main() {\n"
-												"    oColor = texture2D( texture, texcoord_out.xy ).rgba;\n"
+												"    oColor = texture( tex, texcoord_out.xy ).rgba;\n"
 												"}";
 #endif
 

@@ -20,7 +20,11 @@
 #define SL_TRUE 1
 #define SL_FALSE 0
 
+#ifdef VUL_OSX
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 #include <string.h>
 #include <stdio.h>
 
