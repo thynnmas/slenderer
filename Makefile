@@ -13,7 +13,7 @@ SHELL = /bin/bash
 OS := $(shell uname -s)
 ifeq ($(OS),Linux)
 CFLAGS += -DVUL_LINUX
-LFLAGS += -lrt -lGL -lGLU -lX11 -lXrandr -lXi -lXxf86vm -lXcursor -lpthread
+LDFLAGS += -lrt -lGL -lGLU -lX11 -lXrandr -lXi -lXxf86vm -lXcursor -lpthread -ldl -lXinerama
 else
 CFLAGS += -DVUL_OSX
 LDFLAGS += -lglfw3 -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
