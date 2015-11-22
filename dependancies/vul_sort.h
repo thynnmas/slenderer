@@ -1,5 +1,5 @@
 /*
- * Villains' Utility Library - Thomas Martin Schmid, 2015. Public domain¹
+ * Villains' Utility Library - Thomas Martin Schmid, 2015. Public domain?
  *
  * This file contains a collection of sorting algorithms for the data structures
  * included in vul.
@@ -13,7 +13,7 @@
  * @TODO: Heap sort
  * @TODO: Radix sort
  * 
- * ¹ If public domain is not legally valid in your legal jurisdiction
+ * ? If public domain is not legally valid in your legal jurisdiction
  *   the MIT licence applies (see the LICENCE file)
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
