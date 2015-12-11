@@ -582,7 +582,7 @@ void sl_controller_glfw_mouse_button_callback( GLFWwindow *win_handle, int butto
 	vul_foreach( sl_scene*, its, last_its, scenes )
 	{
 		// Calculate scene local position
-		sl_vadd( &scene_local_pos, &sl_controller_global->mouse_pos, &( *its )->camera_pos );
+		scene_local_pos = vadd2( sl_controller_global->mouse_pos, ( *its )->camera_pos );
 		// Get entities we overlap
 		over = vul_vector_create( sizeof( unsigned int ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 		sl_scene_get_entities_at_pos( over, *its, &scene_local_pos );

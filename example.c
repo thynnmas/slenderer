@@ -49,13 +49,13 @@ const float SLE_GRAVITY = -3.0f; // 1.6 screen heights per second^2; @TODO: this
 
 const float SLE_FLOOR = -0.95f;
 
-const sl_vec SLE_BALL_SCALE = { 0.1f, 0.1f };
-const sl_vec SLE_PLAYER_SCALE = { 0.1f, 0.1f };
+const v2 SLE_BALL_SCALE = { 0.1f, 0.1f };
+const v2 SLE_PLAYER_SCALE = { 0.1f, 0.1f };
 
-const sl_vec SLE_PLAYER_1_START_POSITION = { -0.5f, -0.8f };
-const sl_vec SLE_PLAYER_2_START_POSITION = {  0.5f, -0.8f };
-const sl_vec SLE_BALL_START_POSITION_1 = { -0.65f, 0.25f };
-const sl_vec SLE_BALL_START_POSITION_2 = { -0.65f, 0.25f };
+const v2 SLE_PLAYER_1_START_POSITION = { -0.5f, -0.8f };
+const v2 SLE_PLAYER_2_START_POSITION = {  0.5f, -0.8f };
+const v2 SLE_BALL_START_POSITION_1 = { -0.65f, 0.25f };
+const v2 SLE_BALL_START_POSITION_2 = { -0.65f, 0.25f };
 
 // Quad ids of the movable parts
 unsigned int sle_ball_id, sle_player1_id, sle_player2_id;
@@ -179,20 +179,20 @@ void sle_score( sl_scene *scene, int player )
 	sl_entity_create_world_matrix( p2_quad, &SLE_PLAYER_2_START_POSITION, &SLE_PLAYER_SCALE, 0.0f );
 	if( player == 1 ) {
 		sl_entity_create_world_matrix( ball_quad, &SLE_BALL_START_POSITION_2, &SLE_BALL_SCALE, 0.0f );
-		sl_vset( &sle_ball_pquad->pos, SLE_BALL_START_POSITION_2.x, SLE_BALL_START_POSITION_2.y );
+		sle_ball_pquad->pos = vec2( SLE_BALL_START_POSITION_2.x, SLE_BALL_START_POSITION_2.y );
 	} else {
 		sl_entity_create_world_matrix( ball_quad, &SLE_BALL_START_POSITION_1, &SLE_BALL_SCALE, 0.0f );
-		sl_vset( &sle_ball_pquad->pos, SLE_BALL_START_POSITION_1.x, SLE_BALL_START_POSITION_1.y );
+		sle_ball_pquad->pos = vec2( SLE_BALL_START_POSITION_1.x, SLE_BALL_START_POSITION_1.y );
 	}
 	
 	// Reset momentums
-	sl_vset( &sle_player1_pquad->velocity, 0.0f, 0.0f );
-	sl_vset( &sle_player2_pquad->velocity, 0.0f, 0.0f );
-	sl_vset( &sle_ball_pquad->velocity, 0.0f, 0.0f );
+	sle_player1_pquad->velocity = vec2( 0.0f, 0.0f );
+	sle_player2_pquad->velocity = vec2( 0.0f, 0.0f );
+	sle_ball_pquad->velocity = vec2( 0.0f, 0.0f );
 
 	// Reset physics positions
-	sl_vset( &sle_player1_pquad->pos, SLE_PLAYER_1_START_POSITION.x, SLE_PLAYER_1_START_POSITION.y );
-	sl_vset( &sle_player2_pquad->pos, SLE_PLAYER_2_START_POSITION.x, SLE_PLAYER_2_START_POSITION.y );
+	sle_player1_pquad->pos = vec2( SLE_PLAYER_1_START_POSITION.x, SLE_PLAYER_1_START_POSITION.y );
+	sle_player2_pquad->pos = vec2( SLE_PLAYER_2_START_POSITION.x, SLE_PLAYER_2_START_POSITION.y );
 
 	sle_freeze_ball = SL_TRUE;
 
@@ -354,7 +354,7 @@ int main( int argc, char **argv )
 	sl_renderable *static_mesh;
 	sl_entity *q;
 
-	sl_vec pos, scale, tmp;
+	v2 pos, scale, tmp;
 	sl_box uvs;
 	sl_bvec flip_uvs;
 	GLfloat color[ 4 ];
@@ -416,8 +416,8 @@ int main( int argc, char **argv )
 	animator = sl_renderer_get_animator_for_scene( scene->scene_id );
 	sim = sl_renderer_get_simulator_for_scene( scene->scene_id );
 
-	sl_vset( &pos, 0.0f, 0.0f );
-	sl_vset( &scale, 1.0f, 1.0f );
+	pos = vec2( 0.0f, 0.0f );
+	scale = vec2( 1.0f, 1.0f );
 	flip_uvs.x = SL_FALSE; flip_uvs.y = SL_FALSE;
 	
 	// Add static sprites
@@ -446,7 +446,7 @@ int main( int argc, char **argv )
 						 &uvs, &flip_uvs,
 						 color,
 						 SLE_SPRITE_VISIBLE );
-	sl_vset( &pos, 0.0f, -0.5f ); sl_vset( &scale, 0.5f, 0.5f );
+	pos = vec2( 0.0f, -0.5f ); scale = vec2( 0.5f, 0.5f );
 	sl_scene_add_sprite( scene, SLE_LAYER_NET, 
 						 &pos, &scale, 0.0f,
 						 net_tex->texture_id,
@@ -455,7 +455,7 @@ int main( int argc, char **argv )
 						 &uvs, &flip_uvs,
 						 color,
 						 SLE_SPRITE_VISIBLE );
-	sl_vset( &pos, -2.f, 0.0f ); sl_vset( &scale, 1.f, 1.f );
+	pos = vec2( -2.f, 0.0f ); scale = vec2( 1.f, 1.f );
 	world_bounds_left = sl_scene_add_sprite( scene, SLE_LAYER_BACKGROUND, 
 											 &pos, &scale, 0.0f,
 											 SL_INVISIBLE_TEXTURE,
@@ -464,7 +464,7 @@ int main( int argc, char **argv )
 											 &uvs, &flip_uvs,
 											 color,
 											 SLE_SPRITE_VISIBLE );
-	sl_vset( &pos, 2.0f, 0.0f );
+	pos = vec2( 2.0f, 0.0f );
 	world_bounds_right = sl_scene_add_sprite( scene, SLE_LAYER_BACKGROUND, 
 											  &pos, &scale, 0.0f,
 											  SL_INVISIBLE_TEXTURE,
@@ -473,7 +473,7 @@ int main( int argc, char **argv )
 											  &uvs, &flip_uvs,
 											  color,
 											  SLE_SPRITE_VISIBLE );
-	sl_vset( &pos, 0.0f, -1.f + SLE_FLOOR );
+	pos = vec2( 0.0f, -1.f + SLE_FLOOR );
 	world_bounds_ground = sl_scene_add_sprite( scene, SLE_LAYER_BACKGROUND, 
 											   &pos, &scale, 0.0f,
 											   SL_INVISIBLE_TEXTURE,
@@ -482,7 +482,7 @@ int main( int argc, char **argv )
 											   &uvs, &flip_uvs,
 											   color,
 											   SLE_SPRITE_VISIBLE );
-	sl_vset( &pos, 0.0f, 2.0f );
+	pos = vec2( 0.0f, 2.0f );
 	world_bounds_sky = sl_scene_add_sprite( scene, SLE_LAYER_BACKGROUND, 
 											&pos, &scale, 0.0f,
 											SL_INVISIBLE_TEXTURE,
@@ -491,7 +491,7 @@ int main( int argc, char **argv )
 											&uvs, &flip_uvs,
 											color,
 											SLE_SPRITE_VISIBLE );
-	sl_vset( &pos, 0.0f, -0.5f ); sl_vset( &scale, 0.01f, 0.5f );
+	pos = vec2( 0.0f, -0.5f ); scale = vec2( 0.01f, 0.5f );
 	net_bounds_id = sl_scene_add_sprite( scene, SLE_LAYER_BACKGROUND, 
 										 &pos, &scale, 0.0f,
 										 SL_INVISIBLE_TEXTURE,
@@ -504,8 +504,8 @@ int main( int argc, char **argv )
 	// @TODO: Add weather effects. Rain that goes top->bottom tranforms on repeat w/callback
 	//		  that makes splash visible and play sprite animation. Add splash at endpoints
 	//		  of rain right away, but hide until callback.
-	sl_vset( &scale, 0.1f, 0.1f );
-	sl_vset( &pos, ( rand( ) / RAND_MAX ) * 0.5f > 0.5f ? SLE_BALL_START_POSITION_1.x : SLE_BALL_START_POSITION_2.x, SLE_BALL_START_POSITION_1.y );
+	scale = vec2( 0.1f, 0.1f );
+	pos = vec2( ( rand( ) / RAND_MAX ) * 0.5f > 0.5f ? SLE_BALL_START_POSITION_1.x : SLE_BALL_START_POSITION_2.x, SLE_BALL_START_POSITION_1.y );
 	sle_ball_id = sl_scene_add_sprite( scene, SLE_LAYER_BALL,
 									   &pos, &scale, 0.0f,
 									   ball_tex->texture_id,
@@ -557,7 +557,7 @@ int main( int argc, char **argv )
 	// UI things @TODO
 
 	// Physics
-	sl_vset( &tmp, 0.0f, 0.0f );
+	tmp = vec2( 0.0f, 0.0f );
 	sle_player1_pquad = sl_simulator_add_entity( sim, sle_player1_id, &tmp );	 // Add players
 	sle_player2_pquad = sl_simulator_add_entity( sim, sle_player2_id, &tmp );
 	sle_ball_pquad	  = sl_simulator_add_entity( sim, sle_ball_id, &tmp );	 // Add ball
@@ -583,7 +583,7 @@ int main( int argc, char **argv )
 	sl_simulator_add_callback( sim, sle_player2_id, world_bounds_right, sle_player2_clamp_horizontal ); // Note that we only need to check one side here, net is other side.
 	sl_simulator_add_callback( sim, sle_player2_id, world_bounds_ground, sle_player2_clamp_vertical ); // Player vs world bounds (quad/quad)
 	
-	sl_vset( &tmp, 0.0f, SLE_GRAVITY );
+	tmp = vec2( 0.0f, SLE_GRAVITY );
 	sl_simulator_add_force( sim, sle_ball_id, &tmp ); // Add gravity to ball
 	sl_simulator_add_force( sim, sle_player1_id, &tmp ); // Add gravity to players
 	sl_simulator_add_force( sim, sle_player2_id, &tmp ); 
@@ -603,9 +603,9 @@ int main( int argc, char **argv )
 	{
 		// Logic is handled in physics callbacks, see pre-loop physics part.
 		if( sle_freeze_ball ) {
-			( ( sl_vec* )vul_vector_get( sle_ball_pquad->forces, 0 ) )->y = 0.0;
+			( ( v2* )vul_vector_get( sle_ball_pquad->forces, 0 ) )->y = 0.0;
 		} else {
-			( ( sl_vec* )vul_vector_get( sle_ball_pquad->forces, 0 ) )->y = SLE_GRAVITY;
+			( ( v2* )vul_vector_get( sle_ball_pquad->forces, 0 ) )->y = SLE_GRAVITY;
 		}
 
 		// Move the actual quads

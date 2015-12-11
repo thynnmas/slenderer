@@ -18,17 +18,17 @@ void sl_renderable_create_quad( sl_renderable *ren, sl_box *uvs )
 {
 #ifdef SL_LEGACY_OPENGL
 	ren->vertices = SL_ALLOC( sizeof( sl_vertex ) * 4 );
-	sl_vset( &ren->vertices[ 0 ].position,  -1.0f, -1.0f );
-	sl_vset( &ren->vertices[ 0 ].texcoords,  uvs->min_p.x,  uvs->min_p.y );
+	ren->vertices[ 0 ].position = vec2( -1.0f, -1.0f );
+	ren->vertices[ 0 ].texcoords = vec2( uvs->min_p.x,  uvs->min_p.y );
 
-	sl_vset( &ren->vertices[ 1 ].position,   1.0f, -1.0f );
-	sl_vset( &ren->vertices[ 1 ].texcoords,  uvs->max_p.x,  uvs->min_p.y );
+	ren->vertices[ 1 ].position = vec2( 1.0f, -1.0f );
+	ren->vertices[ 1 ].texcoords = vec2( uvs->max_p.x,  uvs->min_p.y );
 
-	sl_vset( &ren->vertices[ 2 ].position,   1.0f,  1.0f );
-	sl_vset( &ren->vertices[ 2 ].texcoords,  uvs->max_p.x,  uvs->max_p.y );
+	ren->vertices[ 2 ].position = vec2( 1.0f,  1.0f );
+	ren->vertices[ 2 ].texcoords = vec2( uvs->max_p.x,  uvs->max_p.y );
 
-	sl_vset( &ren->vertices[ 3 ].position,  -1.0f,  1.0f );
-	sl_vset( &ren->vertices[ 3 ].texcoords,  uvs->min_p.x,  uvs->max_p.y );
+	ren->vertices[ 3 ].position = vec2( -1.0f,  1.0f );
+	ren->vertices[ 3 ].texcoords = vec2( uvs->min_p.x,  uvs->max_p.y );
 
 	ren->indices = SL_ALLOC( sizeof( unsigned short ) * 6 );
 	ren->indices[ 0 ] = 0;
@@ -102,8 +102,8 @@ void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb )
 	sl_bcenter( &center, uv_aabb );
 	sl_bextent( &extent, uv_aabb );
 	ren->vertices = SL_ALLOC( sizeof( sl_vertex ) * 7 );
-	sl_vset( &ren->vertices[ 0 ].position, 0.0f, 0.0f );
-	sl_vset( &ren->vertices[ 0 ].texcoords, center.x, center.y );
+	ren->vertices[ 0 ].position = vec2( 0.0f, 0.0f );
+	ren->vertices[ 0 ].texcoords = vec2( center.x, center.y );
 
 	for( int i = 0; i < 6; ++i ) {
 		f32_t ang = ( M_PI / 3.0f ) * i + ( M_PI / 6.0f );
@@ -111,8 +111,8 @@ void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb )
 			  py = sinf( ang );
 		f32_t uvx = center.x + extent.x * px * 0.5f,
 			  uvy = center.y + extent.y * py * 0.5f;
-		sl_vset( &ren->vertices[ 1 + i ].position, px, py );
-		sl_vset( &ren->vertices[ 1 + i ].texcoords, uvx, uvy );
+		ren->vertices[ 1 + i ].position = vec2( px, py );
+		ren->vertices[ 1 + i ].texcoords = vec2( uvx, uvy );
 	}	
 
 	ren->indices = SL_ALLOC( sizeof( unsigned short ) * 18 );
@@ -188,8 +188,8 @@ void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb )
 	sl_bcenter( &center, uv_aabb );
 	sl_bextent( &extent, uv_aabb );
 	ren->vertices = SL_ALLOC( sizeof( sl_vertex ) * 7 );
-	sl_vset( &ren->vertices[ 0 ].position, 0.0f, 0.0f );
-	sl_vset( &ren->vertices[ 0 ].texcoords, center.x, center.y );
+	ren->vertices[ 0 ].position = vec2( 0.0f, 0.0f );
+	ren->vertices[ 0 ].texcoords = vec2( center.x, center.y );
 
 	for( int i = 0; i < 6; ++i ) {
 		f32_t ang = ( M_PI / 3.0f ) * i;
@@ -197,8 +197,8 @@ void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb )
 			  py = sinf( ang );
 		f32_t uvx = center.x + extent.x * px * 0.5f,
 			  uvy = center.y + extent.y * py * 0.5f;
-		sl_vset( &ren->vertices[ 1 + i ].position, px, py );
-		sl_vset( &ren->vertices[ 1 + i ].texcoords, uvx, uvy );
+		ren->vertices[ 1 + i ].position = vec2( px, py );
+		ren->vertices[ 1 + i ].texcoords = vec2( uvx, uvy );
 	}
 
 	ren->indices = SL_ALLOC( sizeof( unsigned short ) * 18 );

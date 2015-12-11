@@ -553,9 +553,9 @@ void sl_renderer_draw_legacy_quad( v2 *camera_offset, sl_renderable *rend, sl_en
 		sl_mul4_post( &vert, &mat, &rend->vertices[ i ].position );
 		glVertex2f( vert.x, vert.y );
 		glColor4f( quad->color[ 0 ], quad->color[ 1 ], quad->color[ 2 ], quad->color[ 3 ] );
-		sl_vsub( &texc, &uvs.max_p, &uvs.min_p );
-		sl_vmul( &texc, &texc, &rend->vertices[ i ].texcoords );
-		sl_vadd( &texc, &texc, &uvs.min_p );
+		texc = vsub2( uvs.max_p, uvs.min_p );
+		texc = vmul2( texc, rend->vertices[ i ].texcoords );
+		texc = vadd2( texc, uvs.min_p );
 		glTexCoord2f( texc.x, texc.y  );
 	}	
 	glEnd( );	
