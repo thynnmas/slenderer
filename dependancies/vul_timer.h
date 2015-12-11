@@ -55,7 +55,7 @@
 		
 typedef struct vul_timer_t {
 #if defined( VUL_WINDOWS )
-	DWORD start_tick;
+	ULONGLONG start_tick;
 	LONGLONG last_time;
 	LARGE_INTEGER start_time;
 	LARGE_INTEGER frequency;
@@ -135,7 +135,7 @@ void vul_timer_reset( vul_timer_t *c )
 	old_mask = SetThreadAffinityMask( thread, c->clock_mask );
 	QueryPerformanceFrequency( &c->frequency );
 	QueryPerformanceCounter( &c->start_time );
-	c->start_tick = GetTickCount( );
+	c->start_tick = GetTickCount64( );
 	SetThreadAffinityMask( thread, old_mask );
 	c->last_time = 0;
 #elif defined( VUL_LINUX )
@@ -170,7 +170,7 @@ ui64_t vul_timer_get_millis( vul_timer_t *c )
 	DWORD_PTR old_mask;
 	LONGLONG new_time;
 	ui32_t new_ticks;
-	ui32_t check;
+	ULONGLONG check;
 	i32_t ms_off;
 	LONGLONG adjust;
 
@@ -182,7 +182,7 @@ ui64_t vul_timer_get_millis( vul_timer_t *c )
 	new_ticks = ( ui32_t )( 1000 * new_time / c->frequency.QuadPart );
 
 	// Microsoft KB: Q274323
-	check = GetTickCount( ) - c->start_tick;
+	check = GetTickCount64( ) - c->start_tick;
 	ms_off = ( i32_t )( new_ticks - check );
 	if( ms_off < -100 || ms_off > 100 )
 	{
@@ -216,7 +216,7 @@ ui64_t vul_timer_get_micros( vul_timer_t *c )
 	DWORD_PTR old_mask;
 	LONGLONG new_time;
 	ui32_t new_ticks;
-	ui32_t check;
+	ULONGLONG check;
 	i32_t ms_off;
 	LONGLONG adjust;
 	ui64_t new_micro;
@@ -229,7 +229,7 @@ ui64_t vul_timer_get_micros( vul_timer_t *c )
 	new_ticks = ( ui32_t )( 1000 * new_time / c->frequency.QuadPart );
 
 	// Microsoft KB: Q274323
-	check = GetTickCount( ) - c->start_tick;
+	check = GetTickCount64( ) - c->start_tick;
 	ms_off = ( i32_t )( new_ticks - check );
 	if( ms_off < -100 || ms_off > 100 )
 	{
