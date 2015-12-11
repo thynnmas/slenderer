@@ -521,7 +521,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 }
 
 #ifdef SL_LEGACY_OPENGL
-void sl_renderer_draw_legacy_quad( v2 *camera_offset, sl_renderable *rend, sl_entity *quad )
+void sl_renderer_draw_legacy_instance( v2 *camera_offset, sl_renderable *rend, sl_entity *quad )
 {
 	m44 mat;
 	sl_box uvs;
@@ -530,18 +530,18 @@ void sl_renderer_draw_legacy_quad( v2 *camera_offset, sl_renderable *rend, sl_en
 	v2 vert, texc;
 
 	// Calculate offset into matrix
-	sl_mcopy4( &mat, &quad->world_matrix );
+	memcpy( &mat, &quad->world_matrix, sizeof( m44 ) );
 	mat.data[ 12 ] -= camera_offset->x;
 	mat.data[ 13 ] -= camera_offset->y;
 
 	// Calculate the uvs; they may be flipped
 	sl_bset( &uvs, &quad->uvs );
-	if( quad->flip_uvs.x ) {
+	if( quad->flip_uvs.x != 0.f ) {
 		tmp = uvs.min_p.x;
 		uvs.min_p.x = uvs.max_p.x;
 		uvs.max_p.x = tmp;
 	}
-	if( quad->flip_uvs.y ) {
+	if( quad->flip_uvs.y != 0.f ) {
 		tmp = uvs.min_p.y;
 		uvs.min_p.y = uvs.max_p.y;
 		uvs.max_p.y = tmp;
@@ -549,8 +549,9 @@ void sl_renderer_draw_legacy_quad( v2 *camera_offset, sl_renderable *rend, sl_en
 
 	// Start the draw
 	glBegin( GL_TRIANGLES );
-	for( i = 0u; i < 4u; ++i ) {
-		sl_mul4_post( &vert, &mat, &rend->vertices[ i ].position );
+	for( i = 0u; i < ren->index_count; ++i ) {
+		vert.x = mat.A[ 0 ] * rend->vertices[ i ].position.x + mat.A[ 1 ] * rend->vertices[ i ].position.y + mat.A[ 9 ];
+		vert.y = mat.A[ 3 ] * rend->vertices[ i ].position.x + mat.A[ 4 ] * rend->vertices[ i ].position.y + mat.A[ 10 ];
 		glVertex2f( vert.x, vert.y );
 		glColor4f( quad->color[ 0 ], quad->color[ 1 ], quad->color[ 2 ], quad->color[ 3 ] );
 		texc = vsub2( uvs.max_p, uvs.min_p );

@@ -86,12 +86,12 @@ void sl_entity_bind( sl_entity *entity, v2 *camera_offset, sl_program *prog )
 
 	// Calculate the uvs; they may be flipped
 	sl_bset( &uvs, &entity->uvs );
-	if( entity->flip_uvs.x ) {
+	if( entity->flip_uvs.x != 0.f ) {
 		tmp = uvs.min_p.x;
 		uvs.min_p.x = uvs.max_p.x;
 		uvs.max_p.x = tmp;
 	}
-	if( entity->flip_uvs.y ) {
+	if( entity->flip_uvs.y != 0.f ) {
 		tmp = uvs.min_p.y;
 		uvs.min_p.y = uvs.max_p.y;
 		uvs.max_p.y = tmp;

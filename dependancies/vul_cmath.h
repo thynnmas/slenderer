@@ -200,6 +200,16 @@ v4 vec4( const f32 x, const f32 y, const f32 z, const f32 w ) { v4 r; r.x = x; r
 #endif
 
 #ifndef VUL_DEFINE
+v2 vcopy2( const v2 v );
+v3 vcopy3( const v3 v );
+v4 vcopy4( const v4 v );
+#else
+v2 vcopy2( const v2 v ) { v2 r; r.x = v.x; r.y = v.y; return r; }
+v3 vcopy3( const v3 v ) { v3 r; r.x = v.x; r.y = v.y; r.z = v.z; return r; }
+v4 vcopy4( const v4 v ) { v4 r; r.x = v.x; r.y = v.y; r.z = v.z; r.w = v.w; return r; }
+#endif
+
+#ifndef VUL_DEFINE
 f32 vdot2( const v2 a, const v2 b);
 f32 vdot3( const v3 a, const v3 b);
 f32 vdot4( const v4 a, const v4 b);
