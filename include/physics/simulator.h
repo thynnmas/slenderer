@@ -22,7 +22,7 @@
 #include <vul_hash_map.h>
 #include <vul_timer.h>
 
-#include "math/vec.h"
+#include "vul_cmath.h"
 #include "math/box.h"
 #include "renderer/entity.h"
 #include "renderer/scene.h"
@@ -34,10 +34,10 @@
 
 typedef struct sl_simulator_entity {
 	const sl_entity *entity;
-	sl_vec pos;
-	sl_vec velocity;
+	v2 pos;
+	v2 velocity;
 	// @TODO: Mass!
-	vul_vector_t *forces; // Vector of sl_vecs
+	vul_vector_t *forces; // Vector of v2s
 } sl_simulator_entity;
 
 typedef void( *sl_simulator_collider_pair_callback )( sl_scene* s, sl_simulator_entity* a, sl_simulator_entity *b, double time_frame_delta );
@@ -69,19 +69,19 @@ void sl_simulator_destroy( sl_simulator *sim );
 /**
  * Adds a quad with the given start velocity to the simulation.
  */
-sl_simulator_entity *sl_simulator_add_entity( sl_simulator *sim, unsigned int entity_id, sl_vec *start_velocity );
+sl_simulator_entity *sl_simulator_add_entity( sl_simulator *sim, unsigned int entity_id, v2 *start_velocity );
 
 /**
  * Adds a force on the given quad. The force is in "normalized screen coords per second per second".
  * Returns a pointer to the force vector so it can be changed. We don't support removal atm,
  * so just set it to (0,0) to "remove" it.
  */
-sl_vec *sl_simulator_add_force( sl_simulator *sim, unsigned int entity_id, sl_vec *force );
+v2 *sl_simulator_add_force( sl_simulator *sim, unsigned int entity_id, v2 *force );
 
 /**
  * Adds an impulse to the given quad. The impulse is given as a raw change in velocity.
  */
-void sl_simulator_add_impulse( sl_simulator *sim, unsigned int entity_id, sl_vec *impulse );
+void sl_simulator_add_impulse( sl_simulator *sim, unsigned int entity_id, v2 *impulse );
 
 /**
  * Adds a collission callback for a pair of quads.

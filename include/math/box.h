@@ -17,17 +17,17 @@
 
 #ifndef SLENDERER_BOX_H
 #define SLENDERER_BOX_H
-#include "math/vec.h"
+#include <vul_cmath.h>
 
 typedef struct {
-	sl_vec min_p;
-	sl_vec max_p;
+	v2 min_p;
+	v2 max_p;
 } sl_box;
 
 /**
  * Sets the contents of a box.
  */
-void sl_bset_vec( sl_box *result, const sl_vec *min_p, const sl_vec *max_p );
+void sl_bset_vec( sl_box *result, const v2 *min_p, const v2 *max_p );
 /**
  * Sets the contents of a box.
  */
@@ -40,25 +40,25 @@ void sl_bset_scalar( sl_box *result, const float min_x, const float min_y,
 /**
  * Returns the center of a box.
  */
-void sl_bcenter( sl_vec *result, const sl_box *b );
+void sl_bcenter( v2 *result, const sl_box *b );
 /**
  * Returns the extent of a box.
  */
-void sl_bextent( sl_vec *result, const sl_box *b );
+void sl_bextent( v2 *result, const sl_box *b );
 
 /**
  * Translates a box by a vector.
  */
-void sl_btranslate( sl_box *result, const sl_box *b, const sl_vec *offset );
+void sl_btranslate( sl_box *result, const sl_box *b, const v2 *offset );
 /**
  * Scales a box by a vector.
  */
-void sl_bscale( sl_box *result, const sl_box *b, const sl_vec *scale );
+void sl_bscale( sl_box *result, const sl_box *b, const v2 *scale );
 
 /**
  * Tests whether a point is inside a box.
  */
-int sl_binside( const sl_box *b, const sl_vec *p );
+int sl_binside( const sl_box *b, const v2 *p );
 
 /**
  * Tests whether two boxes intersect.

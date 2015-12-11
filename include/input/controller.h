@@ -22,7 +22,7 @@
 #include <vul_hash_map.h>
 #include <vul_resizable_array.h>
 
-#include "math/vec.h"
+#include "vul_cmath.h"
 #include "renderer/scene.h"
 #include "slenderer.h"
 
@@ -69,8 +69,8 @@ typedef struct {
 	vul_list_element_t *hash_map_key_pairs; // List of unsigned integers we use as keys in the hashmaps.
 	vul_list_element_t *hash_map_ptr_keys; // List of pointers we use as keys in the hashmaps.
 
-	sl_vec mouse_pos;
-	sl_vec mouse_pos_prev;
+	v2 mouse_pos;
+	v2 mouse_pos_prev;
 	vul_vector_t *mouse_overs; // Vector of entity_id (unisgned integers) that the mouse is currently over.
 } sl_controller;
 

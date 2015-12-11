@@ -39,7 +39,7 @@ void sl_scene_create( sl_scene *scene, ui32_t parent_window_id, unsigned int sce
 	sl_bset_scalar( &uvs, 0.f, 0.f, 1.f, 1.f );
 	sl_renderable_create_quad( &scene->post_renderable, &uvs );
 
-	sl_vset( &scene->camera_pos, 0.0f, 0.f );
+	scene->camera_pos = vec2( 0.0f, 0.f );
 }
 
 void sl_scene_destroy( sl_scene *scene )
@@ -73,10 +73,10 @@ void sl_scene_set_post( sl_scene *scene, sl_program *prog, void (*post_program_c
 }
 
 unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer, 
-								  const sl_vec *center, const sl_vec *scale,
+								  const v2 *center, const v2 *scale,
 								  const float rotation, const unsigned int texture_id,
 								  const unsigned int program_id, const unsigned int renderable_id,
-								  const sl_box *uvs, const sl_bvec *flip_uvs,
+								  const sl_box *uvs, const v2 *flip_uvs,
 								  const float color[ 4 ], unsigned char is_hidden )
 {
 	sl_entity *q;
@@ -216,7 +216,7 @@ const sl_entity *sl_scene_get_const_entity( sl_scene *scene, const unsigned int 
 	return NULL;
 }
 
-void sl_scene_get_entities_at_pos( vul_vector_t *vec, sl_scene *scene, sl_vec *pos )
+void sl_scene_get_entities_at_pos( vul_vector_t *vec, sl_scene *scene, v2 *pos )
 {
 	sl_entity *it, *last_it;
 	int i;

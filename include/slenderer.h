@@ -181,7 +181,7 @@ sl_program *sl_renderer_allocate_program( );
 /**
  * Renders a single quad using leagcy GL
  */
-void sl_renderer_draw_legacy_instance( sl_vec *camera_offset, sl_renderable *rend, sl_entity *entity );
+void sl_renderer_draw_legacy_instance( v2 *camera_offset, sl_renderable *rend, sl_entity *entity );
 #else
 /**
  * Renders a single quad instance. Binds the world matrix uniform, then draws.

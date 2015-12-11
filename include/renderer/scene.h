@@ -29,7 +29,7 @@
 #include <vul_sort.h> // We need definitions for vul_sort only here
 
 #include "math/box.h"
-#include "math/mat.h"
+#include "vul_cmath.h"
 #include "renderer/entity.h"
 #include "renderer/renderable.h"
 #include "renderer/texture.h"
@@ -49,7 +49,7 @@ typedef struct {
 	ui32_t post_program_id; // Post processing program; by default the normal shader!
 	void (*post_program_callback)( sl_program *post_program ); // Called last second before tendering the post process quad; use to set parameters for the program.
 	sl_renderable post_renderable;
-	sl_vec camera_pos;
+	v2 camera_pos;
 } sl_scene;
 
 /**
@@ -76,10 +76,10 @@ void sl_scene_set_post( sl_scene *scene, sl_program *prog, void (*post_program_c
  * Returns the unique id of the quad.
  */
 unsigned int sl_scene_add_sprite( sl_scene *scene, const unsigned int layer, 
-								  const sl_vec *center, const sl_vec *scale,
+								  const v2 *center, const v2 *scale,
 								  const float rotation, const unsigned int texture_id,
 								  const unsigned int program_id, const unsigned int renderable_id,
-								  const sl_box *uvs, const sl_bvec *flip_uvs,
+								  const sl_box *uvs, const v2 *flip_uvs,
 								  const float color[ 4 ], unsigned char is_hidden );
 
 /**
@@ -104,6 +104,6 @@ const sl_entity *sl_scene_get_const_entity( sl_scene *scene, const unsigned int 
  * Populates a vector of all quad ids that intersect a ray into the scene at the given position.
  * It searches top down, so the first hit is the topmost intersected quad.
  */
-void sl_scene_get_entities_at_pos( vul_vector_t *vec, sl_scene *scene, sl_vec *pos );
+void sl_scene_get_entities_at_pos( vul_vector_t *vec, sl_scene *scene, v2 *pos );
 
 #endif

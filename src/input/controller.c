@@ -36,8 +36,8 @@ void sl_controller_create( )
 	sl_controller_global->hash_map_key_pairs = NULL;
 	sl_controller_global->hash_map_ptr_keys = NULL;
 
-	sl_vset( &sl_controller_global->mouse_pos, 0.0f, 0.0f );
-	sl_vset( &sl_controller_global->mouse_pos_prev, 0.0f, 0.0f );
+	sl_controller_global->mouse_pos = vec2( 0.0f, 0.0f );
+	sl_controller_global->mouse_pos_prev = vec2( 0.0f, 0.0f );
 	sl_controller_global->mouse_overs = vul_vector_create( sizeof( unsigned int ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 }
 
@@ -474,14 +474,14 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 	int found, deleted;
 	vul_hash_map_element_t *e;
 	int ww, wh;
-	sl_vec scene_local_pos;
+	v2 scene_local_pos;
 
 	// Update mouse position
 	glfwGetWindowSize( win_handle, &ww, &wh );
-	sl_vcopy( &sl_controller_global->mouse_pos_prev, &sl_controller_global->mouse_pos );
-	sl_vset( &sl_controller_global->mouse_pos,
-			 ( ( float )x / ( float )ww ) * 2.f - 1.f,
-			-( ( float )y / ( float )wh ) * 2.f + 1.f );
+	sl_controller_global->mouse_pos_prev.x = sl_controller_global->mouse_pos.x;
+	sl_controller_global->mouse_pos_prev.y = sl_controller_global->mouse_pos.y;
+	sl_controller_global->mouse_pos = vec2( ( ( float )x / ( float )ww ) * 2.f - 1.f,
+										   -( ( float )y / ( float )wh ) * 2.f + 1.f );
 	
 	// Get the scene
 	scenes = vul_vector_create( sizeof( sl_scene* ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
@@ -490,7 +490,7 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 	vul_foreach( sl_scene*, its, last_its, scenes )
 	{
 		// Calculate scene local position
-		sl_vadd( &scene_local_pos, &sl_controller_global->mouse_pos, &( *its )->camera_pos );
+		scene_local_pos = vadd2( sl_controller_global->mouse_pos, ( *its )->camera_pos );
 		// Get all entities we are hovering over
 		over = vul_vector_create( sizeof( unsigned int ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 		sl_scene_get_entities_at_pos( over, *its, &scene_local_pos );
@@ -570,7 +570,7 @@ void sl_controller_glfw_mouse_button_callback( GLFWwindow *win_handle, int butto
 	sl_scene **its, **last_its;
 	vul_vector_t *over, *scenes;
 	unsigned int *it, *last_it, pair[ 2 ];
-	sl_vec scene_local_pos;
+	v2 scene_local_pos;
 
 #ifdef SL_DEBUG
 	assert( sl_controller_global != NULL );

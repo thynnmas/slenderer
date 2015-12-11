@@ -17,7 +17,7 @@
 #ifndef SLENDERER_RENDERABLE_H
 #define SLENDERER_RENDERABLE_H
 
-#include "math/vec.h"
+#include "vul_cmath.h"
 #include "renderer/entity.h"
 #include "renderer/window.h"
 
@@ -26,8 +26,8 @@
 #endif
 
 typedef struct {
-	sl_vec position;
-	sl_vec texcoords;
+	v2 position;
+	v2 texcoords;
 } sl_vertex;
 
 typedef struct sl_renderable {

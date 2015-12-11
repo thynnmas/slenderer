@@ -36,7 +36,7 @@ void sl_animator_destroy( sl_animator *animator )
 	vul_timer_destroy( animator->clock );
 }
 
-unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int entity_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state )
+unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int entity_id, const m44 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state )
 {
 	sl_animation_transform* t;
 	sl_scene *s;
@@ -119,7 +119,7 @@ void sl_animator_update( sl_animator *animator )
 	sl_animation_sprite_state *state;
 	sl_scene *s;
 	int deleted;
-	sl_mat4 tmp;
+	m44 tmp;
 
 	// Calculate time since last frame
 	now = vul_timer_get_millis( animator->clock );
@@ -153,15 +153,15 @@ void sl_animator_update( sl_animator *animator )
 					ita->start_time = now;
 					ita->end_time = now + length_in_ms;
 					// Swap end and beginning matrices
-					sl_mcopy4( &tmp, &ita->end_world_mat );
-					sl_mcopy4( &ita->end_world_mat, &ita->start_world_mat );
-					sl_mcopy4( &ita->start_world_mat, &tmp );
+					memcpy( &tmp, &ita->end_world_mat, sizeof( m44 ) );
+					memcpy( &ita->end_world_mat, &ita->start_world_mat, sizeof( m44 ) );
+					memcpy( &ita->start_world_mat, &tmp, sizeof( m44 ) );
 					// @TODO: Add callbacks that are called at loop reset/periodic reset
 					// to f.ex. add an effect there.
 				} else {
 					// Move to final matrix when done
 					entity = sl_scene_get_volitile_entity( s, ita->entity_id, 0xffffffff );
-					sl_mcopy4( &entity->world_matrix, &ita->end_world_mat );
+					memcpy( &entity->world_matrix, &ita->end_world_mat, sizeof( m44 ) );
 					ita->state = SL_ANIMATION_FINISHED;
 				}
 				if( ita->state == SL_ANIMATION_FINISHED ) {
@@ -226,7 +226,7 @@ void sl_animator_update( sl_animator *animator )
 		entity = sl_scene_get_volitile_entity( s, ita->entity_id, 0xffffffff ); // @TODO: This is why we want layer info when we add a transform!
 
 		// Set the new matrix, a linear interpolation at t. @TODO: Might want to quaternion it up at some point; slerp for the orientation here!
-		sl_mlerp4( &entity->world_matrix, &ita->start_world_mat, &ita->end_world_mat, t );
+		entity->world_matrix = mlerp44( &ita->start_world_mat, &ita->end_world_mat, t );
 	}
 
 	// Iterate over the sprites and update them.

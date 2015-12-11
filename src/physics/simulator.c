@@ -39,7 +39,7 @@ void sl_simulator_destroy( sl_simulator *sim )
 	vul_timer_destroy( sim->clock );
 }
 
-sl_simulator_entity *sl_simulator_add_entity( sl_simulator *sim, unsigned int entity_id, sl_vec *start_velocity )
+sl_simulator_entity *sl_simulator_add_entity( sl_simulator *sim, unsigned int entity_id, v2 *start_velocity )
 {
 	sl_simulator_entity *q, *it, *last_it;
 	sl_scene *s;
@@ -56,27 +56,26 @@ sl_simulator_entity *sl_simulator_add_entity( sl_simulator *sim, unsigned int en
 	// Otherwise, add it.
 	s = sl_renderer_get_scene_by_id( sim->scene_id );
 	q = ( sl_simulator_entity* )vul_vector_add_empty( sim->entities );
-	q->forces = vul_vector_create( sizeof( sl_vec ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
+	q->forces = vul_vector_create( sizeof( v2 ), 0, SL_ALLOC, SL_DEALLOC, SL_REALLOC );
 	q->entity = sl_scene_get_const_entity( s, entity_id, 0xffffffff );
 	q->velocity = *start_velocity;
-	sl_vset( &q->pos,
-			 sl_mget4( &q->entity->world_matrix, 3, 0 ),
-			 sl_mget4( &q->entity->world_matrix, 3, 1 ) );
+	q->pos = vec2( q->entity->world_matrix.a30, q->entity->world_matrix.a31 );
 		
 
 	return q;
 }
 
-sl_vec *sl_simulator_add_force( sl_simulator *sim, unsigned int entity_id, sl_vec *force )
+v2 *sl_simulator_add_force( sl_simulator *sim, unsigned int entity_id, v2 *force )
 {
 	sl_simulator_entity *it, *last_it;
-	sl_vec *ret;
+	v2 *ret;
 
 	vul_foreach( sl_simulator_entity, it, last_it, sim->entities )
 	{
 		if( it->entity->entity_id == entity_id ) {
-			ret = ( sl_vec* )vul_vector_add_empty( it->forces );			
-			sl_vcopy( ret, force );
+			ret = ( v2* )vul_vector_add_empty( it->forces );			
+			ret->x = force->x;
+			ret->y = force->y;
 			return ret;
 		}
 	}
@@ -89,14 +88,14 @@ sl_vec *sl_simulator_add_force( sl_simulator *sim, unsigned int entity_id, sl_ve
 	return 0;
 }
 
-void sl_simulator_add_impulse( sl_simulator *sim, unsigned int entity_id, sl_vec *impulse )
+void sl_simulator_add_impulse( sl_simulator *sim, unsigned int entity_id, v2 *impulse )
 {
 	sl_simulator_entity *it, *last_it;
 
 	vul_foreach( sl_simulator_entity, it, last_it, sim->entities )
 	{
 		if( it->entity->entity_id == entity_id ) {
-			sl_vadd( &it->velocity, &it->velocity, impulse );
+			it->velocity = vadd2( it->velocity, *impulse );
 			return;
 		}
 	}
@@ -138,7 +137,7 @@ void sl_simulator_update( sl_simulator *sim )
 {
 	sl_simulator_entity *it, *lit, *it2, *lit2;
 	sl_scene *s;
-	sl_vec *vit, *lvit, tmp;
+	v2 *vit, *lvit, tmp;
 	sl_box aabb, aabb2;
 	const vul_hash_map_element_t *el;
 	sl_simulator_collider_pair pair;
@@ -154,14 +153,14 @@ void sl_simulator_update( sl_simulator *sim )
 	vul_foreach( sl_simulator_entity, it, lit, sim->entities )
 	{
 		// Aplly all forces
-		vul_foreach( sl_vec, vit, lvit, it->forces )
+		vul_foreach( v2, vit, lvit, it->forces )
 		{
-			sl_vmuls( &tmp, vit, time_delta_in_s );
-			sl_vadd( &it->velocity, &it->velocity, &tmp );
+			tmp = vmuls2( *vit, time_delta_in_s );
+			it->velocity = vadd2( it->velocity, tmp );
 		}
 		// Update position
-		sl_vmuls( &tmp, &it->velocity, time_delta_in_s );
-		sl_vadd( &it->pos, &it->pos, &tmp );
+		tmp = vmuls2( it->velocity, time_delta_in_s );
+		it->pos = vadd2( it->pos, tmp );
 	}
 
 	// Update the rendering quads (if this simulation quad has one
@@ -169,8 +168,8 @@ void sl_simulator_update( sl_simulator *sim )
 	vul_foreach( sl_simulator_entity, it, lit, sim->entities )
 	{
 		q = sl_scene_get_volitile_entity( s, it->entity->entity_id, 0xffffffff );
-		sl_mseti4( &q->world_matrix, 3, 0, it->pos.x );
-		sl_mseti4( &q->world_matrix, 3, 1, it->pos.y );
+		q->world_matrix.a30 = it->pos.x;
+		q->world_matrix.a31 = it->pos.y;
 	}
 
 	// With the new positions, calculate collissions
@@ -240,12 +239,12 @@ int sl_simulator_callback_comp( void *a, void *b )
 
 void sl_simulator_callback_quad_quad( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta )
 {
-	sl_vec inv_vel_a, inv_vel_b;				// Inverse velocities to find intersection
-	sl_vec offset_a, offset_b;					// The offset to backtrack
-	sl_vec t_intersect;							// Intersection point in both directions
+	v2 inv_vel_a, inv_vel_b;				// Inverse velocities to find intersection
+	v2 offset_a, offset_b;					// The offset to backtrack
+	v2 t_intersect;							// Intersection point in both directions
 	float t;									// The first intersection point
 	sl_box aabb_a, aabb_b;						// AABBs
-	sl_vec corner_a, corner_b;					// AABB corner closest to intersection point
+	v2 corner_a, corner_b;					// AABB corner closest to intersection point
 
 	// Get the aabbs @TODO: Pass these in for less recalculations?
 	sl_entity_aabb( &aabb_a, a->entity );
@@ -274,11 +273,11 @@ void sl_simulator_callback_quad_quad( sl_scene *scene, sl_simulator_entity *a, s
 	}
 
 	// Inverse velocities
-	sl_vmuls( &inv_vel_a, &a->velocity, -1.0f );
-	sl_vmuls( &inv_vel_b, &b->velocity, -1.0f );
+	inv_vel_a = vmuls2( a->velocity, -1.0f );
+	inv_vel_b = vmuls2( b->velocity, -1.0f );
 
 	// Find t where they overlap. x_a + iv_a * t = x_b + iv_b * t => t = ( x_a + x_b ) / ( iv_a + iv_b )
-	sl_vset( &t_intersect, 0.0f, 0.0f );
+	t_intersect = vec2( 0.0f, 0.0f );
 	if( ( inv_vel_a.x - inv_vel_b.x ) > 0 ) {
 		t_intersect.x = ( corner_a.x - corner_b.x ) / ( inv_vel_a.x - inv_vel_b.x );
 	}
@@ -305,50 +304,47 @@ void sl_simulator_callback_quad_quad( sl_scene *scene, sl_simulator_entity *a, s
 	inv_vel_b.x = t_intersect.x == 0.0f ? -inv_vel_b.x : inv_vel_b.x;
 	inv_vel_b.y = t_intersect.y == 0.0f ? -inv_vel_b.y : inv_vel_b.y;
 	// We collided in the given time frame. Backtrack, and reflect the same amount
-	sl_vmuls( &offset_a, &inv_vel_a, t * 2.0f );
-	sl_vadd( &a->pos, &a->pos, &offset_a );
-	sl_vmuls( &offset_b, &inv_vel_b, t * 2.0f );
-	sl_vadd( &b->pos, &b->pos, &offset_b );
+	offset_a = vmuls2( inv_vel_a, t * 2.0f );
+	a->pos = vadd2( a->pos, offset_a );
+	offset_b = vmuls2( inv_vel_b, t * 2.0f );
+	b->pos = vadd2( b->pos, offset_b );
 
 	// And store inverse velocities
-	sl_vcopy( &a->velocity, &inv_vel_a );
-	sl_vcopy( &b->velocity, &inv_vel_b );
+	a->velocity.x = inv_vel_a.x;
+	a->velocity.y = inv_vel_a.y;
+	b->velocity.x = inv_vel_b.x;
+	b->velocity.y = inv_vel_b.y;
 
 	// @NOTE: We don't care about rotation here...
-	sl_mseti4( &sl_scene_get_volitile_entity( scene, a->entity->entity_id, 0xffffffff )->world_matrix,
-			   3, 0, a->pos.x );
-	sl_mseti4( &sl_scene_get_volitile_entity( scene, a->entity->entity_id, 0xffffffff )->world_matrix,
-			   3, 1, a->pos.y );
-	sl_mseti4( &sl_scene_get_volitile_entity( scene, b->entity->entity_id, 0xffffffff )->world_matrix,
-			   3, 0, b->pos.x );
-	sl_mseti4( &sl_scene_get_volitile_entity( scene, b->entity->entity_id, 0xffffffff )->world_matrix,
-			   3, 1, b->pos.y );
+	sl_scene_get_volitile_entity( scene, a->entity->entity_id, 0xffffffff )->world_matrix.a30 = a->pos.x;
+	sl_scene_get_volitile_entity( scene, a->entity->entity_id, 0xffffffff )->world_matrix.a31 = a->pos.y;
+	sl_scene_get_volitile_entity( scene, b->entity->entity_id, 0xffffffff )->world_matrix.a30 = b->pos.x;
+	sl_scene_get_volitile_entity( scene, b->entity->entity_id, 0xffffffff )->world_matrix.a31 = b->pos.y;
 }
 
 void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_entity *quad, sl_simulator_entity *sphere, double time_frame_delta )
 {
-	sl_vec quad_closest;					// Closest point to the center of the sphere on the quad.
-	sl_vec sphere_center, sphere_radius;	// Shpere properties
+	v2 quad_closest;					// Closest point to the center of the sphere on the quad.
+	v2 sphere_center, sphere_radius;	// Shpere properties
 	sl_box quad_aabb, sphere_aabb;			// AABBs
 	float angle, half_inv_cos_a;			// Rotation-temporaries we need to calculate scale/radius
-	sl_vec normal, nnormal;					// Direction of collission normal, absolute and normalized.
+	v2 normal, nnormal;					// Direction of collission normal, absolute and normalized.
 	float radius_n, cos_n, sin_n;			// Radius at the normal & temps
 	float t;								// Intersection point
-	sl_vec combined_vel;					// The combined velocity, i.e velocity relative to each other.
-	sl_vec n2, n2m;							// Temporaries used
+	v2 combined_vel;					// The combined velocity, i.e velocity relative to each other.
+	v2 n2, n2m;							// Temporaries used
 	float vdotn;							// to calculate reflection.
-	sl_vec old_vel_q, old_vel_s;			// Store old velocities
+	v2 old_vel_q, old_vel_s;			// Store old velocities
 	
 	// Get aabbs
 	sl_entity_aabb( &quad_aabb, quad->entity );
 	sl_entity_aabb( &sphere_aabb, sphere->entity );
 
 	// Get sphere radius
-	angle = ( float )asin( sphere->entity->world_matrix.data[ 1 ] );
+	angle = ( float )asin( sphere->entity->world_matrix.A[ 1 ] );
 	half_inv_cos_a = 1.0f / ( ( float )cos( angle ) * 2.0f );
-	sl_vset( &sphere_radius,
-			 sphere->entity->world_matrix.data[ 0 ] * half_inv_cos_a,
-			 sphere->entity->world_matrix.data[ 5 ] * half_inv_cos_a );
+	sphere_radius = vec2( sphere->entity->world_matrix.A[ 0 ] * half_inv_cos_a,
+						  sphere->entity->world_matrix.A[ 5 ] * half_inv_cos_a );
 	// Get sphere center
 	sl_bcenter( &sphere_center, &sphere_aabb );
 
@@ -368,8 +364,8 @@ void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_entity *qu
 		quad_closest.y = sphere_center.y;
 	}
 	// Find normal
-	sl_vsub( &normal, &sphere_center, &quad_closest );
-	sl_vnormalize( &nnormal, &normal );
+	normal = vsub2( sphere_center, quad_closest );
+	nnormal = vnormalize2( normal );
 
 	// Find radius at normal.
 	sin_n = ( float )sin( nnormal.x );
@@ -377,76 +373,76 @@ void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_entity *qu
 	radius_n = ( float )sqrt( cos_n * cos_n * sphere_radius.x + sin_n * sin_n * sphere_radius.y );
 
 	// Intersection time it radius - length of normal / combined_velocities
-	sl_vadd( &combined_vel, &quad->velocity, &sphere->velocity );
-	t = radius_n * sl_vnorm( &normal ) / sl_vnorm( &combined_vel );
+	combined_vel = vadd2( quad->velocity, sphere->velocity );
+	t = radius_n * vnorm2( normal ) / vnorm2( combined_vel );
 
 	// Check that the intersection was this frame.
 	if( 0.0f < t && t <= time_frame_delta )
 	{
 		// Store the old velocities
-		sl_vcopy( &old_vel_q, &quad->velocity );
-		sl_vcopy( &old_vel_s, &sphere->velocity );
+		old_vel_q.x =  quad->velocity.x;
+		old_vel_q.y =  quad->velocity.y;
+		old_vel_s.x = sphere->velocity.x;
+		old_vel_s.y = sphere->velocity.y;
 
 		// Reflect the velocity vectors
 		// Q_new = -2*(Q_old dot N)*N + Q_old
-		vdotn = sl_vdot( &quad->velocity, &nnormal );
-		sl_vmuls( &n2,  &nnormal,  2.0f * vdotn );
-		sl_vadd( &quad->velocity, &n2, &quad->velocity );
+		vdotn = vdot2( quad->velocity, nnormal );
+		n2 = vmuls2( nnormal,  2.0f * vdotn );
+		quad->velocity = vadd2( n2, quad->velocity );
 		// S_new = 2*(S_old dot N)*N + S_old
-		vdotn = sl_vdot( &sphere->velocity, &nnormal );
-		sl_vmuls( &n2m, &nnormal, -2.0f * vdotn );
-		sl_vadd( &sphere->velocity, &n2m, &sphere->velocity );
+		vdotn = vdot2( sphere->velocity, nnormal );
+		n2m = vmuls2( nnormal, -2.0f * vdotn );
+		sphere->velocity = vadd2( n2m, sphere->velocity );
 
 		// Correct for the over-move
-		sl_vmuls( &old_vel_q, &old_vel_q, t );
-		sl_vadd( &quad->pos, &quad->pos, &old_vel_q );
-		sl_vmuls( &old_vel_s, &old_vel_s, t );
-		sl_vadd( &sphere->pos, &sphere->pos, &old_vel_s );
+		old_vel_q = vmuls2( old_vel_q, t );
+		quad->pos = vadd2( quad->pos, old_vel_q );
+		old_vel_s = vmuls2( old_vel_s, t );
+		sphere->pos = vadd2( sphere->pos, old_vel_s );
 
 		// Move along the new direction
-		sl_vmuls( &old_vel_q, &quad->velocity, t );
-		sl_vadd( &quad->pos, &quad->pos, &old_vel_q );
-		sl_vmuls( &old_vel_s, &sphere->velocity, t );
-		sl_vadd( &sphere->pos, &sphere->pos, &old_vel_s );
+		old_vel_q = vmuls2( quad->velocity, t );
+		quad->pos = vadd2( quad->pos, old_vel_q );
+		old_vel_s = vmuls2( sphere->velocity, t );
+		sphere->pos = vadd2( sphere->pos, old_vel_s );
 	}
 }
 
 void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta )
 {
-	sl_vec center_a, radius_a, center_b, radius_b;	// Shpere properties
+	v2 center_a, radius_a, center_b, radius_b;	// Shpere properties
 	sl_box aabb_a, aabb_b;							// AABBs
 	float angle_a, half_inv_cos_a;					// Rotation-temporaries we need to calculate scale/radius
 	float angle_b, half_inv_cos_b;					// Rotation-temporaries we need to calculate scale/radius
-	sl_vec normal, nnormal;							// Direction of collission normal, absolute and normalized.
+	v2 normal, nnormal;							// Direction of collission normal, absolute and normalized.
 	float radius_n_a, radius_n_b, cos_n, sin_n;		// Radius at the normal & temps
 	float t;										// Intersection point
-	sl_vec combined_vel;							// The combined velocity, i.e velocity relative to each other.
-	sl_vec n2, n2m;									// Temporaries used
+	v2 combined_vel;							// The combined velocity, i.e velocity relative to each other.
+	v2 n2, n2m;									// Temporaries used
 	float vdotn;									// to calculate reflection.
-	sl_vec old_vel_a, old_vel_b;					// Store old velocities
+	v2 old_vel_a, old_vel_b;					// Store old velocities
 	
 	// Get aabbs
 	sl_entity_aabb( &aabb_a, a->entity );
 	sl_entity_aabb( &aabb_b, b->entity );
 
 	// Get sphere radius
-	angle_a = ( float )asin( a->entity->world_matrix.data[ 1 ] );
+	angle_a = ( float )asin( a->entity->world_matrix.A[ 1 ] );
 	half_inv_cos_a = 1.0f / ( ( float )cos( angle_a ) * 2.0f );
-	sl_vset( &radius_a,
-			 a->entity->world_matrix.data[ 0 ] * half_inv_cos_a,
-			 a->entity->world_matrix.data[ 5 ] * half_inv_cos_a );
-	angle_b = ( float )asin( b->entity->world_matrix.data[ 1 ] );
+	radius_a = vec2( a->entity->world_matrix.A[ 0 ] * half_inv_cos_a,
+					 a->entity->world_matrix.A[ 5 ] * half_inv_cos_a );
+	angle_b = ( float )asin( b->entity->world_matrix.A[ 1 ] );
 	half_inv_cos_b = 1.0f / ( ( float )cos( angle_b ) * 2.0f );
-	sl_vset( &radius_b,
-			 b->entity->world_matrix.data[ 0 ] * half_inv_cos_b,
-			 b->entity->world_matrix.data[ 5 ] * half_inv_cos_b );
+	radius_b = vec2( b->entity->world_matrix.A[ 0 ] * half_inv_cos_b,
+					 b->entity->world_matrix.A[ 5 ] * half_inv_cos_b );
 	// Get sphere center
-	sl_bcenter( &center_b, &aabb_b );
+	sl_bcenter( &center_a, &aabb_a );
 	sl_bcenter( &center_b, &aabb_b );
 
 	// Find normal
-	sl_vsub( &normal, &center_b, &center_a );
-	sl_vnormalize( &nnormal, &normal );
+	normal = vsub2( center_b, center_a );
+	nnormal = vnormalize2( normal );
 
 	// Find radius at normal.
 	sin_n = ( float )sin( nnormal.x );
@@ -455,36 +451,38 @@ void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_entity *
 	radius_n_b = ( float )sqrt( cos_n * cos_n * radius_b.x + sin_n * sin_n * radius_b.y );
 
 	// Intersection time it radius - length of normal / combined_velocities
-	sl_vadd( &combined_vel, &a->velocity, &b->velocity );
-	t = radius_n_a * sl_vnorm( &normal ) / sl_vnorm( &combined_vel );
+	combined_vel = vadd2( a->velocity, b->velocity );
+	t = radius_n_a * vnorm2( normal ) / vnorm2( combined_vel );
 
 	// Check that the intersection was this frame.
 	if( 0.0f < t && t <= time_frame_delta )
 	{
 		// Store the old velocities
-		sl_vcopy( &old_vel_a, &a->velocity );
-		sl_vcopy( &old_vel_b, &b->velocity );
+		old_vel_a.x = a->velocity.x;
+		old_vel_a.y = a->velocity.y;
+		old_vel_b.x = b->velocity.x;
+		old_vel_b.y = b->velocity.y;
 
 		// Reflect the velocity vectors
 		// Q_new = -2*(Q_old dot N)*N + Q_old
-		vdotn = sl_vdot( &a->velocity, &nnormal );
-		sl_vmuls( &n2,  &nnormal,  2.0f * vdotn );
-		sl_vadd( &a->velocity, &n2, &a->velocity );
+		vdotn = vdot2( a->velocity, nnormal );
+		n2 = vmuls2( nnormal,  2.0f * vdotn );
+		a->velocity = vadd2( n2, a->velocity );
 		// S_new = 2*(S_old dot N)*N + S_old
-		vdotn = sl_vdot( &b->velocity, &nnormal );
-		sl_vmuls( &n2m, &nnormal, -2.0f * vdotn );
-		sl_vadd( &b->velocity, &n2m, &b->velocity );
+		vdotn = vdot2( b->velocity, nnormal );
+		n2m = vmuls2( nnormal, -2.0f * vdotn );
+		b->velocity = vadd2( n2m, b->velocity );
 
 		// Correct for the over-move
-		sl_vmuls( &old_vel_a, &old_vel_a, t );
-		sl_vadd( &a->pos, &a->pos, &old_vel_a );
-		sl_vmuls( &old_vel_b, &old_vel_b, t );
-		sl_vadd( &b->pos, &b->pos, &old_vel_b );
+		old_vel_a = vmuls2( old_vel_a, t );
+		a->pos = vadd2( a->pos, old_vel_a );
+		old_vel_b = vmuls2( old_vel_b, t );
+		b->pos = vadd2( b->pos, old_vel_b );
 
 		// Move along the new direction
-		sl_vmuls( &old_vel_a, &a->velocity, t );
-		sl_vadd( &a->pos, &a->pos, &old_vel_a );
-		sl_vmuls( &old_vel_b, &b->velocity, t );
-		sl_vadd( &b->pos, &b->pos, &old_vel_b );
+		old_vel_a = vmuls2( a->velocity, t );
+		a->pos = vadd2( a->pos, old_vel_a );
+		old_vel_b = vmuls2( b->velocity, t );
+		b->pos = vadd2( b->pos, old_vel_b );
 	}
 }

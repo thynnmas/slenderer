@@ -521,13 +521,13 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 }
 
 #ifdef SL_LEGACY_OPENGL
-void sl_renderer_draw_legacy_quad( sl_vec *camera_offset, sl_renderable *rend, sl_entity *quad )
+void sl_renderer_draw_legacy_quad( v2 *camera_offset, sl_renderable *rend, sl_entity *quad )
 {
-	sl_mat4 mat;
+	m44 mat;
 	sl_box uvs;
 	f32_t tmp;
 	ui32_t i;
-	sl_vec vert, texc;
+	v2 vert, texc;
 
 	// Calculate offset into matrix
 	sl_mcopy4( &mat, &quad->world_matrix );

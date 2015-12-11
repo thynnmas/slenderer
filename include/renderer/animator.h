@@ -18,8 +18,7 @@
 #ifndef SLENDERER_ANIMATOR_H
 #define SLENDERER_ANIMATOR_H
 
-#include "math/mat.h"
-#include "math/vec.h"
+#include "vul_cmath.h"
 #include "renderer/scene.h"
 #include "renderer/entity.h"
 
@@ -54,8 +53,8 @@ typedef struct {
 	unsigned int entity_id;
 	unsigned long long start_time;
 	unsigned long long end_time;
-	sl_mat4 start_world_mat;
-	sl_mat4 end_world_mat;
+	m44 start_world_mat;
+	m44 end_world_mat;
 	sl_animation_state state;
 	// @TODO: Add interpolation-type enum, "linear", "quadratic_Accel", "quadratic_decel" etc.
 } sl_animation_transform;
@@ -101,7 +100,7 @@ void sl_animator_destroy( sl_animator *animator );
  * State must be either SL_ANIMATION_RUNNING, SL_ANIMATION_RUNNING_LOOPED or 
  * SL_ANIMATION_RUNNING_PERIODIC.
  */
-unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int entity_id, const sl_mat4 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state );
+unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int entity_id, const m44 *end_world_matrix, unsigned long long length_in_ms, sl_animation_state state );
 
 /**
  * Adds a new sprite animation. Returns the unique animation id.

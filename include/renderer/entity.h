@@ -18,16 +18,15 @@
 #define SLENDERER_ENTITY_H
 
 #include <vul_types.h>
-#include "math/vec.h"
 #include "math/box.h"
-#include "math/mat.h"
+#include "vul_cmath.h"
 #include "renderer/program.h"
 
 typedef struct {
 	unsigned int entity_id;
-	sl_mat4 world_matrix;
+	m44 world_matrix;
 	sl_box uvs;
-	sl_bvec flip_uvs;
+	v2 flip_uvs;
 	unsigned int texture_id;
 	unsigned int program_id;
 	unsigned int renderable_id;
@@ -43,7 +42,7 @@ void sl_entity_aabb( sl_box *result, const sl_entity *q );
 /**
  * Calculate the world matrix of a quad.
  */
-void sl_entity_create_world_matrix( sl_entity *result, const sl_vec *center, const sl_vec *scale, const float rotation );
+void sl_entity_create_world_matrix( sl_entity *result, const v2 *center, const v2 *scale, const float rotation );
 
 /**
  * Used to sort quads internally in layers, this first compares
@@ -55,6 +54,6 @@ int sl_entity_sort( const void *a, const void *b );
  * Bind the quad's parameters to the rendering program. This means we upload
  * MVP matrix, color and texture coordinate scales and offsets.
  */
-void sl_entity_bind( sl_entity *entity, sl_vec *camera_offset, sl_program *prog );
+void sl_entity_bind( sl_entity *entity, v2 *camera_offset, sl_program *prog );
 
 #endif

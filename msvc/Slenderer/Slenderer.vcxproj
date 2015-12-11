@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Emscripten">
       <Configuration>Debug</Configuration>
@@ -36,39 +36,39 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -96,7 +96,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>F:\Code\C\Frameworks\glfw\include;F:\Code\C\Frameworks\glew\include;F:\Code\C\Frameworks\portaudio\include;$(IncludePath)</IncludePath>
+    <IncludePath>F:\Code\C\Libs\glfw\SDK\include;F:\Code\C\Libs\glew\include;F:\Code\C\Libs\portaudio\include;$(IncludePath)</IncludePath>
     <OutDir>..\..\lib\</OutDir>
     <TargetName>slenderer_x86_d</TargetName>
   </PropertyGroup>
@@ -267,8 +267,6 @@
     <ClCompile Include="..\..\src\dependancies\stb_vorbis.c" />
     <ClCompile Include="..\..\src\input\controller.c" />
     <ClCompile Include="..\..\src\math\box.c" />
-    <ClCompile Include="..\..\src\math\mat.c" />
-    <ClCompile Include="..\..\src\math\vec.c" />
     <ClCompile Include="..\..\src\physics\simulator.c" />
     <ClCompile Include="..\..\src\renderer\animator.c" />
     <ClCompile Include="..\..\src\renderer\program.c" />
@@ -283,8 +281,6 @@
     <ClInclude Include="..\..\include\audio\aurator.h" />
     <ClInclude Include="..\..\include\input\controller.h" />
     <ClInclude Include="..\..\include\math\box.h" />
-    <ClInclude Include="..\..\include\math\mat.h" />
-    <ClInclude Include="..\..\include\math\vec.h" />
     <ClInclude Include="..\..\include\physics\simulator.h" />
     <ClInclude Include="..\..\include\renderer\animator.h" />
     <ClInclude Include="..\..\include\renderer\program.h" />

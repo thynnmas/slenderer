@@ -45,17 +45,17 @@ void sl_renderable_create_quad( sl_renderable *ren, sl_box *uvs )
 	ren->vertex_count = 4;
 
 	// Create our vertices
-	sl_vset( &vertices[ 0 ].position,  -1.0f, -1.0f );
-	sl_vset( &vertices[ 0 ].texcoords,  uvs->min_p.x,  uvs->min_p.y );
+	vertices[ 0 ].position = vec2( -1.0f, -1.0f );
+	vertices[ 0 ].texcoords = vec2( uvs->min_p.x,  uvs->min_p.y );
 
-	sl_vset( &vertices[ 1 ].position,   1.0f, -1.0f );
-	sl_vset( &vertices[ 1 ].texcoords,  uvs->max_p.x,  uvs->min_p.y );
+	vertices[ 1 ].position = vec2( 1.0f, -1.0f );
+	vertices[ 1 ].texcoords = vec2( uvs->max_p.x,  uvs->min_p.y );
 
-	sl_vset( &vertices[ 2 ].position,   1.0f,  1.0f );
-	sl_vset( &vertices[ 2 ].texcoords,  uvs->max_p.x,  uvs->max_p.y );
+	vertices[ 2 ].position = vec2( 1.0f,  1.0f );
+	vertices[ 2 ].texcoords = vec2( uvs->max_p.x,  uvs->max_p.y );
 
-	sl_vset( &vertices[ 3 ].position,  -1.0f,  1.0f );
-	sl_vset( &vertices[ 3 ].texcoords,  uvs->min_p.x,  uvs->max_p.y );
+	vertices[ 3 ].position = vec2( -1.0f,  1.0f );
+	vertices[ 3 ].texcoords = vec2( uvs->min_p.x,  uvs->max_p.y );
 
 	// Create the triangles
 	triangles[ 0 ] = 0;
@@ -97,7 +97,7 @@ void sl_renderable_create_quad( sl_renderable *ren, sl_box *uvs )
 
 void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb )
 {
-	sl_vec center, extent;
+	v2 center, extent;
 #ifdef SL_LEGACY_OPENGL
 	sl_bcenter( &center, uv_aabb );
 	sl_bextent( &extent, uv_aabb );
@@ -131,8 +131,8 @@ void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb )
 	// Create our vertices
 	sl_bcenter( &center, uv_aabb );
 	sl_bextent( &extent, uv_aabb );
-	sl_vset( &vertices[ 0 ].position, 0.0f, 0.0f );
-	sl_vset( &vertices[ 0 ].texcoords, center.x, center.y );
+	vertices[ 0 ].position = vec2( 0.0f, 0.0f );
+	vertices[ 0 ].texcoords = vec2( center.x, center.y );
 
 	for( int i = 0; i < 6; ++i ) {
 		f32_t ang = ( M_PI / 3.0f ) * i + ( M_PI / 6.0f );
@@ -140,8 +140,8 @@ void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb )
 			  py = sinf( ang );
 		f32_t uvx = center.x + extent.x * px * 0.5f,
 			  uvy = center.y + extent.y * py * 0.5f;
-		sl_vset( &vertices[ 1 + i ].position, px, py );
-		sl_vset( &vertices[ 1 + i ].texcoords, uvx, uvy );
+		vertices[ 1 + i ].position = vec2( px, py );
+		vertices[ 1 + i ].texcoords = vec2( uvx, uvy );
 	}
 
 	// Create the triangles
@@ -183,7 +183,7 @@ void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb )
 
 void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb )
 {
-	sl_vec center, extent;
+	v2 center, extent;
 #ifdef SL_LEGACY_OPENGL
 	sl_bcenter( &center, uv_aabb );
 	sl_bextent( &extent, uv_aabb );
@@ -217,8 +217,8 @@ void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb )
 	// Create our vertices
 	sl_bcenter( &center, uv_aabb );
 	sl_bextent( &extent, uv_aabb );
-	sl_vset( &vertices[ 0 ].position, 0.0f, 0.0f );
-	sl_vset( &vertices[ 0 ].texcoords, center.x, center.y );
+	vertices[ 0 ].position = vec2( 0.0f, 0.0f );
+	vertices[ 0 ].texcoords = vec2( center.x, center.y );
 
 	for( int i = 0; i < 6; ++i ) {
 		f32_t ang = ( M_PI / 3.0f ) * i;
@@ -226,8 +226,8 @@ void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb )
 			  py = sinf( ang );
 		f32_t uvx = center.x + extent.x * px * 0.5f,
 			  uvy = center.y + extent.y * py * 0.5f;
-		sl_vset( &vertices[ 1 + i ].position, px, py );
-		sl_vset( &vertices[ 1 + i ].texcoords, uvx, uvy );
+		vertices[ 1 + i ].position = vec2( px, py );
+		vertices[ 1 + i ].texcoords = vec2( uvx, uvy );
 	}
 
 	// Create the triangles
