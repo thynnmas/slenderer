@@ -65,15 +65,15 @@ void sl_controller_destroy( )
 
 void sl_controller_add_mouse_enter_exit_callback( GLFWwindow* win_handle, SL_MOUSE_ENTER_EXIT_CALLBACK( callback ) )
 {
-	vul_hash_map_element_t *e, element;
-	vul_list_element_t *le;
+	vul_hash_map_element *e, element;
+	vul_list_element *le;
 
 #ifdef SL_DEBUG
 	assert( sl_controller_global != NULL );
 #endif
 
 	// Check if this key is already in our map
-	e = vul_map_get( sl_controller_global->mouse_enter_exit_callbacks, ( ui8_t* )&win_handle, sizeof( GLFWwindow* ) );
+	e = vul_map_get( sl_controller_global->mouse_enter_exit_callbacks, ( u8* )&win_handle, sizeof( GLFWwindow* ) );
 	if( e != NULL ) {
 		e->data = callback;
 	} else {
@@ -83,7 +83,7 @@ void sl_controller_add_mouse_enter_exit_callback( GLFWwindow* win_handle, SL_MOU
 		// Create the element
 		element.data = callback;
 		element.data_size = sizeof( callback );
-		element.key = ( ui8_t* )le->data;
+		element.key = ( u8* )le->data;
 		element.key_size = sizeof( win_handle );
 
 		// Insert it
@@ -103,15 +103,15 @@ void sl_controller_register_window( sl_window *win )
 
 void sl_controller_add_key_press_callback( int key, SL_KEY_PRESSED( callback ) )
 {
-	vul_hash_map_element_t *e, element;
-	vul_list_element_t *le;
+	vul_hash_map_element *e, element;
+	vul_list_element *le;
 
 #ifdef SL_DEBUG
 	assert( sl_controller_global != NULL );
 #endif
 
 	// Check if this key is already in our map
-	e = vul_map_get( sl_controller_global->key_pressed_callbacks, ( ui8_t* )&key, sizeof( int ) );
+	e = vul_map_get( sl_controller_global->key_pressed_callbacks, ( u8* )&key, sizeof( int ) );
 	if( e != NULL ) {
 		e->data = callback;
 	} else {
@@ -121,7 +121,7 @@ void sl_controller_add_key_press_callback( int key, SL_KEY_PRESSED( callback ) )
 		// Create the element
 		element.data = callback;
 		element.data_size = sizeof( callback );
-		element.key = ( ui8_t* )le->data;
+		element.key = ( u8* )le->data;
 		element.key_size = sizeof( key );
 
 		// Insert it
@@ -131,15 +131,15 @@ void sl_controller_add_key_press_callback( int key, SL_KEY_PRESSED( callback ) )
 
 void sl_controller_add_key_release_callback( int key, SL_KEY_RELEASED( callback ) )
 {
-	vul_hash_map_element_t *e, element;
-	vul_list_element_t *le;
+	vul_hash_map_element *e, element;
+	vul_list_element *le;
 
 #ifdef SL_DEBUG
 	assert( sl_controller_global != NULL );
 #endif
 
 	// Check if this key is already in our map
-	e = vul_map_get( sl_controller_global->key_released_callbacks, ( ui8_t* )&key, sizeof( int ) );
+	e = vul_map_get( sl_controller_global->key_released_callbacks, ( u8* )&key, sizeof( int ) );
 	if( e != NULL ) {
 		e->data = callback;
 	} else {
@@ -149,7 +149,7 @@ void sl_controller_add_key_release_callback( int key, SL_KEY_RELEASED( callback 
 		// Create the element
 		element.data = callback;
 		element.data_size = sizeof( callback );
-		element.key = ( ui8_t* )le->data;
+		element.key = ( u8* )le->data;
 		element.key_size = sizeof( key );
 
 		// Insert it
@@ -159,15 +159,15 @@ void sl_controller_add_key_release_callback( int key, SL_KEY_RELEASED( callback 
 
 void sl_controller_add_key_repeat_callback( int key, SL_KEY_REPEAT( callback ) )
 {
-	vul_hash_map_element_t *e, element;
-	vul_list_element_t *le;
+	vul_hash_map_element *e, element;
+	vul_list_element *le;
 
 #ifdef SL_DEBUG
 	assert( sl_controller_global != NULL );
 #endif
 
 	// Check if this key is already in our map
-	e = vul_map_get( sl_controller_global->key_repeat_callbacks, ( ui8_t* )&key, sizeof( int ) );
+	e = vul_map_get( sl_controller_global->key_repeat_callbacks, ( u8* )&key, sizeof( int ) );
 	if( e != NULL ) {
 		e->data = callback;
 	} else {
@@ -177,7 +177,7 @@ void sl_controller_add_key_repeat_callback( int key, SL_KEY_REPEAT( callback ) )
 		// Create the element
 		element.data = callback;
 		element.data_size = sizeof( callback );
-		element.key = ( ui8_t* )le->data;
+		element.key = ( u8* )le->data;
 		element.key_size = sizeof( key );
 
 		// Insert it
@@ -187,8 +187,8 @@ void sl_controller_add_key_repeat_callback( int key, SL_KEY_REPEAT( callback ) )
 
 void sl_controller_add_mouse_down_callback( unsigned int scene_id, unsigned int entity_id, SL_MOUSE_DOWN_CALLBACK( callback ) )
 {
-	vul_hash_map_element_t *e, element;
-	vul_list_element_t *le;
+	vul_hash_map_element *e, element;
+	vul_list_element *le;
 	unsigned int pair[ 2 ];
 
 #ifdef SL_DEBUG
@@ -198,7 +198,7 @@ void sl_controller_add_mouse_down_callback( unsigned int scene_id, unsigned int 
 	// Check if this key is already in our map
 	pair[ 0 ] = scene_id;
 	pair[ 1 ] = entity_id;
-	e = vul_map_get( sl_controller_global->mouse_down_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+	e = vul_map_get( sl_controller_global->mouse_down_callbacks, ( u8* )pair, sizeof( unsigned int ) * 2 );
 	if( e != NULL ) {
 		e->data = callback;
 	} else {
@@ -208,7 +208,7 @@ void sl_controller_add_mouse_down_callback( unsigned int scene_id, unsigned int 
 		// Create the element
 		element.data = callback;
 		element.data_size = sizeof( callback );
-		element.key = ( ui8_t* )le->data;
+		element.key = ( u8* )le->data;
 		element.key_size = sizeof( unsigned int ) * 2;
 
 		// Insert it
@@ -218,8 +218,8 @@ void sl_controller_add_mouse_down_callback( unsigned int scene_id, unsigned int 
 
 void sl_controller_add_mouse_up_callback( unsigned int scene_id, unsigned int entity_id, SL_MOUSE_UP_CALLBACK( callback ) )
 {
-	vul_hash_map_element_t *e, element;
-	vul_list_element_t *le;
+	vul_hash_map_element *e, element;
+	vul_list_element *le;
 	unsigned int pair[ 2 ];
 
 #ifdef SL_DEBUG
@@ -229,7 +229,7 @@ void sl_controller_add_mouse_up_callback( unsigned int scene_id, unsigned int en
 	// Check if this key is already in our map
 	pair[ 0 ] = scene_id;
 	pair[ 1 ] = entity_id;
-	e = vul_map_get( sl_controller_global->mouse_up_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+	e = vul_map_get( sl_controller_global->mouse_up_callbacks, ( u8* )pair, sizeof( unsigned int ) * 2 );
 	if( e != NULL ) {
 		e->data = callback;
 	} else {
@@ -239,7 +239,7 @@ void sl_controller_add_mouse_up_callback( unsigned int scene_id, unsigned int en
 		// Create the element
 		element.data = callback;
 		element.data_size = sizeof( callback );
-		element.key = ( ui8_t* )le->data;
+		element.key = ( u8* )le->data;
 		element.key_size = sizeof( unsigned int ) * 2;
 
 		// Insert it
@@ -249,8 +249,8 @@ void sl_controller_add_mouse_up_callback( unsigned int scene_id, unsigned int en
 
 void sl_controller_add_mouse_over_callback( unsigned int scene_id, unsigned int entity_id, SL_MOUSE_OVER_CALLBACK( callback ) )
 {
-	vul_hash_map_element_t *e, element;
-	vul_list_element_t *le;
+	vul_hash_map_element *e, element;
+	vul_list_element *le;
 	unsigned int pair[ 2 ];
 
 #ifdef SL_DEBUG
@@ -260,7 +260,7 @@ void sl_controller_add_mouse_over_callback( unsigned int scene_id, unsigned int 
 	// Check if this key is already in our map
 	pair[ 0 ] = scene_id;
 	pair[ 1 ] = entity_id;
-	e = vul_map_get( sl_controller_global->mouse_over_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+	e = vul_map_get( sl_controller_global->mouse_over_callbacks, ( u8* )pair, sizeof( unsigned int ) * 2 );
 	if( e != NULL ) {
 		e->data = callback;
 	} else {
@@ -270,7 +270,7 @@ void sl_controller_add_mouse_over_callback( unsigned int scene_id, unsigned int 
 		// Create the element
 		element.data = callback;
 		element.data_size = sizeof( callback );
-		element.key = ( ui8_t* )le->data;
+		element.key = ( u8* )le->data;
 		element.key_size = sizeof( unsigned int ) * 2;
 
 		// Insert it
@@ -280,8 +280,8 @@ void sl_controller_add_mouse_over_callback( unsigned int scene_id, unsigned int 
 
 void sl_controller_add_mouse_out_callback( unsigned int scene_id, unsigned int entity_id, SL_MOUSE_OUT_CALLBACK( callback ) )
 {
-	vul_hash_map_element_t *e, element;
-	vul_list_element_t *le;
+	vul_hash_map_element *e, element;
+	vul_list_element *le;
 	unsigned int pair[ 2 ];
 
 #ifdef SL_DEBUG
@@ -291,7 +291,7 @@ void sl_controller_add_mouse_out_callback( unsigned int scene_id, unsigned int e
 	// Check if this key is already in our map
 	pair[ 0 ] = scene_id;
 	pair[ 1 ] = entity_id;
-	e = vul_map_get( sl_controller_global->mouse_out_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+	e = vul_map_get( sl_controller_global->mouse_out_callbacks, ( u8* )pair, sizeof( unsigned int ) * 2 );
 	if( e != NULL ) {
 		e->data = callback;
 	} else {
@@ -301,7 +301,7 @@ void sl_controller_add_mouse_out_callback( unsigned int scene_id, unsigned int e
 		// Create the element
 		element.data = callback;
 		element.data_size = sizeof( callback );
-		element.key = ( ui8_t* )le->data;
+		element.key = ( u8* )le->data;
 		element.key_size = sizeof( unsigned int ) * 2;
 
 		// Insert it
@@ -309,86 +309,86 @@ void sl_controller_add_mouse_out_callback( unsigned int scene_id, unsigned int e
 	}
 }
 
-ui32_t sl_controller_hash_func( const ui8_t* data, ui32_t len )
+u32 sl_controller_hash_func( const u8* data, u32 len )
 {
 #ifdef SL_DEBUG
 	assert( len == sizeof( unsigned int ) );
 #endif
 
-	return *( ui32_t* )data;
+	return *( u32* )data;
 }
 
-ui32_t sl_controller_hash_func_pair( const ui8_t* data, ui32_t len )
+u32 sl_controller_hash_func_pair( const u8* data, u32 len )
 {
 #ifdef SL_DEBUG
 	assert( len == sizeof( unsigned int ) * 2 );
 #endif
 
-	return ( ( ( ui32_t* )data )[ 0 ] << 16 ) + ( ( ui32_t* )data )[ 1 ];
+	return ( ( ( u32* )data )[ 0 ] << 16 ) + ( ( u32* )data )[ 1 ];
 }
 
 int sl_controller_compare_func_raw( void *a, void *b )
 {
-	ui32_t *ea, *eb;
+	u32 *ea, *eb;
 
-	ea = ( ui32_t* )a;
-	eb = ( ui32_t* )b;
+	ea = ( u32* )a;
+	eb = ( u32* )b;
 
-	return ( i32_t )( ( i64_t )ea - ( i64_t )eb );
+	return ( s32 )( ( s64 )ea - ( s64 )eb );
 }
 
 int sl_controller_compare_func_raw_pair( void *a, void *b )
 {
-	ui32_t *ea, *eb;
+	u32 *ea, *eb;
 	int d;
 
-	ea = ( ui32_t* )a;
-	eb = ( ui32_t* )b;
+	ea = ( u32* )a;
+	eb = ( u32* )b;
 
-	d = ( i32_t )( ( i64_t )ea[ 0 ] - ( i64_t )eb[ 0 ] );
+	d = ( s32 )( ( s64 )ea[ 0 ] - ( s64 )eb[ 0 ] );
 	if( d != 0 ) {
 		return d;
 	}
 
-	return ( i32_t )( ( i64_t )ea[ 1 ] - ( i64_t )eb[ 1 ] );
+	return ( s32 )( ( s64 )ea[ 1 ] - ( s64 )eb[ 1 ] );
 }
 
 int sl_controller_compare_func( void *a, void *b )
 {
-	vul_hash_map_element_t *ea, *eb;
+	vul_hash_map_element *ea, *eb;
 
-	ea = ( vul_hash_map_element_t* )a;
-	eb = ( vul_hash_map_element_t* )b;
+	ea = ( vul_hash_map_element* )a;
+	eb = ( vul_hash_map_element* )b;
 
-	return ( i32_t )( ( i64_t )*( ui32_t* )ea->key - ( i64_t )*( ui32_t* )eb->key );
+	return ( s32 )( ( s64 )*( u32* )ea->key - ( s64 )*( u32* )eb->key );
 }
 
 int sl_controller_compare_func_pair( void *a, void *b )
 {
-	vul_hash_map_element_t *ea, *eb;
+	vul_hash_map_element *ea, *eb;
 	int d;
 
-	ea = ( vul_hash_map_element_t* )a;
-	eb = ( vul_hash_map_element_t* )b;
+	ea = ( vul_hash_map_element* )a;
+	eb = ( vul_hash_map_element* )b;
 
-	d = ( i32_t )( ( i64_t )( ( ui32_t* )ea->key )[ 0 ] - ( i64_t )( ( ui32_t* )eb->key )[ 0 ] );
+	d = ( s32 )( ( s64 )( ( u32* )ea->key )[ 0 ] - ( s64 )( ( u32* )eb->key )[ 0 ] );
 	if( d != 0 ) {
 		return d;
 	}
 
-	return ( i32_t )( ( i64_t )( ( ui32_t* )ea->key )[ 1 ] - ( i64_t )( ( ui32_t* )eb->key )[ 1 ] );
+	return ( s32 )( ( s64 )( ( u32* )ea->key )[ 1 ] - ( s64 )( ( u32* )eb->key )[ 1 ] );
 }
 
-ui32_t sl_controller_hash_ptr_func( const ui8_t* data, ui32_t len )
+u32 sl_controller_hash_ptr_func( const u8* data, u32 len )
 {
 #ifndef SL_DEBUG
-	ui32_t i, r;
+	u32 i, r;
 #endif
 
 	if( len == 4 ) {
-		return *( ui32_t* )( data );
+		return *( u32* )( data );
 	} else if ( len == 8 ) {
-		return ( ui32_t )( *( ui64_t* )( data ) );
+		return ( u32 )( *( u64* )( data ) );
 	}
 #ifdef SL_DEBUG
 	assert( 0 ); return 0;
@@ -396,7 +396,7 @@ ui32_t sl_controller_hash_ptr_func( const ui8_t* data, ui32_t len )
 	sl_print( 256, "Some really weird pointer size encountered: %d bytes", len );
 	r = 0;
 	for( i = 0; i < len; ++i ) {
-		r += ( ui32_t )data[ i ];
+		r += ( u32 )data[ i ];
 	}
 	return r;
 #endif
@@ -404,62 +404,62 @@ ui32_t sl_controller_hash_ptr_func( const ui8_t* data, ui32_t len )
 
 int sl_controller_compare_ptr_func( void *a, void *b )
 {
-	vul_hash_map_element_t *ea, *eb;
-	ui32_t ai, bi;
-	ui64_t al, bl;
+	vul_hash_map_element *ea, *eb;
+	u32 ai, bi;
+	u64 al, bl;
 
-	ea = ( vul_hash_map_element_t* )a;
-	eb = ( vul_hash_map_element_t* )b;
+	ea = ( vul_hash_map_element* )a;
+	eb = ( vul_hash_map_element* )b;
 
 	if( sizeof( GLFWwindow* ) == 4 ) {
-		ai = *( ui32_t* )ea->key;
-		bi = *( ui32_t* )eb->key;
+		ai = *( u32* )ea->key;
+		bi = *( u32* )eb->key;
 		return ( int )( ( long long )ai - ( long long )bi );
 	} else if ( sizeof( GLFWwindow* ) == 8 ) {
-		al = *( ui64_t* )ea->key;
-		bl = *( ui64_t* )eb->key;
-		return ( int )( ( i64_t )al - ( i64_t )bl );
+		al = *( u64* )ea->key;
+		bl = *( u64* )eb->key;
+		return ( int )( ( s64 )al - ( s64 )bl );
 	}
 #ifdef SL_DEBUG
 	assert( 0 );
 #else
 	sl_print( 256, "Some really weird pointer size encountered: %d bytes", sizeof( GLFWwindow* ) );
-	return *( ui8_t* )a == *( ui8_t* )b ? 0 : -1; // Don't care about order here
+	return *( u8* )a == *( u8* )b ? 0 : -1; // Don't care about order here
 #endif
 }
 
 int sl_controller_compare_ptr_func_raw( void *a, void *b )
 {
-	ui32_t ai, bi;
-	ui64_t al, bl;
+	u32 ai, bi;
+	u64 al, bl;
 	
 	if( sizeof( GLFWwindow* ) == 4 ) {
-		ai = *( ui32_t* )a;
-		bi = *( ui32_t* )b;
+		ai = *( u32* )a;
+		bi = *( u32* )b;
 		return ( int )( ( long long )ai - ( long long )bi );
 	} else if( sizeof( GLFWwindow* ) == 8 ) {
-		al = *( ui64_t* )a;
-		bl = *( ui64_t* )b;
-		return ( int )( ( i64_t )al - ( i64_t )bl );
+		al = *( u64* )a;
+		bl = *( u64* )b;
+		return ( int )( ( s64 )al - ( s64 )bl );
 	}
 #ifdef SL_DEBUG
 	assert( 0 );
 #else
 	sl_print( 256, "Some really weird pointer size encountered: %d bytes", sizeof( GLFWwindow* ) );
-	return *( ui8_t* )a == *( ui8_t* )b ? 0 : -1; // Don't care about order here
+	return *( u8* )a == *( u8* )b ? 0 : -1; // Don't care about order here
 #endif
 }
 
 // Callback functions registered with glfw. These call the controller's equivalent functions.
 void sl_controller_glfw_mouse_enter_exit_callback( GLFWwindow *win_handle, int state )
 {
-	const vul_hash_map_element_t *e;
+	const vul_hash_map_element *e;
 
 #ifdef SL_DEBUG
 	assert( sl_controller_global != NULL );
 #endif
 	
-	e = vul_map_get_const( sl_controller_global->mouse_enter_exit_callbacks, ( ui8_t * )&win_handle,sizeof( GLFWwindow* ) );
+	e = vul_map_get_const( sl_controller_global->mouse_enter_exit_callbacks, ( u8 * )&win_handle,sizeof( GLFWwindow* ) );
 
 	if( e != NULL ) {
 		( ( SL_MOUSE_ENTER_EXIT_PROTO )e->data )( win_handle, state == GL_TRUE ? SL_TRUE : SL_FALSE );
@@ -469,10 +469,10 @@ void sl_controller_glfw_mouse_enter_exit_callback( GLFWwindow *win_handle, int s
 void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, double y )
 {
 	sl_scene **its, **last_its, **its2, **last_its2;
-	vul_vector_t *over, *scenes;
+	vul_vector *over, *scenes;
 	unsigned int *it, *last_it, *it2, *last_it2, i, pair[ 2 ];
 	int found, deleted;
-	vul_hash_map_element_t *e;
+	vul_hash_map_element *e;
 	int ww, wh;
 	v2 scene_local_pos;
 
@@ -516,7 +516,7 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 						// Play mouse out iteration!
 						pair[ 0 ] = ( *its2 )->scene_id;
 						pair[ 1 ] = *it;
-						e = vul_map_get( sl_controller_global->mouse_out_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+						e = vul_map_get( sl_controller_global->mouse_out_callbacks, ( u8* )pair, sizeof( unsigned int ) * 2 );
 						if( e != NULL ) {
 							( ( SL_MOUSE_OUT_PROTO )e->data )( ( *its2 )->scene_id, *it );
 						}
@@ -556,7 +556,7 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 		{
 			pair[ 0 ] = ( *its )->scene_id;
 			pair[ 1 ] = *it;
-			e = vul_map_get( sl_controller_global->mouse_over_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+			e = vul_map_get( sl_controller_global->mouse_over_callbacks, ( u8* )pair, sizeof( unsigned int ) * 2 );
 			if( e != NULL ) {
 				( ( SL_MOUSE_OVER_PROTO )e->data )( ( *its )->scene_id, *it );
 			}
@@ -566,9 +566,9 @@ void sl_controller_glfw_mouse_pos_callback( GLFWwindow *win_handle, double x, do
 
 void sl_controller_glfw_mouse_button_callback( GLFWwindow *win_handle, int button, int action, int mods )
 {
-	const vul_hash_map_element_t *e;
+	const vul_hash_map_element *e;
 	sl_scene **its, **last_its;
-	vul_vector_t *over, *scenes;
+	vul_vector *over, *scenes;
 	unsigned int *it, *last_it, pair[ 2 ];
 	v2 scene_local_pos;
 
@@ -592,12 +592,12 @@ void sl_controller_glfw_mouse_button_callback( GLFWwindow *win_handle, int butto
 			pair[ 0 ] = ( *its )->scene_id;
 			pair[ 1 ] = *it;
 			if( action == GLFW_PRESS ) {
-				e = vul_map_get_const( sl_controller_global->mouse_down_callbacks, ( ui8_t * )pair, sizeof( unsigned int ) * 2 );
+				e = vul_map_get_const( sl_controller_global->mouse_down_callbacks, ( u8 * )pair, sizeof( unsigned int ) * 2 );
 				if( e != NULL ) {
 					( ( SL_MOUSE_DOWN_PROTO )e->data )( ( *its )->scene_id, *it, button );
 				}
 			} else if( action == GLFW_RELEASE ) {
-				e = vul_map_get_const( sl_controller_global->mouse_up_callbacks, ( ui8_t * )pair, sizeof( unsigned int ) * 2 );
+				e = vul_map_get_const( sl_controller_global->mouse_up_callbacks, ( u8 * )pair, sizeof( unsigned int ) * 2 );
 				if( e != NULL ) {
 					( ( SL_MOUSE_UP_PROTO )e->data )( ( *its )->scene_id, *it, button );
 				}
@@ -608,12 +608,12 @@ void sl_controller_glfw_mouse_button_callback( GLFWwindow *win_handle, int butto
 		pair[ 0 ] = ( *its )->scene_id;
 		pair[ 1 ] = SL_CONTROLLER_UNIVERSAL;
 		if( action == GLFW_PRESS ) {
-			e = vul_map_get( sl_controller_global->mouse_down_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+			e = vul_map_get( sl_controller_global->mouse_down_callbacks, ( u8* )pair, sizeof( unsigned int ) * 2 );
 			if( e != NULL ) {
 				( ( SL_MOUSE_DOWN_PROTO )e->data )( ( *its )->scene_id, SL_CONTROLLER_UNIVERSAL, button );
 			}
 		} else if( action == GLFW_RELEASE ) {
-			e = vul_map_get( sl_controller_global->mouse_up_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+			e = vul_map_get( sl_controller_global->mouse_up_callbacks, ( u8* )pair, sizeof( unsigned int ) * 2 );
 			if( e != NULL ) {
 				( ( SL_MOUSE_UP_PROTO )e->data )( ( *its )->scene_id, SL_CONTROLLER_UNIVERSAL, button );
 			}
@@ -625,12 +625,12 @@ void sl_controller_glfw_mouse_button_callback( GLFWwindow *win_handle, int butto
 	pair[ 0 ] = SL_CONTROLLER_UNIVERSAL;
 	pair[ 1 ] = SL_CONTROLLER_UNIVERSAL;
 	if( action == GLFW_PRESS ) {
-		e = vul_map_get( sl_controller_global->mouse_down_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+		e = vul_map_get( sl_controller_global->mouse_down_callbacks, ( u8* )pair, sizeof( unsigned int ) * 2 );
 		if( e != NULL ) {
 			( ( SL_MOUSE_DOWN_PROTO )e->data )( SL_CONTROLLER_UNIVERSAL, SL_CONTROLLER_UNIVERSAL, button );
 		}
 	} else if( action == GLFW_RELEASE ) {
-		e = vul_map_get( sl_controller_global->mouse_up_callbacks, ( ui8_t* )pair, sizeof( unsigned int ) * 2 );
+		e = vul_map_get( sl_controller_global->mouse_up_callbacks, ( u8* )pair, sizeof( unsigned int ) * 2 );
 		if( e != NULL ) {
 			( ( SL_MOUSE_UP_PROTO )e->data )( SL_CONTROLLER_UNIVERSAL, SL_CONTROLLER_UNIVERSAL, button );
 		}
@@ -645,20 +645,20 @@ void sl_controller_glfw_mouse_wheel_callback( GLFWwindow *win_handle, double x, 
 
 void sl_controller_glfw_key_callback( GLFWwindow *win_handle, int key, int scancode, int action, int mods )
 {
-	vul_hash_map_element_t *e;
+	vul_hash_map_element *e;
 
 	if( action == GLFW_PRESS ) {
-		e = vul_map_get( sl_controller_global->key_pressed_callbacks, ( ui8_t* )&key, sizeof( int ) );
+		e = vul_map_get( sl_controller_global->key_pressed_callbacks, ( u8* )&key, sizeof( int ) );
 		if( e != NULL ) {
 			( ( SL_KEY_PRESSED_PROTO )e->data )( win_handle, key, scancode, mods );
 		}
 	} else if( action == GLFW_RELEASE ) {
-		e = vul_map_get( sl_controller_global->key_released_callbacks, ( ui8_t* )&key, sizeof( int ) );
+		e = vul_map_get( sl_controller_global->key_released_callbacks, ( u8* )&key, sizeof( int ) );
 		if( e != NULL ) {
 			( ( SL_KEY_RELEASED_PROTO )e->data )( win_handle, key, scancode, mods );
 		}
 	} else if( action == GLFW_REPEAT ) {
-		e = vul_map_get( sl_controller_global->key_repeat_callbacks, ( ui8_t* )&key, sizeof( int ) );
+		e = vul_map_get( sl_controller_global->key_repeat_callbacks, ( u8* )&key, sizeof( int ) );
 		if( e != NULL ) {
 			( ( SL_KEY_REPEAT_PROTO )e->data )( win_handle, key, scancode, mods );
 		}

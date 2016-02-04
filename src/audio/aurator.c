@@ -19,7 +19,7 @@
 
 static SL_BOOL sl_aurator_pa_intialized = SL_FALSE;
 
-void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_count, ui32_t sample_rate, ui32_t updates_per_second_guaranteed )
+void sl_aurator_create( sl_aurator *ret, u32 parent_scene, u32 channel_count, u32 sample_rate, u32 updates_per_second_guaranteed )
 {
 	PaError err;
 
@@ -47,14 +47,14 @@ void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_cou
 	// Timing, we wait at least half a frame before uploading the next one.
 	ret->clk = vul_timer_create( );
 	ret->last_time = vul_timer_get_millis( ret->clk );
-	ret->wait_time = ( ui64_t )( ( f64_t )500.0 / ( f64_t )updates_per_second_guaranteed );
+	ret->wait_time = ( u64 )( ( f64 )500.0 / ( f64 )updates_per_second_guaranteed );
 
 	// Internal buffer state
 	ret->data.sample_count = channel_count * ret->frames_per_buffer;
 	ret->data.sample_rate = sample_rate;
 	ret->data.channel_count = channel_count;
-	ret->data.samples = ( i32_t* )SL_ALLOC( sizeof( i32_t ) * ret->data.sample_count * channel_count );
-	memset( ret->data.samples, ( i32_t )0, sizeof( i32_t ) * ret->data.sample_count * channel_count );
+	ret->data.samples = ( s32* )SL_ALLOC( sizeof( s32 ) * ret->data.sample_count * channel_count );
+	memset( ret->data.samples, ( s32 )0, sizeof( s32 ) * ret->data.sample_count * channel_count );
 
 	// Finally create the portaudio stream
 	// @TODO: Make device selection possible.
@@ -128,7 +128,7 @@ void sl_aurator_finalize_system( )
 	}
 }
 
-ui32_t sl_aurator_allocate_clip( sl_aurator *aurator )
+u32 sl_aurator_allocate_clip( sl_aurator *aurator )
 {
 	sl_aurator_clip *clip;
 
@@ -142,7 +142,7 @@ ui32_t sl_aurator_allocate_clip( sl_aurator *aurator )
 	return clip->id;
 }
 
-ui32_t sl_aurator_add_clip( sl_aurator *aurator, ui32_t sample_count, i16_t *samples, SL_BOOL loop )
+u32 sl_aurator_add_clip( sl_aurator *aurator, u32 sample_count, s16 *samples, SL_BOOL loop )
 {
 	sl_aurator_clip *clip;
 
@@ -161,7 +161,7 @@ ui32_t sl_aurator_add_clip( sl_aurator *aurator, ui32_t sample_count, i16_t *sam
 /*
  * Returns the clip for a given id.
  */
-sl_aurator_clip *sl_aurator_get_clip( sl_aurator *aurator, ui32_t id )
+sl_aurator_clip *sl_aurator_get_clip( sl_aurator *aurator, u32 id )
 {
 	sl_aurator_clip *ci, *cil;
 
@@ -182,10 +182,10 @@ static SL_BOOL done = SL_FALSE;
 void sl_aurator_update( sl_aurator *aurator )
 {
 	sl_aurator_clip *ci, *cil;
-	ui32_t count, i, c;
-	i32_t expanded;
+	u32 count, i, c;
+	s32 expanded;
 	SL_BOOL deleted;
-	ui64_t now;
+	u64 now;
 
 	assert( aurator );
 	
@@ -198,7 +198,7 @@ void sl_aurator_update( sl_aurator *aurator )
 	// Clear our buffer before mixing
 	memset( aurator->data.samples,
 		    0,
-			sizeof( i32_t ) * aurator->frames_per_buffer * aurator->data.channel_count );
+			sizeof( s32 ) * aurator->frames_per_buffer * aurator->data.channel_count );
 	// Mix into it @TODO: We should probably mix into a higher accuracy than the samples are; use in32 f.e.,
 	// so we don't run into numerical accuracy issues; using int32 we can have 65k clips before we should have any isses
 	// with unneccesary clamping.
@@ -212,7 +212,7 @@ void sl_aurator_update( sl_aurator *aurator )
 		for( i = 0; i < count; ++i ) {
 			for( c = 0; c < aurator->data.channel_count; ++c ) {
 				aurator->data.samples[ i * aurator->data.channel_count + c ]
-					+= ( i32_t )ci->stream[ ci->sample_current + ( i * aurator->data.channel_count ) + c ];
+					+= ( s32 )ci->stream[ ci->sample_current + ( i * aurator->data.channel_count ) + c ];
 			}
 		}
 		ci->sample_current += count * aurator->data.channel_count;
@@ -257,7 +257,7 @@ void sl_aurator_update( sl_aurator *aurator )
 			} else {
 				expanded = aurator->data.samples[ i * aurator->data.channel_count + c ] * SHRT_MAX;
 			}
-			aurator->data.samples[ i * aurator->data.channel_count + c ] = ( i32_t )( ( f64_t )expanded * ( f64_t )aurator->volume );
+			aurator->data.samples[ i * aurator->data.channel_count + c ] = ( s32 )( ( f64 )expanded * ( f64 )aurator->volume );
 		}
 	}
 }
@@ -281,23 +281,23 @@ int sl_aurator_upload( const void *input, void *output,
 
 void sl_aurator_load_ogg( sl_aurator *aurator, sl_aurator_clip **clip, char *path )
 {
-	i32_t channel_count;
-	i32_t sample_rate;
-	i16_t *str;
-	ui32_t i, c;
+	s32 channel_count;
+	s32 sample_rate;
+	s16 *str;
+	u32 i, c;
 
 	( *clip )->sample_count = stb_vorbis_decode_filename( path, &channel_count, &sample_rate, &( *clip )->stream );
 	if( aurator->data.sample_rate != sample_rate ) {
 		assert( SL_FALSE ); // Sample rates don't match, we don't support live resampling
 	}
-	if( ( ui32_t )channel_count > aurator->data.channel_count ) {
+	if( ( u32 )channel_count > aurator->data.channel_count ) {
 		assert( SL_FALSE ); // We have too many channels
-	} else if( ( ui32_t )channel_count < aurator->data.channel_count ) {
+	} else if( ( u32 )channel_count < aurator->data.channel_count ) {
 		// Expand it by repeating the last channel
-		str = ( i16_t* )SL_ALLOC( sizeof( i16_t ) * ( *clip )->sample_count * aurator->data.channel_count );
+		str = ( s16* )SL_ALLOC( sizeof( s16 ) * ( *clip )->sample_count * aurator->data.channel_count );
 		for( i = 0; i < ( *clip )->sample_count; i += aurator->data.channel_count ) {
 			for( c = 0; c < aurator->data.channel_count; ++c ) {
-				if( c < ( ui32_t )channel_count ) {
+				if( c < ( u32 )channel_count ) {
 					str[ i * aurator->data.channel_count + c ] = i&(*clip)->stream[ i * channel_count + c ];
 				} else {
 					str[ i * aurator->data.channel_count + c ] = i&(*clip)->stream[ i * channel_count + ( channel_count - 1 ) ];
@@ -307,13 +307,13 @@ void sl_aurator_load_ogg( sl_aurator *aurator, sl_aurator_clip **clip, char *pat
 	}
 }
 
-void sl_aurator_set_volume( sl_aurator *aurator, f32_t vol )
+void sl_aurator_set_volume( sl_aurator *aurator, f32 vol )
 {
 	assert( 0.f <= vol && vol <= 1.f );
 
 	aurator->volume = vol;
 }
-f32_t sl_aurator_get_volume( sl_aurator *aurator )
+f32 sl_aurator_get_volume( sl_aurator *aurator )
 {
 	return aurator->volume;
 }

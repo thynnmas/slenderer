@@ -12,13 +12,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#define VUL_DEFINE
 #include "renderer/scene.h"
+
+#define VUL_DEFINE
+#include <vul_resizable_array.h>
+#include <vul_timer.h>
+#include <vul_sort.h> // We need definitions for vul_sort only here
+#include <vul_cmath.h>
 #undef VUL_DEFINE
 
 #include "slenderer.h"
 
-void sl_scene_create( sl_scene *scene, ui32_t parent_window_id, unsigned int scene_id, ui32_t post_program_id )
+void sl_scene_create( sl_scene *scene, u32 parent_window_id, unsigned int scene_id, u32 post_program_id )
 {
 	unsigned int i;
 	sl_box uvs;
@@ -216,7 +221,7 @@ const sl_entity *sl_scene_get_const_entity( sl_scene *scene, const unsigned int 
 	return NULL;
 }
 
-void sl_scene_get_entities_at_pos( vul_vector_t *vec, sl_scene *scene, v2 *pos )
+void sl_scene_get_entities_at_pos( vul_vector *vec, sl_scene *scene, v2 *pos )
 {
 	sl_entity *it, *last_it;
 	int i;

@@ -57,42 +57,42 @@ typedef enum sl_aurator_clip_state {
 } sl_aurator_clip_state;
 
 typedef struct sl_aurator_clip {
-	ui32_t id;
+	u32 id;
 	
 	sl_aurator_clip_state state;
 	
-	ui32_t sample_current;
-	ui32_t sample_count;
-	i16_t *stream; // Stream of samples; channels are interleaved.
+	u32 sample_current;
+	u32 sample_count;
+	s16 *stream; // Stream of samples; channels are interleaved.
 } sl_aurator_clip;
 
 typedef struct sl_aurator_steam_data {
-	ui32_t sample_count;
-	ui32_t sample_rate;
-	ui32_t channel_count;
+	u32 sample_count;
+	u32 sample_rate;
+	u32 channel_count;
 	
-	i32_t *samples;
+	s32 *samples;
 } sl_aurator_steam_data;
 
 typedef struct sl_aurator {
 	// Need a reference to the parent scene
-	ui32_t scene_id;
+	u32 scene_id;
 	// Contains all the clips currently playing.
-	vul_vector_t *clips; 
+	vul_vector *clips; 
 	// Unique id to give the next added clip
-	ui32_t next_id;
+	u32 next_id;
 	// Portaudio stream.
 	PaStream *portaudio_stream; 
 	PaStreamParameters portaudio_params;
 	// Mixer data
-	ui32_t frames_per_buffer;
+	u32 frames_per_buffer;
 	sl_aurator_steam_data data;
 	// Timer
-	vul_timer_t *clk;
-	ui64_t last_time;
-	ui64_t wait_time;
+	vul_timer *clk;
+	u64 last_time;
+	u64 wait_time;
 	// Volume
-	f32_t volume;
+	f32 volume;
 } sl_aurator;
 
 /*
@@ -106,7 +106,7 @@ static SL_BOOL sl_aurator_pa_intialized;
  * We sceify the nubmer of time per second we GUARANTEE that
  * _update will be called; if we can't keep up we WILL have audio stutter!
  */
-void sl_aurator_create( sl_aurator *ret, ui32_t parent_scene, ui32_t channel_count, ui32_t sample_rate, ui32_t updates_per_second_guaranteed );
+void sl_aurator_create( sl_aurator *ret, u32 parent_scene, u32 channel_count, u32 sample_rate, u32 updates_per_second_guaranteed );
 
 /*
  * Cleans up the aurator, @TODO: stopping all it's streams.
@@ -128,19 +128,19 @@ void sl_aurator_load_ogg( sl_aurator *aurator, sl_aurator_clip **clip, char *pat
  * Allocates an empty clip and returns its id.
  * It's state is set to stopped initially.
  */
-ui32_t sl_aurator_allocate_clip( sl_aurator *aurator );
+u32 sl_aurator_allocate_clip( sl_aurator *aurator );
 
 /*
  * Adds a clip to the scene and returns its id.
  * Samples must have the same number of channels as the aurator
  * was created for. Samples is used _in place_, channels interleaved!
  */
-ui32_t sl_aurator_add_clip( sl_aurator *aurator, ui32_t sample_count, i16_t *samples, SL_BOOL loop );
+u32 sl_aurator_add_clip( sl_aurator *aurator, u32 sample_count, s16 *samples, SL_BOOL loop );
 
 /*
  * Returns the clip for a given id.
  */
-sl_aurator_clip *sl_aurator_get_clip( sl_aurator *aurator, ui32_t id );
+sl_aurator_clip *sl_aurator_get_clip( sl_aurator *aurator, u32 id );
 
 /*
  * Updates the aurator. This mixes all currently playing clips into 
@@ -161,7 +161,7 @@ int sl_aurator_upload( const void *input, void *output,
 /*
  * Volume controls. Valid values are in trange [0, 1]
  */
-void sl_aurator_set_volume( sl_aurator *aurator, f32_t vol );
-f32_t sl_aurator_get_volume( sl_aurator *aurator );
+void sl_aurator_set_volume( sl_aurator *aurator, f32 vol );
+f32 sl_aurator_get_volume( sl_aurator *aurator );
 
 #endif

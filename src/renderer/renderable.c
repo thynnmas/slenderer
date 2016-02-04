@@ -106,10 +106,10 @@ void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb )
 	ren->vertices[ 0 ].texcoords = vec2( center.x, center.y );
 
 	for( int i = 0; i < 6; ++i ) {
-		f32_t ang = ( M_PI / 3.0f ) * i + ( M_PI / 6.0f );
-		f32_t px = cosf( ang ),
+		f32 ang = ( M_PI / 3.0f ) * i + ( M_PI / 6.0f );
+		f32 px = cosf( ang ),
 			  py = sinf( ang );
-		f32_t uvx = center.x + extent.x * px * 0.5f,
+		f32 uvx = center.x + extent.x * px * 0.5f,
 			  uvy = center.y + extent.y * py * 0.5f;
 		ren->vertices[ 1 + i ].position = vec2( px, py );
 		ren->vertices[ 1 + i ].texcoords = vec2( uvx, uvy );
@@ -135,10 +135,10 @@ void sl_renderable_create_hex_pointy( sl_renderable *ren, sl_box *uv_aabb )
 	vertices[ 0 ].texcoords = vec2( center.x, center.y );
 
 	for( int i = 0; i < 6; ++i ) {
-		f32_t ang = ( M_PI / 3.0f ) * i + ( M_PI / 6.0f );
-		f32_t px = cosf( ang ),
+		f32 ang = ( M_PI / 3.0f ) * i + ( M_PI / 6.0f );
+		f32 px = cosf( ang ),
 			  py = sinf( ang );
-		f32_t uvx = center.x + extent.x * px * 0.5f,
+		f32 uvx = center.x + extent.x * px * 0.5f,
 			  uvy = center.y + extent.y * py * 0.5f;
 		vertices[ 1 + i ].position = vec2( px, py );
 		vertices[ 1 + i ].texcoords = vec2( uvx, uvy );
@@ -192,10 +192,10 @@ void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb )
 	ren->vertices[ 0 ].texcoords = vec2( center.x, center.y );
 
 	for( int i = 0; i < 6; ++i ) {
-		f32_t ang = ( M_PI / 3.0f ) * i;
-		f32_t px = cosf( ang ),
+		f32 ang = ( M_PI / 3.0f ) * i;
+		f32 px = cosf( ang ),
 			  py = sinf( ang );
-		f32_t uvx = center.x + extent.x * px * 0.5f,
+		f32 uvx = center.x + extent.x * px * 0.5f,
 			  uvy = center.y + extent.y * py * 0.5f;
 		ren->vertices[ 1 + i ].position = vec2( px, py );
 		ren->vertices[ 1 + i ].texcoords = vec2( uvx, uvy );
@@ -221,10 +221,10 @@ void sl_renderable_create_hex_flat( sl_renderable *ren, sl_box *uv_aabb )
 	vertices[ 0 ].texcoords = vec2( center.x, center.y );
 
 	for( int i = 0; i < 6; ++i ) {
-		f32_t ang = ( M_PI / 3.0f ) * i;
-		f32_t px = cosf( ang ),
+		f32 ang = ( M_PI / 3.0f ) * i;
+		f32 px = cosf( ang ),
 			  py = sinf( ang );
-		f32_t uvx = center.x + extent.x * px * 0.5f,
+		f32 uvx = center.x + extent.x * px * 0.5f,
 			  uvy = center.y + extent.y * py * 0.5f;
 		vertices[ 1 + i ].position = vec2( px, py );
 		vertices[ 1 + i ].texcoords = vec2( uvx, uvy );

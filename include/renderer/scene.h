@@ -27,9 +27,9 @@
 #include <vul_resizable_array.h>
 #include <vul_timer.h>
 #include <vul_sort.h> // We need definitions for vul_sort only here
+#include <vul_cmath.h>
 
 #include "math/box.h"
-#include "vul_cmath.h"
 #include "renderer/entity.h"
 #include "renderer/renderable.h"
 #include "renderer/texture.h"
@@ -41,12 +41,12 @@
 #define SL_INVISIBLE_TEXTURE 0xffffffff
 
 typedef struct {
-	vul_vector_t *layers[ SL_MAX_LAYERS ]; // Vector of sl_entity. MAX_LAYERS arrays of entities, one for each layer.
+	vul_vector *layers[ SL_MAX_LAYERS ]; // Vector of sl_entity. MAX_LAYERS arrays of entities, one for each layer.
 	unsigned short layer_dirty; // Each bit indicates whether a layer must be re-sorted
 	unsigned int next_entity_id; // ID of the next added entity.
-	ui32_t window_id;
+	u32 window_id;
 	unsigned int scene_id;
-	ui32_t post_program_id; // Post processing program; by default the normal shader!
+	u32 post_program_id; // Post processing program; by default the normal shader!
 	void (*post_program_callback)( sl_program *post_program ); // Called last second before tendering the post process quad; use to set parameters for the program.
 	sl_renderable post_renderable;
 	v2 camera_pos;
@@ -55,7 +55,7 @@ typedef struct {
 /**
  * Create a scene.
  */
-void sl_scene_create( sl_scene *scene, ui32_t parent_window_id, unsigned int scene_id, ui32_t post_program_id );
+void sl_scene_create( sl_scene *scene, u32 parent_window_id, unsigned int scene_id, u32 post_program_id );
 /**
  * Destroy a scene.
  */
@@ -104,6 +104,6 @@ const sl_entity *sl_scene_get_const_entity( sl_scene *scene, const unsigned int 
  * Populates a vector of all quad ids that intersect a ray into the scene at the given position.
  * It searches top down, so the first hit is the topmost intersected quad.
  */
-void sl_scene_get_entities_at_pos( vul_vector_t *vec, sl_scene *scene, v2 *pos );
+void sl_scene_get_entities_at_pos( vul_vector *vec, sl_scene *scene, v2 *pos );
 
 #endif

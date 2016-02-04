@@ -63,7 +63,7 @@ typedef struct {
 	unsigned int animation_id;
 	unsigned int entity_id;
 	unsigned long long time_per_frame_in_ms;
-	vul_vector_t *frames; // Vector of sl_animation_sprite_state
+	vul_vector *frames; // Vector of sl_animation_sprite_state
 	sl_animation_state state;
 	unsigned int frame_count; // == vul_vector_size( frames ), but stored for speed
 	int current_frame; // Signed because looping...
@@ -73,17 +73,17 @@ typedef struct {
 
 
 typedef struct {
-	vul_vector_t *transforms; // Vector of sl_animation_transform
-	vul_vector_t *sprites; // Vector of sl_animation_sprite
+	vul_vector *transforms; // Vector of sl_animation_transform
+	vul_vector *sprites; // Vector of sl_animation_sprite
 
 	unsigned int next_animation_id; // Unique ID to give next added animation
 
-	vul_timer_t *clock; // Our timer
+	vul_timer *clock; // Our timer
 	unsigned long long last_time; // Last frame's time. We don't reset
 								  // between frames because of interpolation
 								  // of transforms.
 
-	ui32_t scene_id;
+	u32 scene_id;
 } sl_animator;
 
 /** 
@@ -104,12 +104,12 @@ unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int enti
 
 /**
  * Adds a new sprite animation. Returns the unique animation id.
- * The vul_vector_t of frames is destroyed by the animator, and should be created by calling:
+ * The vul_vector of frames is destroyed by the animator, and should be created by calling:
  *     vul_vector_create( sizeof( sl_animation_sprite_state ), initial_size );
  * State must be either SL_ANIMATION_RUNNING, SL_ANIMATION_RUNNING_LOOPED or 
  * SL_ANIMATION_RUNNING_PERIODIC.
  */
-unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int entity_id, vul_vector_t *frames, unsigned long long ms_per_frame, sl_animation_state state );
+unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int entity_id, vul_vector *frames, unsigned long long ms_per_frame, sl_animation_state state );
 
 /** 
  * Removes the animation of the given id.

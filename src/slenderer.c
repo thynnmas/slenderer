@@ -151,7 +151,7 @@ sl_window *sl_renderer_open_window( unsigned int width, unsigned int height, con
 	return win;
 }
 
-void sl_renderer_close_window( ui32_t win_id )
+void sl_renderer_close_window( u32 win_id )
 {
 	sl_window *win;
 
@@ -160,7 +160,7 @@ void sl_renderer_close_window( ui32_t win_id )
 	vul_vector_remove_swap( sl_renderer_global->windows, win->window_id );
 }
 
-sl_scene *sl_renderer_add_scene( ui32_t win_id, ui32_t post_program_id )
+sl_scene *sl_renderer_add_scene( u32 win_id, u32 post_program_id )
 {
 	sl_scene *s;
 	sl_animator *a;
@@ -199,7 +199,7 @@ void sl_renderer_finalize_scene( unsigned int scene_id )
 #ifndef SL_NO_AUDIO
 	sl_aurator *ari, *aril;
 #endif
-	ui32_t i;
+	u32 i;
 
 	i = 0;
 	vul_foreach( sl_scene, si, sil, sl_renderer_global->scenes )
@@ -335,8 +335,8 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	sl_texture *ct; // Current texture
 	sl_renderable *cr; // Current renderable
 #ifdef SL_DEBUG
-	vul_timer_t *timer;
-	ui64_t last, now, elapsed, first, time_layers[ SL_MAX_LAYERS ];
+	vul_timer *timer;
+	u64 last, now, elapsed, first, time_layers[ SL_MAX_LAYERS ];
 	timer = vul_timer_create( );
 	last = vul_timer_get_micros( timer );
 	first = last;
@@ -525,8 +525,8 @@ void sl_renderer_draw_legacy_instance( v2 *camera_offset, sl_renderable *rend, s
 {
 	m44 mat;
 	sl_box uvs;
-	f32_t tmp;
-	ui32_t i;
+	f32 tmp;
+	u32 i;
 	v2 vert, texc;
 
 	// Calculate offset into matrix
@@ -569,7 +569,7 @@ void sl_renderer_draw_instance( sl_renderable *ren )
 }
 #endif
 
-void sl_renderer_get_scenes_by_window_handle( vul_vector_t *vec, GLFWwindow *win_handle )
+void sl_renderer_get_scenes_by_window_handle( vul_vector *vec, GLFWwindow *win_handle )
 {
 	sl_scene *it, *last_it;
 	sl_window *win, *itw, *last_itw;
@@ -659,7 +659,7 @@ sl_window *sl_renderer_get_window_by_handle( GLFWwindow *win_handle )
 	return NULL;
 }
 
-void sl_print( ui32_t max_length, const char *fmt, ... )
+void sl_print( u32 max_length, const char *fmt, ... )
 {
 	char *out;
 	va_list args;

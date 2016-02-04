@@ -56,22 +56,22 @@
 #define SL_KEY_REPEAT_PROTO void (*)( GLFWwindow*, int, int, int )
 
 typedef struct {
-	vul_hash_map_t *mouse_enter_exit_callbacks; // Hashmap of < GLFWwindow*, SL_MOUSE_ENTER_EXIT_CALLBACK >
-	vul_hash_map_t *mouse_down_callbacks; // Hashmap of < entity_id, SL_MOUSE_DOWN_CALLBACK >
-	vul_hash_map_t *mouse_up_callbacks; // Hashmap of < entity_id, SL_MOUSE_UP_CALLBACK >
-	vul_hash_map_t *mouse_over_callbacks; // Hashmap of < entity_id, SL_MOUSE_OVER_CALLBACK >
-	vul_hash_map_t *mouse_out_callbacks; // Hashmap of < entity_id, SL_MOUSE_OUT_CALLBACK >
-	vul_hash_map_t *key_pressed_callbacks; // Hashmap of < key, SL_KEY_PRESSED >
-	vul_hash_map_t *key_released_callbacks; // Hashmap of < key, SL_KEY_RELEASED >
-	vul_hash_map_t *key_repeat_callbacks; // Hashmap of < key, SL_KEY_REPEAT >
+	vul_hash_map *mouse_enter_exit_callbacks; // Hashmap of < GLFWwindow*, SL_MOUSE_ENTER_EXIT_CALLBACK >
+	vul_hash_map *mouse_down_callbacks; // Hashmap of < entity_id, SL_MOUSE_DOWN_CALLBACK >
+	vul_hash_map *mouse_up_callbacks; // Hashmap of < entity_id, SL_MOUSE_UP_CALLBACK >
+	vul_hash_map *mouse_over_callbacks; // Hashmap of < entity_id, SL_MOUSE_OVER_CALLBACK >
+	vul_hash_map *mouse_out_callbacks; // Hashmap of < entity_id, SL_MOUSE_OUT_CALLBACK >
+	vul_hash_map *key_pressed_callbacks; // Hashmap of < key, SL_KEY_PRESSED >
+	vul_hash_map *key_released_callbacks; // Hashmap of < key, SL_KEY_RELEASED >
+	vul_hash_map *key_repeat_callbacks; // Hashmap of < key, SL_KEY_REPEAT >
 	
-	vul_list_element_t *hash_map_keys; // List of unsigned integers we use as keys in the hashmaps.
-	vul_list_element_t *hash_map_key_pairs; // List of unsigned integers we use as keys in the hashmaps.
-	vul_list_element_t *hash_map_ptr_keys; // List of pointers we use as keys in the hashmaps.
+	vul_list_element *hash_map_keys; // List of unsigned integers we use as keys in the hashmaps.
+	vul_list_element *hash_map_key_pairs; // List of unsigned integers we use as keys in the hashmaps.
+	vul_list_element *hash_map_ptr_keys; // List of pointers we use as keys in the hashmaps.
 
 	v2 mouse_pos;
 	v2 mouse_pos_prev;
-	vul_vector_t *mouse_overs; // Vector of entity_id (unisgned integers) that the mouse is currently over.
+	vul_vector *mouse_overs; // Vector of entity_id (unisgned integers) that the mouse is currently over.
 } sl_controller;
 
 /**
@@ -149,29 +149,29 @@ void sl_controller_add_mouse_out_callback( unsigned int scene_id, unsigned int e
  * and keys are also unique and somewhat uniformely distributed, we just use the
  * integers directly.
  */
-ui32_t sl_controller_hash_func( const ui8_t* data, ui32_t len );
+u32 sl_controller_hash_func( const u8* data, u32 len );
 
 /**
- * Compares two integer keys of a vul_hash_map_element_t
+ * Compares two integer keys of a vul_hash_map_element
  */
 int sl_controller_compare_func( void *a, void *b );
 
 /**
-* Compares two unsigned integers (used when comparing vul_list_element_t)
+* Compares two unsigned integers (used when comparing vul_list_element)
 */
 int sl_controller_compare_func_raw( void *a, void *b );
 
 /**
  * Hashes a key of two integers. We shift the first 16 bits left, then add the second.
  */
-ui32_t sl_controller_hash_func_pair( const ui8_t* data, ui32_t len );
+u32 sl_controller_hash_func_pair( const u8* data, u32 len );
 
 /**
- * Compares two two-integer keys of a vul_hash_map_element_t
+ * Compares two two-integer keys of a vul_hash_map_element
  */
 int sl_controller_compare_func_pair( void *a, void *b );
 /**
-* Compares two two-uint keys (used when comparing vul_list_element_t)
+* Compares two two-uint keys (used when comparing vul_list_element)
 */
 int sl_controller_compare_func_raw_pair( void *a, void *b );
 /**
@@ -179,15 +179,15 @@ int sl_controller_compare_func_raw_pair( void *a, void *b );
  * and keys are also unique and somewhat uniformely distributed, we just use the
  * integers directly.
  */
-ui32_t sl_controller_hash_ptr_func( const ui8_t* data, ui32_t len );
+u32 sl_controller_hash_ptr_func( const u8* data, u32 len );
 
 /**
- * Compares two pointer keys of a vul_hash_map_element_t
+ * Compares two pointer keys of a vul_hash_map_element
  */
 int sl_controller_compare_ptr_func( void *a, void *b );
 
 /**
-* Compares two pointer keys (used when comparing vul_list_element_t)
+* Compares two pointer keys (used when comparing vul_list_element)
 */
 int sl_controller_compare_ptr_func_raw( void *a, void *b );
 

@@ -109,8 +109,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>slenderer_x64_d</TargetName>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>F:\Code\C\Frameworks\glfw\include;F:\Code\C\Frameworks\glew\include;F:\Code\C\Frameworks\portaudio\include;$(IncludePath)</IncludePath>
+    <IncludePath>F:\Code\C\Libs\glfw\SDK\include;F:\Code\C\Libs\glew\include;F:\Code\C\Libs\portaudio\include;$(IncludePath)</IncludePath>
     <OutDir>..\..\lib\</OutDir>
+    <LibraryPath>F:\Code\C\Libs\glew\lib\Debug\x64;F:\Code\C\Libs\glfw\SDK\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -177,11 +178,11 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WIN64;_DEBUG;_WINDOWS;VUL_WINDOWS;VUL_VECTOR_C89_ITERATORS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN64;_DEBUG;_WINDOWS;VUL_WINDOWS;VUL_VECTOR_C89_ITERATORS;STBI_HEADER_FILE_ONLY;SL_NO_AUDIO;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../include;../../dependancies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <CompileAs>Default</CompileAs>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

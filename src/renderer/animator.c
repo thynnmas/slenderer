@@ -55,7 +55,7 @@ unsigned int sl_animator_add_transform( sl_animator *animator, unsigned int enti
 	return t->animation_id;
 }
 
-unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int entity_id, vul_vector_t *frames, unsigned long long ms_per_frame, sl_animation_state state )
+unsigned int sl_animator_add_sprite( sl_animator *animator, unsigned int entity_id, vul_vector *frames, unsigned long long ms_per_frame, sl_animation_state state )
 {
 	sl_animation_sprite* t;
 

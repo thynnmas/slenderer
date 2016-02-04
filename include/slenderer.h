@@ -74,7 +74,7 @@
 * Print a formatted string to either stderr or debug console + logfile,
 * depending on environment.
 */
-void sl_print( ui32_t max_length, const char *fmt, ... );
+void sl_print( u32 max_length, const char *fmt, ... );
 
 #include "renderer/window.h"
 #include "renderer/scene.h"
@@ -93,18 +93,18 @@ void sl_print( ui32_t max_length, const char *fmt, ... );
 #endif
 
 typedef struct {
-	vul_vector_t *windows; // Vector of sl_window
-	vul_vector_t *scenes; // Vector of sl_scene
-	vul_vector_t *animators; // Vector of sl_animator
-	vul_vector_t *simulators; // Vector of sl_simulator
-	vul_vector_t *textures; // Vector of sl_texture. An array with all the textures
-	vul_vector_t *programs; // Vector of sl_program. An array with all the programs
-	vul_vector_t *renderables; // Vector of sl_renderable. Ones that are not sprite-animated
+	vul_vector *windows; // Vector of sl_window
+	vul_vector *scenes; // Vector of sl_scene
+	vul_vector *animators; // Vector of sl_animator
+	vul_vector *simulators; // Vector of sl_simulator
+	vul_vector *textures; // Vector of sl_texture. An array with all the textures
+	vul_vector *programs; // Vector of sl_program. An array with all the programs
+	vul_vector *renderables; // Vector of sl_renderable. Ones that are not sprite-animated
 							   // should use the same one. Ohters should have their own.
 #ifndef SL_NO_AUDIO
-	vul_vector_t *aurators; // Vector of sl_aurator.
+	vul_vector *aurators; // Vector of sl_aurator.
 #endif
-	ui32_t next_scene_id;
+	u32 next_scene_id;
 } sl_renderer;
 
 sl_renderer *sl_renderer_global;
@@ -127,7 +127,7 @@ sl_window *sl_renderer_open_window( unsigned int width, unsigned int height, con
 /**
  * Closes a window and removes it from the renderer.
  */
-void sl_renderer_close_window( ui32_t win_id );
+void sl_renderer_close_window( u32 win_id );
 
 /**
  * Renders the scene at the given index to the window at the given index.
@@ -138,7 +138,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 /**
  * Creates a new scene and adds it to the renderer.
  */
-sl_scene *sl_renderer_add_scene( ui32_t win_id, ui32_t post_program_id );
+sl_scene *sl_renderer_add_scene( u32 win_id, u32 post_program_id );
 
 /**
  * Cleans up a scene 
@@ -198,7 +198,7 @@ void sl_renderer_glfw_error_callback( int error, const char *desc );
 /** 
  * Populate a list of scenes based on a window pointer.
  */
-void sl_renderer_get_scenes_by_window_handle( vul_vector_t *vec, GLFWwindow *win_handle );
+void sl_renderer_get_scenes_by_window_handle( vul_vector *vec, GLFWwindow *win_handle );
 
 /** 
  * Retrieve a scene by id

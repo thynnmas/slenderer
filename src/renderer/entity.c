@@ -77,7 +77,7 @@ void sl_entity_bind( sl_entity *entity, v2 *camera_offset, sl_program *prog )
 {
 	m44 mat;
 	sl_box uvs;
-	f32_t tmp;
+	f32 tmp;
 
 	// Calculate offset into matrix
 	memcpy( &mat, &entity->world_matrix, sizeof( m44 ) );

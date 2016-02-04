@@ -37,7 +37,7 @@ typedef struct sl_simulator_entity {
 	v2 pos;
 	v2 velocity;
 	// @TODO: Mass!
-	vul_vector_t *forces; // Vector of v2s
+	vul_vector *forces; // Vector of v2s
 } sl_simulator_entity;
 
 typedef void( *sl_simulator_collider_pair_callback )( sl_scene* s, sl_simulator_entity* a, sl_simulator_entity *b, double time_frame_delta );
@@ -48,11 +48,11 @@ typedef struct {
 } sl_simulator_collider_pair;
 
 typedef struct {
-	vul_vector_t *entities; // Vector of sl_simulator_quads
-	vul_hash_map_t *collision_callbacks; // Hashmap of < sl_simulator_collider_pair, sl_simulator_collider_pair_callback >.
-	vul_list_element_t *collission_callback_keys; // List if sl_simulator_collider_pair
-	ui32_t scene_id;
-	vul_timer_t *clock;
+	vul_vector *entities; // Vector of sl_simulator_quads
+	vul_hash_map *collision_callbacks; // Hashmap of < sl_simulator_collider_pair, sl_simulator_collider_pair_callback >.
+	vul_list_element *collission_callback_keys; // List if sl_simulator_collider_pair
+	u32 scene_id;
+	vul_timer *clock;
 	unsigned long long last_time;
 } sl_simulator;
 
@@ -105,7 +105,7 @@ void sl_simulator_update( sl_simulator *sim );
 /**
  * Hash function for the collission callback hash map.
  */
-ui32_t sl_simulator_callback_hash( const ui8_t *key, ui32_t keylen );
+u32 sl_simulator_callback_hash( const u8 *key, u32 keylen );
 
 /**
  * Comparison function for the collission callback hash map.

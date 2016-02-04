@@ -22,7 +22,7 @@
 #include "renderer/window.h"
 
 #ifndef M_PI
-	#define M_PI ( f32_t )3.1415926535897932384626433832795
+	#define M_PI ( f32 )3.1415926535897932384626433832795
 #endif
 
 typedef struct {

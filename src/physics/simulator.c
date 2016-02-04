@@ -110,13 +110,13 @@ void sl_simulator_add_impulse( sl_simulator *sim, unsigned int entity_id, v2 *im
 void sl_simulator_add_callback( sl_simulator *sim, unsigned int entity_id_a, unsigned int entity_id_b, sl_simulator_collider_pair_callback callback )
 {
 	sl_simulator_collider_pair pair;
-	vul_hash_map_element_t *element, el;
-	vul_list_element_t *le;
+	vul_hash_map_element *element, el;
+	vul_list_element *le;
 
 	pair.entity_id_a = SL_MIN( entity_id_a, entity_id_b );
 	pair.entity_id_b = SL_MAX( entity_id_a, entity_id_b );
 
-	element = vul_map_get( sim->collision_callbacks, ( ui8_t* )&pair, sizeof( pair ) );
+	element = vul_map_get( sim->collision_callbacks, ( u8* )&pair, sizeof( pair ) );
 	if( element != NULL ) {
 		// Update element
 		element->data = callback;
@@ -127,7 +127,7 @@ void sl_simulator_add_callback( sl_simulator *sim, unsigned int entity_id_a, uns
 		// Create a new element
 		el.data = callback;
 		el.data_size = sizeof( callback );
-		el.key = ( ui8_t* )le->data;
+		el.key = ( u8* )le->data;
 		el.key_size = sizeof( pair );
 		vul_map_insert( sim->collision_callbacks, &el );
 	}
@@ -139,7 +139,7 @@ void sl_simulator_update( sl_simulator *sim )
 	sl_scene *s;
 	v2 *vit, *lvit, tmp;
 	sl_box aabb, aabb2;
-	const vul_hash_map_element_t *el;
+	const vul_hash_map_element *el;
 	sl_simulator_collider_pair pair;
 	sl_entity *q;
 	float time_delta_in_s;
@@ -187,7 +187,7 @@ void sl_simulator_update( sl_simulator *sim )
 				// @NOTE: If this adjusts positions, you need to update the rendering quads from the callback!
 				pair.entity_id_a = SL_MIN( it->entity->entity_id, it2->entity->entity_id );
 				pair.entity_id_b = SL_MAX( it->entity->entity_id, it2->entity->entity_id );
-				el = vul_map_get_const( sim->collision_callbacks, ( ui8_t* )&pair, sizeof( pair ) );
+				el = vul_map_get_const( sim->collision_callbacks, ( u8* )&pair, sizeof( pair ) );
 				if( el != NULL ) {
 					( ( sl_simulator_collider_pair_callback )el->data )( s, it, it2, time_delta_in_s );
 				}
@@ -198,9 +198,9 @@ void sl_simulator_update( sl_simulator *sim )
 
 
 
-ui32_t sl_simulator_callback_hash( const ui8_t *key, ui32_t keylen )
+u32 sl_simulator_callback_hash( const u8 *key, u32 keylen )
 {
-	ui32_t qa, qb;
+	u32 qa, qb;
 
 #ifdef SL_DEBUG
 	assert( keylen == sizeof( sl_simulator_collider_pair ) );
@@ -211,19 +211,19 @@ ui32_t sl_simulator_callback_hash( const ui8_t *key, ui32_t keylen )
 	}
 #endif
 	
-	qa = *( ui32_t* )key;
-	qb = *( ui32_t* )( key + sizeof( ui32_t ) );
+	qa = *( u32* )key;
+	qb = *( u32* )( key + sizeof( u32 ) );
 
 	return ( qa << 16 ) + qb; 
 }
 
 int sl_simulator_callback_comp( void *a, void *b )
 {	
-	vul_hash_map_element_t *ea, *eb;
-	ui32_t qaa, qab, qba, qbb;
+	vul_hash_map_element *ea, *eb;
+	u32 qaa, qab, qba, qbb;
 
-	ea = ( vul_hash_map_element_t* )a;
-	eb = ( vul_hash_map_element_t* )b;
+	ea = ( vul_hash_map_element* )a;
+	eb = ( vul_hash_map_element* )b;
 
 	qaa = ( ( sl_simulator_collider_pair* )ea->key )->entity_id_a;
 	qab = ( ( sl_simulator_collider_pair* )ea->key )->entity_id_b;
@@ -231,9 +231,9 @@ int sl_simulator_callback_comp( void *a, void *b )
 	qbb = ( ( sl_simulator_collider_pair* )eb->key )->entity_id_b;
 
 	if( qaa != qba ) {
-		return ( int )( ( i32_t )qaa - ( i32_t )qba ); // Compare a with a first
+		return ( int )( ( s32 )qaa - ( s32 )qba ); // Compare a with a first
 	} else {
-		return ( int )( ( i32_t )qab - ( i32_t )qbb ); // If a == a, compare bs
+		return ( int )( ( s32 )qab - ( s32 )qbb ); // If a == a, compare bs
 	}
 }
 
