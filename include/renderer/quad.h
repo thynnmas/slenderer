@@ -17,15 +17,13 @@
 #ifndef SLENDERER_QUAD_H
 #define SLENDERER_QUAD_H
 
-#include "math/vec.h"
 #include "math/box.h"
-#include "math/mat.h"
 
 typedef struct {
 	unsigned int quad_id;
-	sl_mat4 world_matrix;
+	m44 world_matrix;
 	sl_box uvs;
-	sl_bvec flip_uvs;
+	v2 flip_uvs;
 	unsigned int texture_id;
 	unsigned int program_id;
 	unsigned int renderable_id;
@@ -41,7 +39,7 @@ void sl_quad_aabb( sl_box *result, const sl_quad *q );
 /**
  * Calculate the world matrix of a quad.
  */
-void sl_quad_create_world_matrix( sl_quad *result, const sl_vec *center, const sl_vec *scale, const float rotation );
+void sl_quad_create_world_matrix( sl_quad *result, const v2 *center, const v2 *scale, const float rotation );
 
 /**
  * Used to sort quads internally in layers, this first compares
