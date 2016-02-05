@@ -2,10 +2,8 @@ CC = clang
 SRC_PTH = ./src
 INC_PTH = -I. -I./include/ -I./dependancies/ -I/usr/include
 BLD_PTH = ./obj/
-BIN_PTH = ./bin
 LIB_PTH = ./lib
 LIB_NAME = slenderer
-BIN_NAME = example
 CFLAGS = -std=gnu99 -Wall -Wno-unused-function -Wno-unused-variable -fno-strict-aliasing -g -DVUL_VECTOR_C89_ITERATORS $(INC_PTH)
 LDFLAGS =  -L$(LIB_PTH) -l$(LIB_NAME) -lportaudio -lGLEW -lglfw3 -lm
 SHELL = /bin/bash
@@ -31,18 +29,16 @@ OBJECT_PATHS = $(SOURCES:$(SRC_PTH)/%.c=$(BLD_PTH)%.o)
 dirs:
 	@echo "Creating directories"
 	@mkdir -p $(dir $(OBJECT_PATHS))
-	@mkdir -p $(BIN_PTH)
 	@mkdir -p $(LIB_PTH)
 
 .PHONY: clean
 clean:
 	@echo "Deleting directories"
-	@$(RM) -r $(BIN_PTH)
 	@$(RM) -r $(BLD_PTH)
 	@$(RM) -r $(LIB_PTH)
 
-all: dirs $(LIB_PTH)/$(LIB_NAME) $(BIN_PTH)/$(BIN_NAME)
-
+all: dirs $(LIB_PTH)/$(LIB_NAME)
+ 
 $(LIB_PTH)/$(LIB_NAME): $(OBJECTS)
 	ar rcs $(LIB_PTH)/lib$(LIB_NAME).a $(OBJECT_PATHS)
 
@@ -52,8 +48,4 @@ $(OBJECTS): $(SOURCES)
 
 $(SOURCES):
 	@echo "Found $@"
-
-$(BIN_PTH)/$(BIN_NAME): 
-	@echo "Compiling: $@"
-	$(CMD_PREFIX)$(CC) $(CFLAGS) example.c -o $(BIN_PTH)/$(BIN_NAME) $(LDFLAGS)
 
