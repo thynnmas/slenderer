@@ -411,12 +411,11 @@ void sl_simulator_callback_quad_sphere( sl_scene *scene, sl_simulator_entity *qu
 
 void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_entity *a, sl_simulator_entity *b, double time_frame_delta )
 {
-	v2 center_a, radius_a, center_b, radius_b;	// Shpere properties
+	v2 center_a, radius_a, center_b;	// Shpere properties
 	sl_box aabb_a, aabb_b;							// AABBs
 	float angle_a, half_inv_cos_a;					// Rotation-temporaries we need to calculate scale/radius
-	float angle_b, half_inv_cos_b;					// Rotation-temporaries we need to calculate scale/radius
 	v2 normal, nnormal;							// Direction of collission normal, absolute and normalized.
-	float radius_n_a, radius_n_b, cos_n, sin_n;		// Radius at the normal & temps
+	float radius_n_a, cos_n, sin_n;		// Radius at the normal & temps
 	float t;										// Intersection point
 	v2 combined_vel;							// The combined velocity, i.e velocity relative to each other.
 	v2 n2, n2m;									// Temporaries used
@@ -432,10 +431,6 @@ void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_entity *
 	half_inv_cos_a = 1.0f / ( ( float )cos( angle_a ) * 2.0f );
 	radius_a = vec2( a->entity->world_matrix.A[ 0 ] * half_inv_cos_a,
 					 a->entity->world_matrix.A[ 5 ] * half_inv_cos_a );
-	angle_b = ( float )asin( b->entity->world_matrix.A[ 1 ] );
-	half_inv_cos_b = 1.0f / ( ( float )cos( angle_b ) * 2.0f );
-	radius_b = vec2( b->entity->world_matrix.A[ 0 ] * half_inv_cos_b,
-					 b->entity->world_matrix.A[ 5 ] * half_inv_cos_b );
 	// Get sphere center
 	sl_bcenter( &center_a, &aabb_a );
 	sl_bcenter( &center_b, &aabb_b );
@@ -448,7 +443,6 @@ void sl_simulator_callback_sphere_sphere( sl_scene *scene, sl_simulator_entity *
 	sin_n = ( float )sin( nnormal.x );
 	cos_n = ( float )cos( nnormal.y );
 	radius_n_a = ( float )sqrt( cos_n * cos_n * radius_a.x + sin_n * sin_n * radius_a.y );
-	radius_n_b = ( float )sqrt( cos_n * cos_n * radius_b.x + sin_n * sin_n * radius_b.y );
 
 	// Intersection time it radius - length of normal / combined_velocities
 	combined_vel = vadd2( a->velocity, b->velocity );

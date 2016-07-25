@@ -1,11 +1,11 @@
 /*
- * Villains' Utility Library - Thomas Martin Schmid, 2016. Public domain¹
+ * Villains' Utility Library - Thomas Martin Schmid, 2016. Public domain?
  *
  * This file describes an alternative to the STL vector class. This is mostly 
  * based on Tom Forsyth's ArbitraryList found here: https://home.comcast.net/~tom_forsyth/blog.wiki.html
  * This version is not templated (so pure C). Sorting of this list is available in vul_sort.h
  * 
- * ¹ If public domain is not legally valid in your legal jurisdiction
+ * ? If public domain is not legally valid in your legal jurisdiction
  *   the MIT licence applies (see the LICENCE file)
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -236,7 +236,7 @@ u32 vul_vector_find_comparator( vul_vector *vec, void *item, s32 ( *comparator )
 /**
 * Shrinks the vector to fit the current size.
 */
-void vul_vectorighten( vul_vector *vec );
+void vul_vector_tighten( vul_vector *vec );
 
 
 // ----------------
@@ -337,11 +337,10 @@ const void *vul_vector_get_const( vul_vector *vec, const u32 index )
 
 void *vul_vector_resize( vul_vector *vec, u32 size, u32 free_zero, u32 alloc_exactly )
 {
-	u32 oldSize, newSize;
+	u32 new_size;
 
 	assert( vec != NULL );
 
-	oldSize = vec->size;
 	vec->size = size;
 
 	if( vec->size == vec->reserved_size ) {
@@ -368,33 +367,33 @@ void *vul_vector_resize( vul_vector *vec, u32 size, u32 free_zero, u32 alloc_exa
 	}
 	// We need to resize
 	assert( vec->size > 0 );
-	newSize = vec->size;
+	new_size = vec->size;
 	if( !alloc_exactly ) {
 		// Grow by 50% and make sure it's not too small
-		newSize = ( vec->size * 3 ) >> 1;
-		if( newSize < 8 ) {
-			newSize = 8;
+		new_size = ( vec->size * 3 ) >> 1;
+		if( new_size < 8 ) {
+			new_size = 8;
 		}
-		assert( newSize > vec->reserved_size );
+		assert( new_size > vec->reserved_size );
 	}
 	if( vec->list == NULL ) {
 		assert( vec->reserved_size == 0 );
-		vec->list = ( u8* )vec->allocator( vec->element_size * newSize );
+		vec->list = ( u8* )vec->allocator( vec->element_size * new_size );
 		assert( vec->list != NULL ); // Make sure allocation didn't fail
 	} else {
 		assert( vec->reserved_size > 0 );
 #pragma warning(suppress: 6308) // We know it might leak, but the assert will trigger if it does!
-		vec->list = ( u8* )vec->reallocator( vec->list, vec->element_size * newSize );
+		vec->list = ( u8* )vec->reallocator( vec->list, vec->element_size * new_size );
 		assert( vec->list != NULL ); // Make sure reallocation didn't fail
 	}
 	assert( vec->list != NULL );
-	vec->reserved_size = newSize;
+	vec->reserved_size = new_size;
 	return vec->list;
 }
 
 void vul_vector_reserve( vul_vector *vec, u32 size, s32 allocExactly )
 {
-	unsigned int oldSize;
+	unsigned int old_size;
 	assert( vec != NULL );
 
 	assert( size >= vec->size );
@@ -402,9 +401,9 @@ void vul_vector_reserve( vul_vector *vec, u32 size, s32 allocExactly )
 		return;
 	}
 
-	oldSize = vec->size;
+	old_size = vec->size;
 	vul_vector_resize( vec, size, VUL_FALSE, allocExactly );
-	vec->size = oldSize;
+	vec->size = old_size;
 }
 
 void vul_vector_initialize( vul_vector *vec, u32 initialSize, u32 initialReservedSize )
@@ -632,7 +631,7 @@ u32 vul_vector_find_comparator( vul_vector *vec, void *item, s32 ( *comparator )
 	return -1;
 }
 
-void vul_vectorighten( vul_vector *vec )
+void vul_vector_tighten( vul_vector *vec )
 {
 	assert( vec != NULL );
 	vul_vector_resize( vec, vec->size, VUL_TRUE, VUL_TRUE );
@@ -643,3 +642,4 @@ void vul_vectorighten( vul_vector *vec )
 #endif
 
 #endif
+

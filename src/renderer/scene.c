@@ -207,7 +207,6 @@ const sl_entity *sl_scene_get_const_entity( sl_scene *scene, const unsigned int 
 #ifdef SL_DEBUG
 		assert( layer < SL_MAX_LAYERS );
 #endif
-		lret = layer;
 		if( scene->layers[ layer ] ) {
 			vul_foreach( sl_entity, it, last_it, scene->layers[ layer ] ) {
 				if( it->entity_id == id ) {

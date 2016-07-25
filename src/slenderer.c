@@ -449,12 +449,10 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 				cr = ( sl_renderable* )vul_vector_get( sl_renderer_global->renderables, cri );
 				sl_renderable_bind( cr );
 			}
-			// Bind the quad
-			sl_entity_bind( it, &scene->camera_pos, cp );
-			// Render the quad
 #ifdef SL_LEGACY_OPENGL
-			sl_renderer_draw_legacy_instance( cr );
+			sl_renderer_draw_legacy_instance( &scene->camera_pos, cr, it );
 #else
+			sl_entity_bind( it, &scene->camera_pos, cp );
 			sl_renderer_draw_instance( cr );
 #endif
 		}
@@ -521,7 +519,7 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 }
 
 #ifdef SL_LEGACY_OPENGL
-void sl_renderer_draw_legacy_instance( v2 *camera_offset, sl_renderable *rend, sl_entity *quad )
+void sl_renderer_draw_legacy_instance( v2 *camera_offset, sl_renderable *rend, sl_entity *entity )
 {
 	m44 mat;
 	sl_box uvs;
@@ -529,19 +527,23 @@ void sl_renderer_draw_legacy_instance( v2 *camera_offset, sl_renderable *rend, s
 	u32 i;
 	v2 vert, texc;
 
+	assert( rend );
+	assert( camera_offset );
+	assert( entity );
+
 	// Calculate offset into matrix
-	memcpy( &mat, &quad->world_matrix, sizeof( m44 ) );
-	mat.data[ 12 ] -= camera_offset->x;
-	mat.data[ 13 ] -= camera_offset->y;
+	memcpy( &mat, &entity->world_matrix, sizeof( m44 ) );
+	mat.A[ 12 ] -= camera_offset->x;
+	mat.A[ 13 ] -= camera_offset->y;
 
 	// Calculate the uvs; they may be flipped
-	sl_bset( &uvs, &quad->uvs );
-	if( quad->flip_uvs.x != 0.f ) {
+	sl_bset( &uvs, &entity->uvs );
+	if( entity->flip_uvs.x != 0.f ) {
 		tmp = uvs.min_p.x;
 		uvs.min_p.x = uvs.max_p.x;
 		uvs.max_p.x = tmp;
 	}
-	if( quad->flip_uvs.y != 0.f ) {
+	if( entity->flip_uvs.y != 0.f ) {
 		tmp = uvs.min_p.y;
 		uvs.min_p.y = uvs.max_p.y;
 		uvs.max_p.y = tmp;
@@ -549,11 +551,11 @@ void sl_renderer_draw_legacy_instance( v2 *camera_offset, sl_renderable *rend, s
 
 	// Start the draw
 	glBegin( GL_TRIANGLES );
-	for( i = 0u; i < ren->index_count; ++i ) {
+	for( i = 0u; i < rend->index_count; ++i ) {
 		vert.x = mat.A[ 0 ] * rend->vertices[ i ].position.x + mat.A[ 1 ] * rend->vertices[ i ].position.y + mat.A[ 9 ];
 		vert.y = mat.A[ 3 ] * rend->vertices[ i ].position.x + mat.A[ 4 ] * rend->vertices[ i ].position.y + mat.A[ 10 ];
 		glVertex2f( vert.x, vert.y );
-		glColor4f( quad->color[ 0 ], quad->color[ 1 ], quad->color[ 2 ], quad->color[ 3 ] );
+		glColor4f( entity->color[ 0 ], entity->color[ 1 ], entity->color[ 2 ], entity->color[ 3 ] );
 		texc = vsub2( uvs.max_p, uvs.min_p );
 		texc = vmul2( texc, rend->vertices[ i ].texcoords );
 		texc = vadd2( texc, uvs.min_p );
@@ -565,6 +567,7 @@ void sl_renderer_draw_legacy_instance( v2 *camera_offset, sl_renderable *rend, s
 void sl_renderer_draw_instance( sl_renderable *ren )
 {	
 	// Draw the quad
+	assert( ren );
 	glDrawElements( GL_TRIANGLES, ren->index_count, GL_UNSIGNED_SHORT, 0 );
 }
 #endif

@@ -1,7 +1,7 @@
 /*
- * Slenderer - Thomas Martin Schmid, 2014. Public domain¹
+ * Slenderer - Thomas Martin Schmid, 2014. Public domain?
  * 
- * ¹ If public domain is not legally valid in your legal jurisdiction
+ * ? If public domain is not legally valid in your legal jurisdiction
  *   the MIT licence applies (see the LICENCE file)
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -304,6 +304,8 @@ void sl_aurator_load_ogg( sl_aurator *aurator, sl_aurator_clip **clip, char *pat
 				}
 			}
 		}
+		SL_DEALLOC( ( *clip )->stream );
+		( *clip )->stream = str;
 	}
 }
 
