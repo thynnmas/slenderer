@@ -22,6 +22,10 @@
 #define GLFW_INCLUDE_ES2
 #endif
 #include <GLFW/glfw3.h>
+#ifdef VUL_WINDOWS
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#endif
 
 #ifdef SL_DEBUG
 	#include <assert.h>

@@ -67,8 +67,8 @@ int sl_binside( const sl_box *b, const v2 *p )
 	gtx = p->x >= b->min_p.x ? 0xf : 0;
 	gty = p->y >= b->min_p.y ? 0xf : 0;
 	// Is p <= max
-	ltx = p->x <= b->min_p.x ? 0xf : 0;
-	lty = p->y <= b->min_p.y ? 0xf : 0;
+	ltx = p->x <= b->max_p.x ? 0xf : 0;
+	lty = p->y <= b->max_p.y ? 0xf : 0;
 
 	// Test if all components are true
 	return gtx && gty && ltx && lty;

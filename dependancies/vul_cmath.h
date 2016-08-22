@@ -24,8 +24,8 @@
 #include <math.h>
 
 #ifndef VUL_TYPES_H
-typedef float f32;
-typedef double f64;
+#define f32 float
+#define f64 double
 #endif
 typedef size_t word;
 
@@ -238,6 +238,10 @@ DEFINE_S44COMPWISE_OP( mmuls44, * )
 #undef DEFINE_S33COMPWISE_OP
 #undef DEFINE_S44COMPWISE_OP
 
+m22 mcopy2( const m22 *m );
+m33 mcopy3( const m33 *m );
+m44 mcopy4( const m44 *m );
+
 m22 mmul22( const m22 *a, const m22 *b );
 m33 mmul33( const m33 *a, const m33 *b );
 m44 mmul44( const m44 *a, const m44 *b );
@@ -272,7 +276,7 @@ v4 vmulm4( const m44 *m, const v4 v );
 #ifdef _cplusplus
 }
 #endif
-#endif
+#endif // VUL_CMATH_H
 
 #ifdef VUL_DEFINE
 
@@ -620,6 +624,28 @@ DEFINE_S44COMPWISE_OP( mmuls44, * )
 #undef DEFINE_M33COMPWISE_OP
 #undef DEFINE_M44COMPWISE_OP
 
+m22 mcopy2( const m22 *m ) {
+	m22 r;
+	for( u32 i = 0; i < 4; ++i ) {
+		r.A[ i ] = m->A[ i ];
+	}
+	return r;
+}
+m33 mcopy3( const m33 *m ) {
+	m33 r;
+	for( u32 i = 0; i < 9; ++i ) {
+		r.A[ i ] = m->A[ i ];
+	}
+	return r;
+}
+m44 mcopy4( const m44 *m ) {
+	m44 r;
+	for( u32 i = 0; i < 16; ++i ) {
+		r.A[ i ] = m->A[ i ];
+	}
+	return r;
+}
+
 m22 mmul22( const m22 *a, const m22 *b ) {
 	m22 r;
 	r.a00 = a->a00 * b->a00 + a->a10 * b->a01;
@@ -665,17 +691,17 @@ m44 mmul44( const m44 *a, const m44 *b ) {
 m22 mlerp22( const m22 *a, const m22 *b, const f32 t ) {
 	m22 r;
 	f32 t1 = 1.f - t;
-	r.a00 = a->a00 * t + b->a00 * t1;
-	r.a01 = a->a01 * t + b->a01 * t1;
-	r.a10 = a->a10 * t + b->a10 * t1;
-	r.a11 = a->a11 * t + b->a11 * t1;
+	r.a00 = a->a00 * t1 + b->a00 * t;
+	r.a01 = a->a01 * t1 + b->a01 * t;
+	r.a10 = a->a10 * t1 + b->a10 * t;
+	r.a11 = a->a11 * t1 + b->a11 * t;
 	return r;
 }
 m33 mlerp33( const m33 *a, const m33 *b, const f32 t ) {
 	m33 r;
 	f32 t1 = 1.f - t;
 	for( word i = 0; i < 9; ++i ) {
-		r.A[ i ] = a->A[ i ] * t + b->A[ i ] * t1;
+		r.A[ i ] = a->A[ i ] * t1 + b->A[ i ] * t;
 	}
 	return r;
 }
@@ -683,7 +709,7 @@ m44 mlerp44( const m44 *a, const m44 *b, const f32 t ) {
 	m44 r;
 	f32 t1 = 1.f - t;
 	for( word i = 0; i < 16; ++i ) {
-		r.A[ i ] = a->A[ i ] * t + b->A[ i ] * t1;
+		r.A[ i ] = a->A[ i ] * t1 + b->A[ i ] * t;
 	}
 	return r;
 }
@@ -837,4 +863,9 @@ v4 vmulm4( const m44 *m, const v4 v ) {
 }
 #endif
 
-#endif
+#endif // VUL_DEFINE
+
+#ifndef VUL_TYPES_H
+#undef f32
+#undef f64
+#endif // VUL_TYPES_H

@@ -116,8 +116,7 @@ void sl_renderer_destroy( )
 	}
 	vul_vector_destroy( sl_renderer_global->aurators );
 
-	// Destroy portaudio system
-	sl_aurator_finalize_system( );
+	sl_aurator_finalize( );
 #endif
 
 	// Destroy the controller
@@ -183,7 +182,13 @@ sl_scene *sl_renderer_add_scene( u32 win_id, u32 post_program_id )
 #ifndef SL_NO_AUDIO	
 	// If we have sound, create the aurator
 	ar = ( sl_aurator* )vul_vector_add_empty( sl_renderer_global->aurators );
-	sl_aurator_create( ar, s->scene_id, SL_AUDIO_CHANNEL_COUNT, SL_AUDIO_SAMPLE_RATE, SL_AUDIO_FRAME_RATE_GUARANTEE );
+#ifdef VUL_WINDOWS
+	sl_window *w = ( sl_window* )vul_vector_get_const( sl_renderer_global->windows, win_id );
+	HWND win = glfwGetWin32Window( w->handle );
+	sl_aurator_create( ar, s->scene_id, SL_AUDIO_CHANNEL_COUNT, SL_AUDIO_SAMPLE_RATE, win );
+#else
+	sl_aurator_create( ar, s->scene_id, SL_AUDIO_CHANNEL_COUNT, SL_AUDIO_SAMPLE_RATE );
+#endif
 #endif
 
 	// Return the scene
@@ -382,18 +387,6 @@ void sl_renderer_render_scene( unsigned int scene_index, unsigned int window_ind
 	elapsed = now - last;
 	sl_print( 64, "Frame time (simulation): %llu micros\n", elapsed );
 	last = now;
-#endif
-
-#ifndef SL_NO_AUDIO
-	// Update the corresponding audio manager
-	aur = sl_renderer_get_aurator_for_scene( scene_index );
-	sl_aurator_update( aur );
-#ifdef SL_DEBUG
-	now = vul_timer_get_micros( timer );
-	elapsed = now - last;
-	sl_print( 64, "Frame time (audio): %llu micros\n", elapsed );
-	last = now;
-#endif
 #endif
 
 	// Grab the scene and sort it

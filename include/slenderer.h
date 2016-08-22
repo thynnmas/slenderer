@@ -89,7 +89,6 @@ void sl_print( u32 max_length, const char *fmt, ... );
 #include "audio/aurator.h"
 #define SL_AUDIO_CHANNEL_COUNT 2
 #define SL_AUDIO_SAMPLE_RATE 44100
-#define SL_AUDIO_FRAME_RATE_GUARANTEE 60
 #endif
 
 typedef struct {

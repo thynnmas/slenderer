@@ -59,7 +59,6 @@ We supply a way to load Ogg Vorbis files into the system (through stb\_vorbis), 
 
 * [GLFW 3](http://www.glfw.org/) is available from their sire or their [github repository](https://github.com/glfw/glfw).
 * [GLEW](http://glew.sourceforge.net/) is available from their site or likely in your package manager.
-* [Portaudio 1.9](http://portaudio.com/) is available from their site. It was the slimmest audio stream library I found. If anyone know of an even slimmer one, let me know and I might swap it around.
 * stb_image.h and stb_vorbis.h are a single-file image and ogg vorbis handling libraries by Sean Barrett. All hail the [stb libraries](https://github.com/nothings/stb)!
 * vul_* are a subset of my own header-only libraries. These are previously unrealesed because they have not
   seen the required years of service to make sure they actually work. Using them in this renderer will probably
@@ -78,7 +77,7 @@ build you might want to define VUL\_DEBUG to take advantage of additional checks
 Define SL\_OPENGL\_ES to build for an OpenGL ES 2.0 target instead of the stock OpenGL 3.2 Core.
 
 ## No audio
-If no audio is needed, define SL\_NO\_AUDIO. The dependancy on portaudio neatly goes away if this is defined, and makes this useful for when no audio is needed (non-game applications).
+If no audio is needed, define SL\_NO\_AUDIO. 
 
 # Notes
 

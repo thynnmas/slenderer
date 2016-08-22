@@ -1,0 +1,43 @@
+BIT = i686
+CC = $(BIT)-w64-mingw32-cc
+AR = $(BIT)-w64-mingw32-ar
+SRC_PTH = ./src
+INC_PTH = -I. -I./include/ -I./dependancies/ -I/usr/$(BIT)-w64-mingw32/include
+BLD_PTH = ./obj/
+LIB_PTH = ./lib
+LIB_NAME = slenderer.lib_x86
+CFLAGS = -std=gnu99 -Wall -Wno-unused-function -Wno-unused-variable -fno-strict-aliasing -g -DVUL_VECTOR_C89_ITERATORS $(INC_PTH) -DVUL_WINDOWS -DVUL_TIMER_OLD_WINDOWS -DGLEW_STATIC
+SHELL = /bin/bash
+
+SOURCES = $(shell find $(SRC_PTH)/ -name '*.c')
+OBJECTS = $(SOURCES:$(SRC_PTH)/%.c=%)
+OBJECT_PATHS = $(SOURCES:$(SRC_PTH)/%.c=$(BLD_PTH)%.o)
+
+.PHONE: pre
+	@echo "Beginning build"
+	$(MAKE) all --no-pring-directory
+
+.PHONY: dirs
+dirs:
+	@echo "Creating directories"
+	@mkdir -p $(dir $(OBJECT_PATHS))
+	@mkdir -p $(LIB_PTH)
+
+.PHONY: clean
+clean:
+	@echo "Deleting directories"
+	@$(RM) -r $(BLD_PTH)
+	@$(RM) -r $(LIB_PTH)/$(LIB_NAME)
+
+all: dirs $(LIB_PTH)/$(LIB_NAME)
+ 
+$(LIB_PTH)/$(LIB_NAME): $(OBJECTS)
+	$(AR) rcs $(LIB_PTH)/lib$(LIB_NAME).a $(OBJECT_PATHS)
+
+$(OBJECTS): $(SOURCES)
+	@echo "Compiling: $(SRC_PTH)/$@.c to $(BLD_PTH)$@.o"
+	$(CMD_PREFIX)$(CC) $(CFLAGS) -c $(SRC_PTH)/$@.c -o $(BLD_PTH)$@.o
+
+$(SOURCES):
+	@echo "Found $@"
+
