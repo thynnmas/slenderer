@@ -81,7 +81,7 @@ If no audio is needed, define SL\_NO\_AUDIO.
 
 # Notes
 
-* The example gives a good idea of how the engine is used, but has not been tested since the *massive* changes during Ludum Dare, so you're probably better off looking at the code for that if you really want to dive in. Source+binary of that is found [here](http://www.schmidx2.com/Code/LD30.zip).
+* The game *Wormings*, written for Ludum Dare 30 is probably the most complete example available, and is hosted [here](https://villainslair.eu/repos/thynnmas/wormings).
 
 # Future plans
 
