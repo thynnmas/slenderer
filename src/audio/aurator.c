@@ -38,18 +38,14 @@ void sl_aurator_create( sl_aurator *ret, u32 parent_scene, u32 channel_count, u3
 
 	if( !sl_aurator_device ) {
 		sl_aurator_device = ( vul_audio_device* )SL_ALLOC( sizeof( vul_audio_device ) );
-#ifdef VUL_WINDOWS
-		err = vul_audio_init( sl_aurator_device, win,
-									 VUL_AUDIO_MODE_PLAYBACK,
-									 channel_count, sample_rate, 0, 0 );
-#elif VUL_OSX
+#if defined( VUL_WINDOWS ) || defined( VUL_OSX )
 		err = vul_audio_init( sl_aurator_device, 
 									 VUL_AUDIO_MODE_PLAYBACK,
-									 channel_count, sample_rate, 0, 0 );
+									 channel_count, sample_rate, 0x1000, 0, 0 );
 #elif VUL_LINUX
-		err = vul_audio_init( sl_aurator_device, NULL, NULL,
+		err = vul_audio_init( sl_aurator_device, NULL, NULL, "Wormings",
 									 VUL_AUDIO_MODE_PLAYBACK,
-									 channel_count, sample_rate, 0, 0 );
+									 channel_count, sample_rate, 0x1000, 0, 0 );
 #endif
 		if( err != VUL_OK ) {
 			assert( SL_FALSE );
