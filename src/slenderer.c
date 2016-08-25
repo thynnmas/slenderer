@@ -233,6 +233,7 @@ void sl_renderer_finalize_scene( unsigned int scene_id )
 	vul_foreach( sl_aurator, ari, aril, sl_renderer_global->aurators )
 	{
 		if( ari->scene_id == scene_id ) {
+         sl_aurator_remove_all( ari );
 			sl_aurator_destroy( ari );
 			vul_vector_remove_cascade( sl_renderer_global->aurators, i );
 			break;

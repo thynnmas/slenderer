@@ -100,6 +100,10 @@ void sl_aurator_play( sl_aurator *aurator, u64 clip_id, b32 looping, b32 keep );
 void sl_aurator_stop( sl_aurator *aurator, u64 clip_id, b32 reset );
 
 /*
+ * Removes all clips in this aurator.
+ */
+void sl_aurator_remove_all( sl_aurator *aurator );
+/*
  * Halts playback of all clips in this aurator.
  */
 void sl_aurator_pause_all( sl_aurator *aurator, b32 reset );

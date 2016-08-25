@@ -84,6 +84,17 @@ void sl_aurator_stop( sl_aurator *aurator, u64 clip_id, b32 reset )
    vul_audio_clip_pause( sl_aurator_device, clip_id, reset );
 }
 
+void sl_aurator_remove_all( sl_aurator *aurator )
+{
+   u64 i;
+   if( !aurator ) {
+      return;
+   }
+   for( i = 0; i < aurator->clip_count; ++i ) {
+      vul_audio_clip_remove( sl_aurator_device, aurator->clips[ i ] );
+   }
+}
+
 void sl_aurator_pause_all( sl_aurator *aurator, b32 reset )
 {
    u64 i;
